@@ -19,6 +19,10 @@ export const Navbar: React.FC = () => {
     navigate("/user/login");
   }
 
+  function handleRegister() {
+    navigate("/user/register");
+  }
+
   return (
     <nav className="bg-white py-4">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -48,7 +52,9 @@ export const Navbar: React.FC = () => {
             <Button variant="primary" onClick={handleLogin}>
               Login
             </Button>
-            <Button variant="secondary">Register</Button>
+            <Button variant="secondary" onClick={handleRegister}>
+              Register
+            </Button>
           </div>
 
           {/* Mobile Toggle */}
@@ -70,8 +76,12 @@ export const Navbar: React.FC = () => {
               </a>
             ))}
             <div className="flex flex-col gap-2 pt-3">
-              <Button variant="primary">Login</Button>
-              <Button variant="secondary">Register</Button>
+              <Button variant="primary" onClick={handleLogin}>
+                Login
+              </Button>
+              <Button variant="secondary" onClick={handleRegister}>
+                Register
+              </Button>
             </div>
           </div>
         )}

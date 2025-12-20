@@ -1,254 +1,55 @@
-import React, { useState } from "react";
-import {
-  Mail,
-  Lock,
-  Eye,
-  EyeOff,
-  Shield,
-  Calendar,
-  Users,
-  ArrowRight,
-} from "lucide-react";
+import AuthLoginTemplate from "../../../components/Auth/AuthLoginTemplate";
 
-// ==================== TYPES ====================
-interface LoginFormData {
-  email: string;
-  password: string;
-}
+import type { LoginConfig } from "../../../types/auth.login";
 
-// ==================== LOGIN PAGE ====================
-const LoginPageUser: React.FC = () => {
-  const [formData, setFormData] = useState<LoginFormData>({
-    email: "",
-    password: "",
-  });
-  const [showPassword, setShowPassword] = useState(false);
+import { Shield, Calendar, Users } from "lucide-react";
 
-  const handleInputChange = (field: keyof LoginFormData, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const handleLogin = () => {
-    console.log("Login:", formData);
-    // Add login logic here
-  };
-
-  const handleGoogleLogin = () => {
-    console.log("Google login");
-    // Add Google OAuth logic here
-  };
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-gray-100 flex items-center justify-center p-4">
-      <div className="w-full max-w-5xl bg-white rounded-2xl shadow-2xl overflow-hidden">
-        <div className="grid md:grid-cols-2">
-          {/* Left Side - Branding */}
-          <div className="bg-gradient-to-br from-blue-100 to-blue-50 p-8 lg:p-12 flex flex-col justify-between">
-            {/* Logo */}
-            <div className="flex items-center gap-2 mb-8">
-              <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
-                <Shield className="text-white" size={24} />
-              </div>
-              <span className="text-xl font-bold text-gray-800">
-                HealthCare
-              </span>
-            </div>
-
-            {/* Illustration */}
-            <div className="bg-white rounded-xl p-8 shadow-lg mb-8">
-              <div className="flex items-center justify-center h-48">
-                <div className="text-center">
-                  <div className="w-32 h-32 mx-auto bg-gradient-to-br from-blue-200 to-blue-300 rounded-full mb-4 flex items-center justify-center">
-                    <Users size={48} className="text-blue-600" />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Info */}
-            <div className="text-center">
-              <h2 className="text-2xl font-bold text-gray-800 mb-3">
-                Your Health, Our Priority
-              </h2>
-              <p className="text-sm text-gray-600 mb-6">
-                Access your medical records, prescriptions, lab results, and
-                appointments anytime, anywhere with complete security.
-              </p>
-
-              {/* Features */}
-              <div className="grid grid-cols-3 gap-4">
-                <div className="text-center">
-                  <div className="w-12 h-12 bg-blue-100 rounded-full mx-auto mb-2 flex items-center justify-center">
-                    <Shield className="text-blue-600" size={20} />
-                  </div>
-                  <p className="text-xs text-gray-600">Secure</p>
-                </div>
-                <div className="text-center">
-                  <div className="w-12 h-12 bg-blue-100 rounded-full mx-auto mb-2 flex items-center justify-center">
-                    <Calendar className="text-blue-600" size={20} />
-                  </div>
-                  <p className="text-xs text-gray-600">24/7 Access</p>
-                </div>
-                <div className="text-center">
-                  <div className="w-12 h-12 bg-blue-100 rounded-full mx-auto mb-2 flex items-center justify-center">
-                    <Users className="text-blue-600" size={20} />
-                  </div>
-                  <p className="text-xs text-gray-600">Trusted</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Right Side - Login Form */}
-          <div className="p-8 lg:p-12">
-            <div className="max-w-md mx-auto">
-              {/* Header */}
-              <div className="mb-8">
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                  Patient Login
-                </h1>
-                <p className="text-sm text-gray-600">
-                  Access your medical records securely
-                </p>
-              </div>
-
-              {/* Form */}
-              <div className="space-y-5">
-                {/* Email Input */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Email or Mobile Number
-                  </label>
-                  <div className="relative">
-                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-                      <Mail size={18} />
-                    </div>
-                    <input
-                      type="text"
-                      placeholder="Enter your email or mobile"
-                      value={formData.email}
-                      onChange={(e) =>
-                        handleInputChange("email", e.target.value)
-                      }
-                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition"
-                    />
-                  </div>
-                </div>
-
-                {/* Password Input */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Password
-                  </label>
-                  <div className="relative">
-                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-                      <Lock size={18} />
-                    </div>
-                    <input
-                      type={showPassword ? "text" : "password"}
-                      placeholder="Enter your password"
-                      value={formData.password}
-                      onChange={(e) =>
-                        handleInputChange("password", e.target.value)
-                      }
-                      className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition"
-                    />
-                    <button
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                    >
-                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                    </button>
-                  </div>
-                </div>
-
-                {/* Forgot Password */}
-                <div className="text-right">
-                  <a
-                    href="#"
-                    className="text-sm text-blue-600 hover:text-blue-700 font-medium"
-                  >
-                    Forgot Password?
-                  </a>
-                </div>
-
-                {/* Login Button */}
-                <button
-                  onClick={handleLogin}
-                  className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"
-                >
-                  Login
-                  <ArrowRight size={18} />
-                </button>
-
-                {/* Divider */}
-                <div className="relative my-6">
-                  <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-gray-300"></div>
-                  </div>
-                  <div className="relative flex justify-center text-sm">
-                    <span className="px-4 bg-white text-gray-500">
-                      or continue with
-                    </span>
-                  </div>
-                </div>
-
-                {/* Google Login */}
-                <button
-                  onClick={handleGoogleLogin}
-                  className="w-full border border-gray-300 py-3 rounded-lg font-medium hover:bg-gray-50 transition flex items-center justify-center gap-2"
-                >
-                  <svg className="w-5 h-5" viewBox="0 0 24 24">
-                    <path
-                      fill="#4285F4"
-                      d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                    />
-                    <path
-                      fill="#34A853"
-                      d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                    />
-                    <path
-                      fill="#FBBC05"
-                      d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                    />
-                    <path
-                      fill="#EA4335"
-                      d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                    />
-                  </svg>
-                  Continue with Google
-                </button>
-
-                {/* Sign Up Link */}
-                <div className="text-center mt-6">
-                  <p className="text-sm text-gray-600">
-                    New patient?{" "}
-                    <a
-                      href="#"
-                      className="text-blue-600 hover:text-blue-700 font-medium"
-                    >
-                      Create an account
-                    </a>
-                  </p>
-                </div>
-
-                {/* Footer Links */}
-                <div className="flex justify-center gap-4 text-xs text-gray-500 mt-6">
-                  <a href="#" className="hover:text-gray-700">
-                    Terms of Service
-                  </a>
-                  <span>•</span>
-                  <a href="#" className="hover:text-gray-700">
-                    Privacy Policy
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+const userLoginConfig: LoginConfig = {
+  role: "user",
+  title: "Patient Login",
+  subtitle: "Access your medical records securely",
+  brandingTitle: "Your Health, Our Priority",
+  brandingDescription:
+    "Access your medical records, prescriptions, lab results, and appointments anytime, anywhere with complete security.",
+  illustration: (
+    <div className="w-32 h-32 mx-auto bg-gradient-to-br from-blue-200 to-blue-300 rounded-full flex items-center justify-center">
+      <Users size={48} className="text-blue-600" />
     </div>
+  ),
+  features: [
+    { icon: <Shield className="text-blue-600" size={20} />, label: "Secure" },
+    {
+      icon: <Calendar className="text-blue-600" size={20} />,
+      label: "24/7 Access",
+    },
+    { icon: <Users className="text-blue-600" size={20} />, label: "Trusted" },
+  ],
+  logoIcon: <Shield className="text-white" size={24} />,
+  brandName: "HealthCare",
+  showGoogleLogin: true,
+  showSignUp: true,
+  bgGradient: "bg-gradient-to-br from-blue-100 to-blue-50",
+  iconBg: "bg-blue-500",
+  buttonBg: "bg-blue-600",
+  buttonHover: "hover:bg-blue-700",
+  textColor: "text-blue-600 hover:text-blue-700",
+  focusBorder: "focus:border-blue-500",
+  focusRing: "focus:ring-2 focus:ring-blue-100",
+};
+
+const UserLoginPage = () => {
+  function handleLogin() {
+    console.log("patient is login ");
+  }
+  return (
+    <AuthLoginTemplate
+      config={userLoginConfig}
+      onLogin={handleLogin}
+      onGoogleLogin={() => console.log("Google login")}
+      onForgotPassword={() => console.log("Forgot password")}
+      onSignUp={() => console.log("Sign up")}
+    />
   );
 };
 
-export default LoginPageUser;
+export default UserLoginPage;
