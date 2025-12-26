@@ -1,6 +1,6 @@
 import { Settings, Shield, Users } from "lucide-react";
 import type { LoginConfig } from "../../../types/auth.login";
-import AuthLoginTemplate from "../../../components/Auth/AuthLoginTemplate";
+import AuthLoginTemplate from "../../../components/ReuseableComponets/Auth/AuthLoginTemplate";
 
 const superAdminLoginConfig: LoginConfig = {
   role: "superadmin",

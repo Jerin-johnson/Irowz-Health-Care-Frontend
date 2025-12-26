@@ -1,6 +1,6 @@
 import { Calendar, Shield, UserCircle, Users } from "lucide-react";
 import type { LoginConfig } from "../../../types/auth.login";
-import AuthLoginTemplate from "../../../components/Auth/AuthLoginTemplate";
+import AuthLoginTemplate from "../../../components/ReuseableComponets/Auth/AuthLoginTemplate";
 
 const adminLoginConfig: LoginConfig = {
   role: "admin",
@@ -43,13 +43,15 @@ const HospitalAdminLoginPage = () => {
     console.log("patient is login ");
   }
   return (
-    <AuthLoginTemplate
-      config={adminLoginConfig}
-      onLogin={handleLogin}
-      onGoogleLogin={() => console.log("Google login")}
-      onForgotPassword={() => console.log("Forgot password")}
-      onSignUp={() => console.log("Sign up")}
-    />
+    <div>
+      <AuthLoginTemplate
+        config={adminLoginConfig}
+        onLogin={handleLogin}
+        onGoogleLogin={() => console.log("Google login")}
+        onForgotPassword={() => console.log("Forgot password")}
+        onSignUp={() => console.log("Sign up")}
+      />
+    </div>
   );
 };
 

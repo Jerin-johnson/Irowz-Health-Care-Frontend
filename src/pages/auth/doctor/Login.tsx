@@ -1,4 +1,4 @@
-import AuthLoginTemplate from "../../../components/Auth/AuthLoginTemplate";
+import AuthLoginTemplate from "../../../components/ReuseableComponets/Auth/AuthLoginTemplate";
 
 import type { LoginConfig } from "../../../types/auth.login";
 

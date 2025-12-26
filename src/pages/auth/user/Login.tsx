@@ -1,4 +1,7 @@
-import AuthLoginTemplate from "../../../components/Auth/AuthLoginTemplate";
+import { useNavigate } from "react-router-dom";
+import AuthLoginTemplate from "../../../components/ReuseableComponets/Auth/AuthLoginTemplate";
+import { useAppDispatch } from "../../../store/hooks";
+import { loginThunk } from "../../../store/slice/auth.slice";
 
 import type { LoginConfig } from "../../../types/auth.login";
 
@@ -26,7 +29,7 @@ const userLoginConfig: LoginConfig = {
   ],
   logoIcon: <Shield className="text-white" size={24} />,
   brandName: "HealthCare",
-  showGoogleLogin: true,
+  showGoogleLogin: false,
   showSignUp: true,
   bgGradient: "bg-gradient-to-br from-blue-100 to-blue-50",
   iconBg: "bg-blue-500",
@@ -38,8 +41,17 @@ const userLoginConfig: LoginConfig = {
 };
 
 const UserLoginPage = () => {
-  function handleLogin() {
-    console.log("patient is login ");
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  async function handleLogin({
+    email,
+    password,
+  }: {
+    email: string;
+    password: string;
+  }) {
+    await dispatch(loginThunk({ userEmail: email, password }));
+    navigate("/");
   }
   return (
     <AuthLoginTemplate

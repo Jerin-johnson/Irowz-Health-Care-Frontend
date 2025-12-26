@@ -1,46 +1,40 @@
 import React, { useState } from "react";
 import { User, Mail, Phone, Lock, Eye, EyeOff, Heart } from "lucide-react";
-import { Link } from "react-router-dom";
-
-interface SignupFormData {
-  fullName: string;
-  email: string;
-  mobile: string;
-  password: string;
-  confirmPassword: string;
-  agreedToTerms: boolean;
-}
+import { Link, useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  userSignupSchema,
+  type UserSignupFormData,
+} from "../../../validators/userSignup.schema";
+import { signupUserThunk } from "../../../store/slice/auth.slice";
+import { useDispatch, useSelector } from "react-redux";
+import type { AppDispatch } from "../../../store";
 
 const UserSignupPage: React.FC = () => {
-  const [formData, setFormData] = useState<SignupFormData>({
-    fullName: "",
-    email: "",
-    mobile: "",
-    password: "",
-    confirmPassword: "",
-    agreedToTerms: false,
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<UserSignupFormData>({
+    resolver: zodResolver(userSignupSchema),
   });
+
+  const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate();
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const handleInputChange = (
-    field: keyof SignupFormData,
-    value: string | boolean
-  ) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-  };
+  const { error } = useSelector((state) => state.auth);
 
-  const handleSignup = () => {
-    if (!formData.agreedToTerms) {
-      alert("Please agree to the Terms of Service and Privacy Policy");
-      return;
+  const handleSignup = async (data: UserSignupFormData) => {
+    console.log("Signup:", data);
+    const result = await dispatch(signupUserThunk(data));
+
+    if (signupUserThunk.fulfilled.match(result)) {
+      navigate("/verify-otp");
     }
-    if (formData.password !== formData.confirmPassword) {
-      alert("Passwords do not match");
-      return;
-    }
-    console.log("Signup:", formData);
   };
 
   return (
@@ -103,8 +97,18 @@ const UserSignupPage: React.FC = () => {
                 </p>
               </div>
 
+              {error && (
+                <div className="bg-red-50 text-red-700 border border-red-200 p-3 rounded-md mb-4">
+                  {error}
+                </div>
+              )}
+
               {/* Form */}
-              <div className="space-y-4">
+              <form
+                className="space-y-4"
+                onSubmit={handleSubmit(handleSignup)}
+                noValidate
+              >
                 {/* Full Name */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -117,13 +121,15 @@ const UserSignupPage: React.FC = () => {
                     <input
                       type="text"
                       placeholder="Enter your full name"
-                      value={formData.fullName}
-                      onChange={(e) =>
-                        handleInputChange("fullName", e.target.value)
-                      }
+                      {...register("fullName")}
                       className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition"
                     />
                   </div>
+                  {errors.fullName && (
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors.fullName.message}
+                    </p>
+                  )}
                 </div>
 
                 {/* Email */}
@@ -138,13 +144,15 @@ const UserSignupPage: React.FC = () => {
                     <input
                       type="email"
                       placeholder="Enter your email"
-                      value={formData.email}
-                      onChange={(e) =>
-                        handleInputChange("email", e.target.value)
-                      }
+                      {...register("email")}
                       className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition"
                     />
                   </div>
+                  {errors.email && (
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors.email.message}
+                    </p>
+                  )}
                 </div>
 
                 {/* Mobile Number */}
@@ -159,13 +167,15 @@ const UserSignupPage: React.FC = () => {
                     <input
                       type="tel"
                       placeholder="Enter your mobile number"
-                      value={formData.mobile}
-                      onChange={(e) =>
-                        handleInputChange("mobile", e.target.value)
-                      }
+                      {...register("mobile")}
                       className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition"
                     />
                   </div>
+                  {errors.mobile && (
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors.mobile.message}
+                    </p>
+                  )}
                 </div>
 
                 {/* Password */}
@@ -180,13 +190,11 @@ const UserSignupPage: React.FC = () => {
                     <input
                       type={showPassword ? "text" : "password"}
                       placeholder="Create a strong password"
-                      value={formData.password}
-                      onChange={(e) =>
-                        handleInputChange("password", e.target.value)
-                      }
+                      {...register("password")}
                       className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition"
                     />
                     <button
+                      type="button"
                       onClick={() => setShowPassword(!showPassword)}
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                     >
@@ -207,13 +215,11 @@ const UserSignupPage: React.FC = () => {
                     <input
                       type={showConfirmPassword ? "text" : "password"}
                       placeholder="Confirm your password"
-                      value={formData.confirmPassword}
-                      onChange={(e) =>
-                        handleInputChange("confirmPassword", e.target.value)
-                      }
+                      {...register("confirmPassword")}
                       className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition"
                     />
                     <button
+                      type="button"
                       onClick={() =>
                         setShowConfirmPassword(!showConfirmPassword)
                       }
@@ -226,6 +232,11 @@ const UserSignupPage: React.FC = () => {
                       )}
                     </button>
                   </div>
+                  {errors.confirmPassword && (
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors.confirmPassword.message}
+                    </p>
+                  )}
                 </div>
 
                 {/* Terms Checkbox */}
@@ -233,10 +244,7 @@ const UserSignupPage: React.FC = () => {
                   <input
                     type="checkbox"
                     id="terms"
-                    checked={formData.agreedToTerms}
-                    onChange={(e) =>
-                      handleInputChange("agreedToTerms", e.target.checked)
-                    }
+                    {...register("agreeToTerms")}
                     className="mt-1 w-4 h-4 text-blue-600 border-gray-300 rounded"
                   />
                   <label htmlFor="terms" className="text-sm text-gray-600">
@@ -250,10 +258,15 @@ const UserSignupPage: React.FC = () => {
                     </a>
                   </label>
                 </div>
+                {errors.agreeToTerms && (
+                  <p className="text-red-500 text-xs">
+                    {errors.agreeToTerms.message}
+                  </p>
+                )}
 
                 {/* Signup Button */}
                 <button
-                  onClick={handleSignup}
+                  type="submit"
                   className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition shadow-lg hover:shadow-xl mt-2"
                 >
                   Create Account
@@ -271,7 +284,7 @@ const UserSignupPage: React.FC = () => {
                     </Link>
                   </p>
                 </div>
-              </div>
+              </form>
             </div>
           </div>
         </div>

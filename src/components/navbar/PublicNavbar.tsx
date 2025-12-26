@@ -4,9 +4,14 @@ import { Menu, X, ChevronDown } from "lucide-react";
 import Button from "../common/Button";
 import { useNavigate } from "react-router-dom";
 
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import { logoutThunk } from "../../store/slice/auth.slice";
+
 export const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
+  const { isAuthenticated, name } = useAppSelector((state) => state.auth);
+  const dispatch = useAppDispatch();
 
   const navItems: NavItem[] = [
     { label: "Home", href: "#" },
@@ -21,6 +26,11 @@ export const Navbar: React.FC = () => {
 
   function handleRegister() {
     navigate("/user/register");
+  }
+
+  async function handleLogout() {
+    await dispatch(logoutThunk());
+    navigate("/user/login");
   }
 
   return (
@@ -47,15 +57,23 @@ export const Navbar: React.FC = () => {
             ))}
           </div>
 
+          {name && <Button variant="primary">{name}</Button>}
+
           {/* Auth Buttons */}
-          <div className="hidden lg:flex items-center gap-3">
-            <Button variant="primary" onClick={handleLogin}>
-              Login
+          {isAuthenticated ? (
+            <Button variant="secondary" onClick={handleLogout}>
+              Logout
             </Button>
-            <Button variant="secondary" onClick={handleRegister}>
-              Register
-            </Button>
-          </div>
+          ) : (
+            <div className="hidden lg:flex items-center gap-3">
+              <Button variant="primary" onClick={handleLogin}>
+                Login
+              </Button>
+              <Button variant="secondary" onClick={handleRegister}>
+                Register
+              </Button>
+            </div>
+          )}
 
           {/* Mobile Toggle */}
           <button onClick={() => setIsOpen(!isOpen)} className="lg:hidden">

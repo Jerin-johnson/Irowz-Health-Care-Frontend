@@ -2,9 +2,11 @@ import { useState } from "react";
 import type {
   LoginComponentProps,
   LoginFormData,
-} from "../../types/auth.login";
+} from "../../../types/auth.login";
 import { Mail, Lock, Eye, EyeOff, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { useAppSelector } from "../../../store/hooks";
 
 const AuthLoginTemplate: React.FC<LoginComponentProps> = ({
   config,
@@ -18,12 +20,26 @@ const AuthLoginTemplate: React.FC<LoginComponentProps> = ({
     password: "",
   });
   const [showPassword, setShowPassword] = useState(false);
+  const [localerror, setError] = useState<string | null>(null);
+  const error = useAppSelector((state) => state.auth.error);
 
   const handleInputChange = (field: keyof LoginFormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
+  const navigate = useNavigate();
+
   const handleLogin = () => {
+    setError("");
+    if (!formData.email || !formData.password) {
+      setError("The field should not be empty");
+      return;
+    }
+
+    if (!formData.email.includes("@gmail.com")) {
+      setError("invalid email");
+      return;
+    }
     if (onLogin) {
       onLogin(formData);
     }
@@ -89,6 +105,16 @@ const AuthLoginTemplate: React.FC<LoginComponentProps> = ({
                 </h1>
                 <p className="text-sm text-gray-600">{config.subtitle}</p>
               </div>
+
+              {localerror && (
+                <h1 className="text-sm font-bold text-red-500 mb-2">
+                  {localerror}
+                </h1>
+              )}
+
+              {error && (
+                <h1 className="text-sm font-bold text-red-500 mb-2">{error}</h1>
+              )}
 
               {/* Form */}
               <div className="space-y-5">
@@ -158,6 +184,19 @@ const AuthLoginTemplate: React.FC<LoginComponentProps> = ({
                   Login
                   <ArrowRight size={18} />
                 </button>
+
+                <h2>
+                  {config.title === "Hospital Admin Login" ? (
+                    <button
+                      className="text-blue-600"
+                      onClick={() => navigate("/hospital/verification")}
+                    >
+                      Register hospital!
+                    </button>
+                  ) : (
+                    ""
+                  )}
+                </h2>
 
                 {/* Google Login */}
                 {config.showGoogleLogin && (
