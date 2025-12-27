@@ -1,25 +1,32 @@
-// import { Outlet, useNavigate } from "react-router-dom";
-// import Sidebar from "../components/sidebar/Sidebar";
+import { Outlet, useNavigate } from "react-router-dom";
+import Sidebar from "../components/ReuseableComponets/sidebar/sidebar";
+import { useAppDispatch, useAppSelector } from "../store/hooks";
+import { logoutThunk } from "../store/slice/Auth/auth.thunks";
 
-// const SuperAdminLayout = () => {
-//   const navigate = useNavigate();
+const SuperAdminLayout = () => {
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
 
-//   return (
-//     <div className="flex h-screen">
-//       <Sidebar
-//         userType="superadmin"
-//         userName="Admin Master"
-//         userRole="System Administrator"
-//         badges={{ verification: 8, hospitals: 3 }}
-//         onItemClick={(_, path) => navigate(path)}
-//         onLogout={() => navigate("/superadmin/login")}
-//       />
+  const { role, name } = useAppSelector((state) => state.auth);
 
-//       <main className="flex-1 overflow-auto bg-gray-50">
-//         <Outlet />
-//       </main>
-//     </div>
-//   );
-// };
+  return (
+    <div className="flex h-screen">
+      <Sidebar
+        userType="superadmin"
+        userName={name as string}
+        userRole={role as string}
+        onItemClick={(_, path) => navigate(path)}
+        onLogout={async () => {
+          await dispatch(logoutThunk());
+          navigate("/superadmin/login");
+        }}
+      />
 
-// export default SuperAdminLayout;
+      <main className="flex-1 overflow-auto bg-gray-50">
+        <Outlet />
+      </main>
+    </div>
+  );
+};
+
+export default SuperAdminLayout;

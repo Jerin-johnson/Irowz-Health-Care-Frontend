@@ -42,7 +42,7 @@ interface SidebarConfig {
 
 interface SidebarProps {
   userType: "doctor" | "admin" | "superadmin";
-  userName: string;
+  userName: string | null;
   userRole: string;
   userAvatar?: string;
   activeItem?: string;
@@ -183,55 +183,55 @@ const superAdminConfig: SidebarConfig = {
       id: "dashboard",
       label: "Dashboard",
       icon: <LayoutDashboard className="w-5 h-5" />,
-      path: "/superadmin/dashboard",
+      path: "/super-admin/dashboard",
     },
     {
       id: "hospitals",
       label: "Manage Hospitals",
       icon: <Hospital className="w-5 h-5" />,
-      path: "/superadmin/hospitals",
+      path: "/super-admin/hospitals",
     },
     {
       id: "verification",
       label: "Verification Requests",
       icon: <ClipboardList className="w-5 h-5" />,
-      path: "/superadmin/verification",
+      path: "/super-admin/verification",
     },
     {
       id: "admins",
       label: "Hospital Admins",
       icon: <UserCog className="w-5 h-5" />,
-      path: "/superadmin/admins",
+      path: "/super-admin/admins",
     },
     {
       id: "doctors",
       label: "All Doctors",
       icon: <Stethoscope className="w-5 h-5" />,
-      path: "/superadmin/doctors",
+      path: "/super-admin/doctors",
     },
     {
       id: "analytics",
       label: "System Analytics",
       icon: <Activity className="w-5 h-5" />,
-      path: "/superadmin/analytics",
+      path: "/super-admin/analytics",
     },
     {
       id: "database",
       label: "Database Management",
       icon: <Database className="w-5 h-5" />,
-      path: "/superadmin/database",
+      path: "/super-admin/database",
     },
     {
       id: "users",
       label: "User Management",
       icon: <UserPlus className="w-5 h-5" />,
-      path: "/superadmin/users",
+      path: "/super-admin/users",
     },
     {
       id: "settings",
       label: "System Settings",
       icon: <Settings className="w-5 h-5" />,
-      path: "/superadmin/settings",
+      path: "/super-admin/settings",
     },
   ],
 };

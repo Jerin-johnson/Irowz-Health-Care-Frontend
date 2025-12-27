@@ -1,6 +1,13 @@
 import { Settings, Shield, Users } from "lucide-react";
 import type { LoginConfig } from "../../../types/auth.login";
 import AuthLoginTemplate from "../../../components/ReuseableComponets/Auth/AuthLoginTemplate";
+import { useAppDispatch } from "../../../store/hooks";
+import { useNavigate } from "react-router-dom";
+import UserRoles from "../../../constants/UserRole";
+import {
+  loginThunk,
+  type UserRoleExluce,
+} from "../../../store/slice/Auth/auth.thunks";
 
 const superAdminLoginConfig: LoginConfig = {
   role: "superadmin",
@@ -39,8 +46,30 @@ const superAdminLoginConfig: LoginConfig = {
 };
 
 const SuperAdminLoginPage = () => {
-  function handleLogin() {
-    console.log("patient is login ");
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  async function handleLogin({
+    email,
+    password,
+  }: {
+    email: string;
+    password: string;
+  }) {
+    try {
+      const role = UserRoles.SUPER_ADMIN;
+
+      await dispatch(
+        loginThunk({
+          userEmail: email,
+          password,
+          UserRole: role as UserRoleExluce,
+        })
+      ).unwrap();
+
+      navigate("/super-admin/dashboard");
+    } catch (error) {
+      console.error("Login failed:", error);
+    }
   }
   return (
     <AuthLoginTemplate

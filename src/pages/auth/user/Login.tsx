@@ -1,11 +1,15 @@
 import { useNavigate } from "react-router-dom";
 import AuthLoginTemplate from "../../../components/ReuseableComponets/Auth/AuthLoginTemplate";
 import { useAppDispatch } from "../../../store/hooks";
-import { loginThunk } from "../../../store/slice/auth.slice";
 
 import type { LoginConfig } from "../../../types/auth.login";
 
 import { Shield, Calendar, Users } from "lucide-react";
+import UserRoles from "../../../constants/UserRole";
+import {
+  loginThunk,
+  type UserRoleExluce,
+} from "../../../store/slice/Auth/auth.thunks";
 
 const userLoginConfig: LoginConfig = {
   role: "user",
@@ -50,9 +54,21 @@ const UserLoginPage = () => {
     email: string;
     password: string;
   }) {
-    await dispatch(loginThunk({ userEmail: email, password }));
-    navigate("/");
+    const role = UserRoles.PATIENT;
+    try {
+      await dispatch(
+        loginThunk({
+          userEmail: email,
+          password,
+          UserRole: role as UserRoleExluce,
+        })
+      ).unwrap();
+      navigate("/");
+    } catch (error) {
+      console.log(error);
+    }
   }
+
   return (
     <AuthLoginTemplate
       config={userLoginConfig}

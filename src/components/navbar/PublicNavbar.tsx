@@ -5,7 +5,7 @@ import Button from "../common/Button";
 import { useNavigate } from "react-router-dom";
 
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { logoutThunk } from "../../store/slice/auth.slice";
+import { logoutThunk } from "../../store/slice/Auth/auth.thunks";
 
 export const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);

@@ -8,7 +8,7 @@ export const hospitalVerificationSchema = z.object({
   state: z.string().min(1, "State is required"),
   officialEmail: z.string().email("Invalid email"),
   password: z.string().min(8, "Password must be at least 8 characters"),
-  phoneNumber: z.string().min(10, "Phone number is invalid"),
+  phone: z.string().min(10, "Phone number is invalid"),
   pincode: z.string().length(6, "Pincode must be 6 digits"),
   licenseDocument: z.instanceof(File, {
     message: "License document is required",

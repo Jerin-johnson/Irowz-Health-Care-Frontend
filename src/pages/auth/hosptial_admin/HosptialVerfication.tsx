@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Building2, Shield, Clock, Upload, Eye, EyeOff } from "lucide-react";
 import { states } from "../../../constants/state";
 import { useForm } from "react-hook-form";
@@ -7,18 +7,31 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { hospitalVerificationSchema } from "../../../validators/hospitalVerification.schema";
 import { useNavigate } from "react-router-dom";
+import { useAppDispatch, useAppSelector } from "../../../store/hooks";
+import { submitHospitalVerificationThunk } from "../../../store/slice/hospital/hospitalVerification.thunks";
 
 type FormData = z.infer<typeof hospitalVerificationSchema>;
 
 const HospitalVerification: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const { error, loading, status } = useAppSelector(
+    (state) => state.hospitalVerification
+  );
+
+  useEffect(() => {
+    if (status === "PENDING") {
+      navigate("/hospital/verification/pending");
+    }
+  }, [status, navigate]);
 
   const {
     register,
     handleSubmit,
     setValue,
     watch,
+    setError,
     formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(hospitalVerificationSchema),
@@ -30,8 +43,47 @@ const HospitalVerification: React.FC = () => {
     navigate("/hospital/login");
   }
 
-  const onSubmit = (data: FormData) => {
-    console.log("Form submitted:", data);
+  function returnFormData(data: FormData) {
+    const formData = new window.FormData();
+
+    formData.append("hospitalName", data.hospitalName);
+    formData.append("registrationNumber", data.registrationNumber);
+    formData.append("hospitalAddress", data.hospitalAddress);
+    formData.append("city", data.city);
+    formData.append("state", data.state);
+    formData.append("officialEmail", data.officialEmail);
+    formData.append("password", data.password);
+    formData.append("phone", data.phone);
+    formData.append("pincode", data.pincode);
+
+    if (data.licenseDocument) {
+      formData.append("licenseDocument", data.licenseDocument);
+    }
+
+    return formData;
+  }
+
+  const onSubmit = async (data: FormData) => {
+    const formData = returnFormData(data);
+    const result = await dispatch(submitHospitalVerificationThunk(formData));
+
+    if (submitHospitalVerificationThunk.rejected.match(result)) {
+      const payload: any = result.payload;
+
+      if (payload?.fieldErrors) {
+        console.log("payload", payload);
+        Object.entries(payload.fieldErrors).forEach(([field, messages]) => {
+          setError(field as keyof FormData, {
+            type: "server",
+            message: (messages as string[])[0],
+          });
+        });
+      }
+
+      return;
+    }
+
+    console.log("result", result);
     alert("Application submitted successfully!");
   };
 
@@ -144,6 +196,12 @@ const HospitalVerification: React.FC = () => {
               Submit your hospital details for platform approval.
             </p>
 
+            {error && (
+              <div className="mb-4 bg-red-50 border border-red-200 text-red-600 p-3 rounded-lg text-sm">
+                {error}
+              </div>
+            )}
+
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
               {/* Hospital Name */}
               <div>
@@ -196,18 +254,11 @@ const HospitalVerification: React.FC = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     City <span className="text-red-500">*</span>
                   </label>
-                  <select
+                  <input
                     {...register("city")}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white"
-                  >
-                    <option value="">Select city</option>
-                    <option value="mumbai">Mumbai</option>
-                    <option value="delhi">Delhi</option>
-                    <option value="bangalore">Bangalore</option>
-                    <option value="chennai">Chennai</option>
-                    <option value="kolkata">Kolkata</option>
-                    <option value="hyderabad">Hyderabad</option>
-                  </select>
+                    type="text"
+                  ></input>
                   <p className="text-red-500 text-sm">{errors.city?.message}</p>
                 </div>
 
@@ -286,12 +337,12 @@ const HospitalVerification: React.FC = () => {
                     Phone Number <span className="text-red-500">*</span>
                   </label>
                   <input
-                    {...register("phoneNumber")}
+                    {...register("phone")}
                     placeholder="+91 XXX-XXX-XXXX"
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg"
                   />
                   <p className="text-red-500 text-sm">
-                    {errors.phoneNumber?.message}
+                    {errors.phone?.message}
                   </p>
                 </div>
 
@@ -363,9 +414,12 @@ const HospitalVerification: React.FC = () => {
 
               <button
                 type="submit"
-                className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition shadow-lg hover:shadow-xl active:scale-98"
+                disabled={loading}
+                className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold
+             hover:bg-blue-700 transition shadow-lg hover:shadow-xl
+             disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                Request Approval
+                {loading ? "Submitting..." : "Request Approval"}
               </button>
 
               <p className="text-xs text-center text-gray-500">

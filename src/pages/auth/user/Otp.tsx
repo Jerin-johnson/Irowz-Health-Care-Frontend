@@ -2,12 +2,12 @@ import React, { useState, useRef, useEffect } from "react";
 import { Heart, Mail } from "lucide-react";
 import { useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
+import { type AppDispatch } from "../../../store";
+import { useAppSelector } from "../../../store/hooks";
 import {
   resendOtpThunk,
   verifyOtpThunk,
-} from "../../../store/slice/auth.slice";
-import { type AppDispatch } from "../../../store";
-import { useAppSelector } from "../../../store/hooks";
+} from "../../../store/slice/Auth/auth.thunks";
 
 const OTP_LENGTH = 6;
 const OTP_DURATION = 60;

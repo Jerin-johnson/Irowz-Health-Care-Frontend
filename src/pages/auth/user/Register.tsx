@@ -7,9 +7,11 @@ import {
   userSignupSchema,
   type UserSignupFormData,
 } from "../../../validators/userSignup.schema";
-import { signupUserThunk } from "../../../store/slice/auth.slice";
-import { useDispatch, useSelector } from "react-redux";
+
+import { useDispatch } from "react-redux";
 import type { AppDispatch } from "../../../store";
+import { signupUserThunk } from "../../../store/slice/Auth/auth.thunks";
+import { useAppSelector } from "../../../store/hooks";
 
 const UserSignupPage: React.FC = () => {
   const {
@@ -26,7 +28,7 @@ const UserSignupPage: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const { error } = useSelector((state) => state.auth);
+  const { error } = useAppSelector((state) => state.auth);
 
   const handleSignup = async (data: UserSignupFormData) => {
     console.log("Signup:", data);

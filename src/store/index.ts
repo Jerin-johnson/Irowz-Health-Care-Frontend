@@ -1,23 +1,53 @@
 import { configureStore, combineReducers } from "@reduxjs/toolkit";
-import authReducer from "../store/slice/auth.slice";
 import storage from "redux-persist/lib/storage";
 import { persistReducer, persistStore } from "redux-persist";
 
-const persistConfig = {
-  key: "root",
+import authReducer from "./slice/Auth/auth.slice";
+import hospitalVerificationReducer from "./slice/hospital/hospitalVerification.slice";
+
+/* ---------------- Persist configs ---------------- */
+
+const authPersistConfig = {
+  key: "auth",
   storage,
-  whitelist: ["auth"],
-  blacklist: ["loading", "error"],
+  whitelist: [
+    "userId",
+    "role",
+    "email",
+    "name",
+    "accessToken",
+    "isAuthenticated",
+  ],
 };
 
+const hospitalVerificationPersistConfig = {
+  key: "hospitalVerification",
+  storage,
+  whitelist: [
+    "city",
+    "name",
+    "email",
+    "register_no",
+    "status",
+    "verificationId",
+    "adminRemarks",
+  ],
+};
+
+/* ---------------- Persisted reducers ---------------- */
+
 const rootReducer = combineReducers({
-  auth: authReducer,
+  auth: persistReducer(authPersistConfig, authReducer),
+  hospitalVerification: persistReducer(
+    hospitalVerificationPersistConfig,
+    hospitalVerificationReducer
+  ),
 });
 
-const persistedReducer = persistReducer(persistConfig, rootReducer);
+/* ---------------- Store ---------------- */
 
 export const store = configureStore({
-  reducer: persistedReducer,
+  reducer: rootReducer,
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: false,
@@ -25,6 +55,8 @@ export const store = configureStore({
 });
 
 export const persistor = persistStore(store);
+
+/* ---------------- Types ---------------- */
 
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;

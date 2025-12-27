@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { CheckCircle, AlertTriangle, Home, Mail, Settings } from "lucide-react";
+import { useAppSelector } from "../../../store/hooks";
 
 interface SubmittedInfo {
   hospitalName: string;
@@ -11,7 +12,9 @@ interface SubmittedInfo {
 
 const VerificationStatus: React.FC = () => {
   const [emailResent, setEmailResent] = useState(false);
-
+  const { city, email, name, register_no, status } = useAppSelector(
+    (state) => state.hospitalVerification
+  );
   const submittedInfo: SubmittedInfo = {
     hospitalName: "St. Mary's Medical Center",
     registrationNumber: "HRN-2024-0156",
@@ -98,30 +101,29 @@ const VerificationStatus: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <p className="text-xs text-gray-500 mb-1">Hospital Name</p>
-              <p className="text-sm font-medium text-gray-900">
-                {submittedInfo.hospitalName}
-              </p>
+              <p className="text-sm font-medium text-gray-900">{name}</p>
             </div>
 
             <div>
               <p className="text-xs text-gray-500 mb-1">Registration Number</p>
-              <p className="text-sm font-medium text-gray-900">
-                {submittedInfo.registrationNumber}
-              </p>
+              <p className="text-sm font-medium text-gray-900">{register_no}</p>
             </div>
 
             <div>
               <p className="text-xs text-gray-500 mb-1">City</p>
               <p className="text-sm font-medium text-gray-900">
-                {submittedInfo.city}, {submittedInfo.state}
+                {city}, {submittedInfo.state}
               </p>
             </div>
 
             <div>
               <p className="text-xs text-gray-500 mb-1">Contact Email</p>
-              <p className="text-sm font-medium text-gray-900">
-                {submittedInfo.contactEmail}
-              </p>
+              <p className="text-sm font-medium text-gray-900">{email}</p>
+            </div>
+
+            <div>
+              <p className="text-xs text-gray-500 mb-1">Verification status</p>
+              <p className="text-sm font-medium text-yellow-900">{status}</p>
             </div>
           </div>
         </div>
