@@ -1,4 +1,4 @@
-import type { UserRole } from "../../../store/slice/Auth/auth.slice";
+import type { UserRole } from "../../../store/slice/Auth/auth.thunks";
 import { api } from "../../axios.config";
 import { LOGIN_ENDPOINT_BY_ROLE } from "./auth.endpoints";
 

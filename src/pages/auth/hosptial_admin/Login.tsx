@@ -1,6 +1,13 @@
 import { Calendar, Shield, UserCircle, Users } from "lucide-react";
 import type { LoginConfig } from "../../../types/auth.login";
 import AuthLoginTemplate from "../../../components/ReuseableComponets/Auth/AuthLoginTemplate";
+import { useAppDispatch } from "../../../store/hooks";
+import { useNavigate } from "react-router-dom";
+import UserRoles from "../../../constants/UserRole";
+import {
+  loginThunk,
+  type UserRoleExluce,
+} from "../../../store/slice/Auth/auth.thunks";
 
 const adminLoginConfig: LoginConfig = {
   role: "admin",
@@ -39,9 +46,32 @@ const adminLoginConfig: LoginConfig = {
 };
 
 const HospitalAdminLoginPage = () => {
-  function handleLogin() {
-    console.log("patient is login ");
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  async function handleLogin({
+    email,
+    password,
+  }: {
+    email: string;
+    password: string;
+  }) {
+    try {
+      const role = UserRoles.HOSPITAL_ADMIN;
+
+      await dispatch(
+        loginThunk({
+          userEmail: email,
+          password,
+          UserRole: role as UserRoleExluce,
+        })
+      ).unwrap();
+
+      navigate("/hospital-admin/dashboard");
+    } catch (error) {
+      console.error("Login failed:", error);
+    }
   }
+
   return (
     <div>
       <AuthLoginTemplate

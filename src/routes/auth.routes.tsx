@@ -7,24 +7,31 @@ import SuperAdminLoginPage from "../pages/auth/superAdmin/Login";
 import LoginPageUser from "../pages/auth/user/Login";
 import UserSignupPage from "../pages/auth/user/Register";
 import OTPVerification from "../pages/auth/user/Otp";
+import PublicRoute from "./PublicRoute";
 
 export const authRoutes = {
-  path: "/",
-  element: <AuthLayout />,
+  element: <PublicRoute />,
   children: [
-    { path: "user/login", element: <LoginPageUser /> },
-    { path: "user/register", element: <UserSignupPage /> },
-    { path: "verify-otp", element: <OTPVerification /> },
-    { path: "doctor/login", element: <DoctorLoginPage /> },
     {
-      path: "hospital/verification",
-      element: <HospitalVerificationPage />,
+      path: "/",
+      element: <AuthLayout />,
+
+      children: [
+        { path: "user/login", element: <LoginPageUser /> },
+        { path: "user/register", element: <UserSignupPage /> },
+        { path: "verify-otp", element: <OTPVerification /> },
+        { path: "doctor/login", element: <DoctorLoginPage /> },
+        {
+          path: "hospital/verification",
+          element: <HospitalVerificationPage />,
+        },
+        {
+          path: "hospital/verification/pending",
+          element: <VerificationStatus />,
+        },
+        { path: "hospital/login", element: <HospitalAdminLoginPage /> },
+        { path: "superadmin/login", element: <SuperAdminLoginPage /> },
+      ],
     },
-    {
-      path: "hospital/verification/pending",
-      element: <VerificationStatus />,
-    },
-    { path: "hospital/login", element: <HospitalAdminLoginPage /> },
-    { path: "superadmin/login", element: <SuperAdminLoginPage /> },
   ],
 };

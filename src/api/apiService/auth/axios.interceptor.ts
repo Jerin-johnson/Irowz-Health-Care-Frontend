@@ -1,32 +1,67 @@
-// import { api } from "../../axios.config";
+import { store } from "../../../store";
+import { clearAuth, setAuth } from "../../../store/slice/Auth/auth.slice";
+import { api } from "../../axios.config";
 
-// api.interceptors.request.use((config) => {
-//   const token = localStorage.getItem("accessToken");
+api.interceptors.request.use(
+  (config) => {
+    const state = store.getState();
+    const accessToken = state.auth.accessToken;
 
-//   if (token) {
-//     config.headers.Authorization = `Bearer ${token}`;
-//   }
+    if (accessToken) {
+      config.headers.Authorization = `Bearer ${accessToken}`;
+    }
 
-//   return config;
-// });
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 
-// api.interceptors.response.use(
-//   (res) => res,
-//   async (error) => {
-//     const originalRequest = error.config;
+let isRefreshing = false;
 
-//     if (error.response?.status === 401 && !originalRequest._retry) {
-//       originalRequest._retry = true;
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
 
-//       const refreshRes = await api.post("/api/auth/refresh");
+    // Not an auth error
+    if (error.response?.status !== 401) {
+      return Promise.reject(error);
+    }
 
-//       localStorage.setItem("accessToken", refreshRes.data.accessToken);
+    if (originalRequest._retry) {
+      store.dispatch(clearAuth());
+      return Promise.reject(error);
+    }
 
-//       originalRequest.headers.Authorization = `Bearer ${refreshRes.data.accessToken}`;
+    if (isRefreshing) {
+      return Promise.reject(error);
+    }
 
-//       return api(originalRequest);
-//     }
+    originalRequest._retry = true;
+    isRefreshing = true;
 
-//     return Promise.reject(error);
-//   }
-// );
+    try {
+      const response = await api.get("/auth/refresh-token");
+
+      const { accessToken, user } = response.data;
+
+      store.dispatch(
+        setAuth({
+          userId: user.id,
+          role: user.role,
+          email: user.email,
+          name: user.name,
+          accessToken,
+        })
+      );
+
+      originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+      return api(originalRequest);
+    } catch (err) {
+      store.dispatch(clearAuth());
+      return Promise.reject(err);
+    } finally {
+      isRefreshing = false;
+    }
+  }
+);

@@ -41,7 +41,7 @@ interface SidebarConfig {
 }
 
 interface SidebarProps {
-  userType: "doctor" | "admin" | "superadmin";
+  userType: "doctor" | "admin" | "superadmin" | "patient";
   userName: string | null;
   userRole: string;
   userAvatar?: string;
@@ -57,7 +57,7 @@ interface SidebarProps {
 const doctorConfig: SidebarConfig = {
   logo: {
     icon: <Stethoscope className="w-6 h-6 text-white" />,
-    title: "MediCare",
+    title: "IrowzCure",
     subtitle: "Doctor Portal",
   },
   menuItems: [
@@ -175,7 +175,7 @@ const adminConfig: SidebarConfig = {
 const superAdminConfig: SidebarConfig = {
   logo: {
     icon: <Shield className="w-6 h-6 text-white" />,
-    title: "MediCare",
+    title: "IrowzCure",
     subtitle: "Super Admin",
   },
   menuItems: [
@@ -195,7 +195,7 @@ const superAdminConfig: SidebarConfig = {
       id: "verification",
       label: "Verification Requests",
       icon: <ClipboardList className="w-5 h-5" />,
-      path: "/super-admin/verification",
+      path: "/super-admin/verfication-request",
     },
     {
       id: "admins",
@@ -238,7 +238,7 @@ const superAdminConfig: SidebarConfig = {
 
 // Config selector
 const getConfig = (
-  userType: "doctor" | "admin" | "superadmin"
+  userType: "doctor" | "admin" | "superadmin" | "patient"
 ): SidebarConfig => {
   switch (userType) {
     case "doctor":
@@ -259,7 +259,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   userName,
   userRole,
   userAvatar,
-  activeItem = "dashboard",
+  activeItem,
   onItemClick,
   onLogout,
   badges = {},
@@ -305,12 +305,12 @@ const Sidebar: React.FC<SidebarProps> = ({
             {userAvatar ? (
               <img
                 src={userAvatar}
-                alt={userName}
+                alt={userName as string}
                 className="w-10 h-10 rounded-full object-cover"
               />
             ) : (
               <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-semibold text-sm">
-                {userName
+                {(userName as string)
                   .split(" ")
                   .map((n) => n[0])
                   .join("")}

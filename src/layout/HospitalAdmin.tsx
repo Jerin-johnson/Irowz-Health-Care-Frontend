@@ -1,25 +1,33 @@
-// import { Outlet, useNavigate } from "react-router-dom";
-// import Sidebar from "../components/sidebar/Sidebar";
+import { Outlet, useNavigate } from "react-router-dom";
+import Sidebar from "../components/ReuseableComponets/sidebar/sidebar";
+import { useAppDispatch, useAppSelector } from "../store/hooks";
+import { logoutThunk } from "../store/slice/Auth/auth.thunks";
 
-// const AdminLayout = () => {
-//   const navigate = useNavigate();
+const HospitalAdminLayout = () => {
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
 
-//   return (
-//     <div className="flex h-screen">
-//       <Sidebar
-//         userType="admin"
-//         userName="John Smith"
-//         userRole="Hospital Administrator"
-//         badges={{ doctors: 5, appointments: 12 }}
-//         onItemClick={(_, path) => navigate(path)}
-//         onLogout={() => navigate("/hospital/login")}
-//       />
+  const { role, name } = useAppSelector((state) => state.auth);
 
-//       <main className="flex-1 overflow-auto bg-gray-50">
-//         <Outlet />
-//       </main>
-//     </div>
-//   );
-// };
+  return (
+    <div className="flex h-screen">
+      <Sidebar
+        userType="admin"
+        userName={name as string}
+        userRole={role as string}
+        // badges={{ doctors: 5, appointments: 12 }}
+        onItemClick={(_, path) => navigate(path)}
+        onLogout={async () => {
+          await dispatch(logoutThunk());
+          navigate("/hospital/login");
+        }}
+      />
 
-// export default AdminLayout;
+      <main className="flex-1 overflow-auto bg-gray-50">
+        <Outlet />
+      </main>
+    </div>
+  );
+};
+
+export default HospitalAdminLayout;

@@ -10,6 +10,7 @@ import {
   loginThunk,
   type UserRoleExluce,
 } from "../../../store/slice/Auth/auth.thunks";
+import { notify } from "../../../shared/notification/toast";
 
 const userLoginConfig: LoginConfig = {
   role: "user",
@@ -63,6 +64,7 @@ const UserLoginPage = () => {
           UserRole: role as UserRoleExluce,
         })
       ).unwrap();
+      notify.success("Patient logged in successfully");
       navigate("/");
     } catch (error) {
       console.log(error);

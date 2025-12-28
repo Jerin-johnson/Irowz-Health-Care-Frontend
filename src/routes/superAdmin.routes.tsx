@@ -1,5 +1,7 @@
 import SuperAdminLayout from "../layout/SuperAdminLayout";
-import SuperAdminDashboard from "../pages/superadmin/SuperAdminDashBoard";
+import HospitalApprovalRequests from "../pages/superadmin/HosptialVerfication/HosptialVerficationRequest";
+import HospitalVerificationReview from "../pages/superadmin/HosptialVerfication/HosptialVerficationReview";
+import SuperAdminDashboard from "../pages/superadmin/dashborad/SuperAdminDashBoard";
 import ProtectedRoute from "./protectRoutes";
 
 export const superAdminRoutes = {
@@ -13,7 +15,14 @@ export const superAdminRoutes = {
     {
       path: "/super-admin",
       element: <SuperAdminLayout />,
-      children: [{ path: "dashboard", element: <SuperAdminDashboard /> }],
+      children: [
+        { path: "dashboard", element: <SuperAdminDashboard /> },
+        { path: "verfication-request", element: <HospitalApprovalRequests /> },
+        {
+          path: "verfication-request/:id",
+          element: <HospitalVerificationReview />,
+        },
+      ],
     },
   ],
 };

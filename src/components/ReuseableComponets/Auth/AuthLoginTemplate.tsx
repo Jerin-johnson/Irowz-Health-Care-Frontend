@@ -21,6 +21,7 @@ const AuthLoginTemplate: React.FC<LoginComponentProps> = ({
   });
   const [showPassword, setShowPassword] = useState(false);
   const [localerror, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
   const error = useAppSelector((state) => state.auth.error);
 
   const handleInputChange = (field: keyof LoginFormData, value: string) => {
@@ -30,18 +31,22 @@ const AuthLoginTemplate: React.FC<LoginComponentProps> = ({
   const navigate = useNavigate();
 
   const handleLogin = () => {
+    setLoading(true);
     setError("");
     if (!formData.email || !formData.password) {
+      setLoading(false);
       setError("The field should not be empty");
       return;
     }
 
     if (!formData.email.includes("@gmail.com")) {
+      setLoading(false);
       setError("invalid email");
       return;
     }
     if (onLogin) {
       onLogin(formData);
+      setLoading(false);
     }
   };
 
@@ -178,10 +183,11 @@ const AuthLoginTemplate: React.FC<LoginComponentProps> = ({
 
                 {/* Login Button */}
                 <button
+                  disabled={loading}
                   onClick={handleLogin}
                   className={`w-full ${config.buttonBg} text-white py-3 rounded-lg font-medium ${config.buttonHover} transition flex items-center justify-center gap-2 shadow-lg hover:shadow-xl`}
                 >
-                  Login
+                  {loading ? "submitting" : "Login"}
                   <ArrowRight size={18} />
                 </button>
 
