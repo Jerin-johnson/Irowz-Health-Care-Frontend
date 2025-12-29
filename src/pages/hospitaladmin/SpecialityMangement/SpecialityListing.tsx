@@ -12,6 +12,12 @@ import Button from "../../../components/common/Button";
 import FormModal from "../../../components/common/FormModel";
 import type { FormField } from "../../../types/Form.types";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
+import {
+  blockOrUnBlockSpecialty,
+  createSpecialityApi,
+  editSpecialityApi,
+  getHospitalSpeicalityApi,
+} from "../../../api/apiService/hospitalAdmin/specialitymangement";
 
 interface HospitalSpeciality {
   _id: string;
@@ -41,71 +47,133 @@ const specialtyFields: FormField[] = [
 ];
 
 const SpecialityListing = () => {
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [selectedSpecialty, setSelectedSpecialty] =
+    useState<HospitalSpeciality | null>(null);
+
   const [searchTerm, setSearchTerm] = useState("");
-  const [cityFilter, setCityFilter] = useState("All Cities");
   const [statusFilter, setStatusFilter] = useState("All Status");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
   const [specialitys, setspecialitys] = useState<HospitalSpeciality[]>([]);
-  const [totalHospitals, setTotalHospital] = useState(0);
-  const [IsActiveHospitalCount, setIsActiveHospitalCount] = useState(0);
+  const [totalSpecialityCount, setTotalSpecialityCount] = useState(0);
+  const [activeSpecialityCount, setActiveSpecialityCount] = useState(0);
   const [isSpecialtyModalOpen, setIsSpecialtyModalOpen] = useState(false);
 
   const auth = useAppSelector((state) => state.auth);
 
   console.log("The auth is ", auth);
 
-  async function handleBlock(userId: string) {
+  async function handleBlock(specialtyId: string) {
     const isConfirmed = await confirmAction({
-      title: "Block the User?",
-      description: "This Permantalley Block the User",
+      title: "Block the specialtyId?",
+      description: "This Permantalley Block the Specialty",
       confirmText: "Block",
       type: "warning",
     });
 
     if (!isConfirmed) return;
 
-    await blockOrUnBlockHospital({ userId, status: true });
-    await fetch();
-    notify.error("user blocked successfully");
+    await blockOrUnBlockSpecialty({ specailtyId: specialtyId, status: false });
+    setspecialitys((prev) => {
+      return prev.map((pre) => {
+        return pre._id != specialtyId ? pre : { ...pre, isActive: false };
+      });
+    });
+    setActiveSpecialityCount((prev) => prev - 1);
+    notify.error("Specialty blocked successfully");
   }
 
-  async function handleUnBlock(userId: string) {
+  async function handleUnBlock(specialtyId: string) {
     const isConfirmed = await confirmAction({
-      title: "UnBlock the User?",
-      description: "This Permantalley UnBlock the User",
+      title: "UnBlock the Speciality?",
+      description: "This Permantalley UnBlock the Speciality",
       confirmText: "UnBlock",
       type: "warning",
     });
 
     if (!isConfirmed) return;
-
-    await blockOrUnBlockHospital({ userId, status: false });
-    await fetch();
+    await blockOrUnBlockSpecialty({ specailtyId: specialtyId, status: true });
+    setspecialitys((prev) => {
+      return prev.map((pre) => {
+        return pre._id != specialtyId ? pre : { ...pre, isActive: true };
+      });
+    });
+    setActiveSpecialityCount((prev) => prev + 1);
     notify.success("user Unblocked successfully");
   }
 
   async function fetch() {
-    const res = await getHospitalRequestsActual({
-      page: currentPage,
-      limit: 10,
-      search: searchTerm || undefined,
-      city: cityFilter !== "All Cities" ? cityFilter : undefined,
-      isActive: statusFilter == "Suspended" ? false : true,
-    });
-    setspecialitys(res.data);
-    setTotalHospital(res.totalHospitals);
-    setTotalPages(res.pagination.totalPages);
-    setIsActiveHospitalCount(res.IsActiveHospitalCount);
-    setLoading(false);
+    try {
+      const res = await getHospitalSpeicalityApi({
+        page: currentPage,
+        limit: 10,
+        search: searchTerm || undefined,
+        isActive:
+          statusFilter == "All Status"
+            ? null
+            : statusFilter == "blocked"
+            ? false
+            : true,
+      });
+
+      console.log("spelicaity", res);
+      setspecialitys(res.data);
+      setTotalSpecialityCount(res.totalSpecialityCount);
+      setTotalPages(res.pagination.totalPages);
+      setActiveSpecialityCount(res.activeSpecialityCount);
+      setLoading(false);
+    } catch (error) {
+      console.log(error, "specialit");
+    }
   }
 
   async function handleSpecialtySubmit(data: {
-    description: string;
     name: string;
+    description: string;
   }) {
-    console.log(data);
+    try {
+      if (isEditMode && selectedSpecialty) {
+        // 🔹 UPDATE
+        await editSpecialityApi(
+          selectedSpecialty._id,
+          data.name,
+          data.description
+        );
+
+        setspecialitys((prev) =>
+          prev.map((item) =>
+            item._id === selectedSpecialty._id
+              ? { ...item, name: data.name, description: data.description }
+              : item
+          )
+        );
+
+        notify.success("Specialty updated successfully");
+      } else {
+        await createSpecialityApi(data.name, data.description);
+        notify.success("Specialty created successfully");
+        await fetch();
+      }
+
+      // Reset modal state
+      setIsSpecialtyModalOpen(false);
+      setIsEditMode(false);
+      setSelectedSpecialty(null);
+    } catch (error) {
+      console.error(error);
+      notify.error("Something went wrong");
+    }
+  }
+
+  function handleEdit(id: string) {
+    const specialty = specialitys.find((s) => s._id === id);
+    if (!specialty) return;
+
+    setSelectedSpecialty(specialty);
+    setIsEditMode(true);
+    setIsSpecialtyModalOpen(true);
   }
 
   useEffect(() => {
@@ -113,7 +181,7 @@ const SpecialityListing = () => {
       await fetch();
     }
     sampleFetch();
-  }, [cityFilter, currentPage, searchTerm, statusFilter]);
+  }, [currentPage, searchTerm, statusFilter]);
 
   return (
     <div className="min-h-screen bg-gray-50 p-8">
@@ -131,21 +199,21 @@ const SpecialityListing = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           <StatCard
             label="Total speciality"
-            value={totalHospitals}
+            value={totalSpecialityCount}
             variant="blue"
             icon={<Building2 className="w-6 h-6 text-blue-600" />}
           />
 
           <StatCard
             label="Active speciality"
-            value={IsActiveHospitalCount}
+            value={activeSpecialityCount}
             variant="green"
             icon={<Check className="w-6 h-6 text-green-600" />}
           />
 
           <StatCard
             label="UnActive speciality"
-            value={totalHospitals - IsActiveHospitalCount}
+            value={totalSpecialityCount - activeSpecialityCount}
             variant="red"
             icon={<X className="w-6 h-6 text-red-600" />}
           />
@@ -176,15 +244,6 @@ const SpecialityListing = () => {
                   placeholder="Search speciality..."
                   className="pl-4 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-64"
                 />
-
-                <select
-                  value={cityFilter}
-                  onChange={(e) => setCityFilter(e.target.value)}
-                  className="px-4 py-2 border border-gray-300 rounded-lg"
-                >
-                  <option>speciality</option>
-                  <option>cardiologist</option>
-                </select>
 
                 <select
                   value={statusFilter}
@@ -249,12 +308,12 @@ const SpecialityListing = () => {
                       </td>
                       <td className="px-6 py-4">
                         {speciality.isActive ? (
-                          <span className="px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                            Blocked
-                          </span>
-                        ) : (
                           <span className="px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                             Active
+                          </span>
+                        ) : (
+                          <span className="px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                            Blocked
                           </span>
                         )}
                       </td>
@@ -262,19 +321,25 @@ const SpecialityListing = () => {
                         <div className="flex justify-between w-full">
                           {speciality.isActive ? (
                             <button
-                              onClick={() => handleUnBlock(speciality._id)}
-                              className="px-2 py-1 text-green-950 rounded-lg text-sm font-small hover:bg-green-400"
-                            >
-                              UnBlock
-                            </button>
-                          ) : (
-                            <button
                               onClick={() => handleBlock(speciality._id)}
                               className="px-2 py-1 text-red-950 rounded-lg text-sm font-small hover:bg-red-400"
                             >
                               Block
                             </button>
+                          ) : (
+                            <button
+                              onClick={() => handleUnBlock(speciality._id)}
+                              className="px-2 py-1 text-green-950 rounded-lg text-sm font-small hover:bg-green-400"
+                            >
+                              UnBlock
+                            </button>
                           )}
+                          <button
+                            onClick={() => handleEdit(speciality._id)}
+                            className="px-2 py-1 text-green-950 rounded-lg text-sm font-small hover:bg-green-400"
+                          >
+                            Edit
+                          </button>
                         </div>
                       </td>
                     </tr>
@@ -298,12 +363,28 @@ const SpecialityListing = () => {
       </div>
       <FormModal
         isOpen={isSpecialtyModalOpen}
-        onClose={() => setIsSpecialtyModalOpen(false)}
+        onClose={() => {
+          setIsSpecialtyModalOpen(false);
+          setIsEditMode(false);
+          setSelectedSpecialty(null);
+        }}
         onSubmit={handleSpecialtySubmit}
-        title="Add New Specialty"
-        subtitle="Create a new medical specialty"
+        title={isEditMode ? "Edit Specialty" : "Add New Specialty"}
+        subtitle={
+          isEditMode
+            ? "Update medical specialty details"
+            : "Create a new medical specialty"
+        }
         fields={specialtyFields}
-        submitButtonText="Add Specialty"
+        submitButtonText={isEditMode ? "Update Specialty" : "Add Specialty"}
+        defaultValues={
+          isEditMode && selectedSpecialty
+            ? {
+                name: selectedSpecialty.name,
+                description: selectedSpecialty.description,
+              }
+            : undefined
+        }
       />
     </div>
   );

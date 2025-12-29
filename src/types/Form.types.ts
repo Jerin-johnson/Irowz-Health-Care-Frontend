@@ -34,15 +34,13 @@ export type FormField = InputField | TextAreaField | SelectField | FileField;
 
 export interface FormModalProps {
   isOpen: boolean;
+  onClose: () => void;
+  onSubmit: (data: any) => void;
   title: string;
   subtitle?: string;
-
   fields: FormField[];
-
   submitButtonText?: string;
-
-  onSubmit: (data: FormData) => void;
-  onClose: () => void;
+  defaultValues?: Record<string, any>;
 }
 
 export type FormData = Record<string, any>;

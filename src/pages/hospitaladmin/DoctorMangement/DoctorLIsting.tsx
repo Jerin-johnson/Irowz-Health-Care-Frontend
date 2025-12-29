@@ -1,140 +1,148 @@
+import { Building2, Check, X } from "lucide-react";
+import { StatCard } from "../../../components/common/StatCard";
+import { useEffect, useState } from "react";
 import { Pagination } from "../../../components/common/Pagination";
-import type { HospitalRequest } from "../../superadmin/HosptialVerfication/HosptialVerficationRequest";
+import {
+  blockOrUnBlockHospital,
+  getHospitalRequestsActual,
+} from "../../../api/apiService/superAdmin/hosptialMangment";
+import { confirmAction } from "../../../shared/notification/confirm";
+import { notify } from "../../../shared/notification/toast";
 
-const DoctorLIsting = () => {
+interface Hospital {
+  _id: string;
+  userId: string;
+  name: string;
+  officialEmail?: string;
+  hospitalAddress: string;
+  city: string;
+  state: string;
+  registrationNumber: string;
+  submittedAt: string;
+  isVerfied: boolean;
+  isActive: boolean;
+  verifiedAt: string;
+  isBlocked: boolean;
+}
+
+const DoctorListing = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [cityFilter, setCityFilter] = useState("All Cities");
   const [statusFilter, setStatusFilter] = useState("All Status");
   const [currentPage, setCurrentPage] = useState(1);
-
-  const naviage = useNavigate();
-
-  const [hospitalRequests, setHospitalRequests] = useState<HospitalRequest[]>(
-    []
-  );
   const [totalPages, setTotalPages] = useState(1);
-
-  const [stats, setStats] = useState({
-    pending: 0,
-    approvedToday: 0,
-    rejected: 0,
-  });
-
   const [loading, setLoading] = useState(false);
+  const [hospitals, setHospitals] = useState<Hospital[]>([]);
+  const [totalHospitals, setTotalHospital] = useState(0);
+  const [IsActiveHospitalCount, setIsActiveHospitalCount] = useState(0);
+
+  async function handleBlock(userId: string) {
+    const isConfirmed = await confirmAction({
+      title: "Block the User?",
+      description: "This Permantalley Block the User",
+      confirmText: "Block",
+      type: "warning",
+    });
+
+    if (!isConfirmed) return;
+
+    await blockOrUnBlockHospital({ userId, status: true });
+    setHospitals((prev) => {
+      return prev.map((pre) => {
+        return pre.userId != userId ? pre : { ...pre, isBlocked: true };
+      });
+    });
+    setIsActiveHospitalCount((prev) => prev - 1);
+    notify.error("Hospital blocked successfully");
+  }
+
+  async function handleUnBlock(userId: string) {
+    const isConfirmed = await confirmAction({
+      title: "UnBlock the Hospital?",
+      description: "This Permantalley UnBlock the Hosptial",
+      confirmText: "UnBlock",
+      type: "warning",
+    });
+
+    if (!isConfirmed) return;
+
+    await blockOrUnBlockHospital({ userId, status: false });
+    setHospitals((prev) => {
+      return prev.map((pre) => {
+        return pre.userId != userId ? pre : { ...pre, isBlocked: false };
+      });
+    });
+    setIsActiveHospitalCount((prev) => prev + 1);
+    notify.success("Hospital Unblocked successfully");
+  }
+
+  async function fetch() {
+    const res = await getHospitalRequestsActual({
+      page: currentPage,
+      limit: 10,
+      search: searchTerm || undefined,
+      city: cityFilter !== "All Cities" ? cityFilter : undefined,
+      isActive: statusFilter == "Suspended" ? false : true,
+    });
+    setHospitals(res.data);
+    setTotalHospital(res.totalHospitals);
+    setTotalPages(res.pagination.totalPages);
+    setIsActiveHospitalCount(res.IsActiveHospitalCount);
+    setLoading(false);
+  }
 
   useEffect(() => {
-    async function fetch() {
-      const res = await getHospitalStats();
-      setStats(res);
+    async function sampleFetch() {
+      await fetch();
     }
-
-    fetch();
-  }, []);
-
-  useEffect(() => {
-    const fetchRequests = async () => {
-      setLoading(true);
-
-      async function fetch() {
-        const res = await getHospitalRequests({
-          page: currentPage,
-          limit: 10,
-          search: searchTerm || undefined,
-          city: cityFilter !== "All Cities" ? cityFilter : undefined,
-          status:
-            statusFilter !== "All Status"
-              ? statusFilter.toUpperCase()
-              : undefined,
-        });
-
-        setHospitalRequests(res.data);
-        setTotalPages(res.pagination.totalPages);
-        setLoading(false);
-      }
-
-      fetch();
-    };
-
-    fetchRequests();
-  }, [searchTerm, cityFilter, statusFilter, currentPage]);
-
-  const handleReview = (request: HospitalRequest) => {
-    console.log("Review:", request);
-    naviage(`/super-admin/verfication-request/${request._id}`);
-  };
+    sampleFetch();
+  }, [cityFilter, currentPage, searchTerm, statusFilter]);
 
   return (
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">
-            Hospital Approval Requests
-          </h1>
-          <p className="text-gray-600 text-sm mt-1">
-            Review and approve hospital onboarding requests
-          </p>
+          <h1 className="text-2xl font-bold text-gray-900">Verfied Hospital</h1>
+          <p className="text-gray-600 text-sm mt-1">Manage Approved Hospital</p>
         </div>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          <div className="bg-white rounded-lg p-5 border border-gray-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">Pending Requests</p>
-                <p className="text-3xl font-bold text-yellow-600">
-                  {stats.pending}
-                </p>
-              </div>
-              <div className="bg-yellow-50 p-3 rounded-lg">
-                <Clock className="w-6 h-6 text-yellow-600" />
-              </div>
-            </div>
-          </div>
+          <StatCard
+            label="Total Hospitals"
+            value={totalHospitals}
+            variant="blue"
+            icon={<Building2 className="w-6 h-6 text-blue-600" />}
+          />
 
-          <div className="bg-white rounded-lg p-5 border border-gray-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">Approved Today</p>
-                <p className="text-3xl font-bold text-green-600">
-                  {stats.approvedToday}
-                </p>
-              </div>
-              <div className="bg-green-50 p-3 rounded-lg">
-                <CheckCircle className="w-6 h-6 text-green-600" />
-              </div>
-            </div>
-          </div>
+          <StatCard
+            label="Active Hospitals"
+            value={IsActiveHospitalCount}
+            variant="green"
+            icon={<Check className="w-6 h-6 text-green-600" />}
+          />
 
-          <div className="bg-white rounded-lg p-5 border border-gray-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">Rejected Requests</p>
-                <p className="text-3xl font-bold text-red-600">
-                  {stats.rejected}
-                </p>
-              </div>
-              <div className="bg-red-50 p-3 rounded-lg">
-                <XCircle className="w-6 h-6 text-red-600" />
-              </div>
-            </div>
-          </div>
+          <StatCard
+            label="Suspended hospital"
+            value={totalHospitals - IsActiveHospitalCount}
+            variant="red"
+            icon={<X className="w-6 h-6 text-red-600" />}
+          />
         </div>
 
-        {/* Main Content */}
         <div className="bg-white rounded-lg border border-gray-200">
           {/* Filters Section */}
           <div className="p-6 border-b border-gray-200">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold text-gray-900">
-                Hospital Requests
+                Verfied Hospital Directory
               </h2>
               <div className="flex items-center gap-3">
                 <input
                   type="text"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder="Search requests..."
+                  placeholder="Search hospitals..."
                   className="pl-4 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-64"
                 />
 
@@ -153,15 +161,13 @@ const DoctorLIsting = () => {
                   className="px-4 py-2 border border-gray-300 rounded-lg"
                 >
                   <option>All Status</option>
-                  <option>Pending</option>
-                  <option>Approved</option>
-                  <option>Rejected</option>
+                  <option>Active</option>
+                  <option>Suspended</option>
                 </select>
               </div>
             </div>
           </div>
 
-          {/* Table */}
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead className="bg-gray-50 border-b border-gray-200">
@@ -176,10 +182,10 @@ const DoctorLIsting = () => {
                     Email
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Registration #
+                    Reg-No
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Submitted
+                    Verfied At
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                     Status
@@ -198,51 +204,55 @@ const DoctorLIsting = () => {
                     </td>
                   </tr>
                 ) : (
-                  hospitalRequests.map((request) => (
-                    <tr key={request._id} className="hover:bg-gray-50">
+                  hospitals.map((hospital) => (
+                    <tr key={hospital._id} className="hover:bg-gray-50">
                       <td className="px-6 py-4">
                         <div className="text-sm font-medium text-gray-900">
-                          {request.hospitalName}
+                          {hospital.name}
                         </div>
                         <div className="text-xs text-gray-500">
-                          {request.hospitalAddress}
+                          {hospital.hospitalAddress}
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-sm">{request.city}</td>
+                      <td className="px-6 py-4 text-sm">{hospital.city}</td>
                       <td className="px-6 py-4 text-sm">
-                        {request.officialEmail}
+                        {hospital.officialEmail}
                       </td>
                       <td className="px-6 py-4 text-sm">
-                        {request.registrationNumber}
+                        {hospital.registrationNumber}
                       </td>
                       <td className="px-6 py-4 text-sm">
-                        {new Date(request.submittedAt).toDateString()}
+                        {new Date(hospital.verifiedAt).toDateString()}
                       </td>
                       <td className="px-6 py-4">
-                        {request.status === "PENDING" && (
-                          <span className="px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                            {request.status}
-                          </span>
-                        )}
-                        {request.status === "APPROVED" && (
-                          <span className="px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                            {request.status}
-                          </span>
-                        )}
-
-                        {request.status === "REJECTED" && (
+                        {hospital.isBlocked ? (
                           <span className="px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                            {request.status}
+                            Blocked
+                          </span>
+                        ) : (
+                          <span className="px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            Active
                           </span>
                         )}
                       </td>
                       <td className="px-6 py-4">
-                        <button
-                          onClick={() => handleReview(request)}
-                          className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700"
-                        >
-                          Review
-                        </button>
+                        <div className="flex justify-between w-full">
+                          {hospital.isBlocked ? (
+                            <button
+                              onClick={() => handleUnBlock(hospital.userId)}
+                              className="px-2 py-1 text-green-950 rounded-lg text-sm font-small hover:bg-green-400"
+                            >
+                              UnBlock
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => handleBlock(hospital.userId)}
+                              className="px-2 py-1 text-red-950 rounded-lg text-sm font-small hover:bg-red-400"
+                            >
+                              Block
+                            </button>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   ))
@@ -251,7 +261,6 @@ const DoctorLIsting = () => {
             </table>
           </div>
 
-          {/* Pagination Footer */}
           <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
             <p className="text-sm text-gray-600">
               Page {currentPage} of {totalPages}
@@ -268,4 +277,4 @@ const DoctorLIsting = () => {
   );
 };
 
-export default DoctorLIsting;
+export default DoctorListing;

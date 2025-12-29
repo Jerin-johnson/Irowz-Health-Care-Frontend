@@ -44,13 +44,16 @@ api.interceptors.response.use(
       const response = await api.get("/auth/refresh-token");
 
       const { accessToken, user } = response.data;
-
+      console.log("The access token is inovked in the fronted", response);
       store.dispatch(
         setAuth({
           userId: user.id,
           role: user.role,
           email: user.email,
           name: user.name,
+          patientId: user.patientId || null,
+          hospitalId: user.hospitalId || null,
+          doctorId: user.doctorId || null,
           accessToken,
         })
       );

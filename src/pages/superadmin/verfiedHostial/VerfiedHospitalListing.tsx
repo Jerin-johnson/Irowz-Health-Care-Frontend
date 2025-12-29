@@ -47,14 +47,19 @@ const VerfiedHospitalListing = () => {
     if (!isConfirmed) return;
 
     await blockOrUnBlockHospital({ userId, status: true });
-    await fetch();
-    notify.error("user blocked successfully");
+    setHospitals((prev) => {
+      return prev.map((pre) => {
+        return pre.userId != userId ? pre : { ...pre, isBlocked: true };
+      });
+    });
+    setIsActiveHospitalCount((prev) => prev - 1);
+    notify.error("Hospital blocked successfully");
   }
 
   async function handleUnBlock(userId: string) {
     const isConfirmed = await confirmAction({
-      title: "UnBlock the User?",
-      description: "This Permantalley UnBlock the User",
+      title: "UnBlock the Hospital?",
+      description: "This Permantalley UnBlock the Hosptial",
       confirmText: "UnBlock",
       type: "warning",
     });
@@ -62,8 +67,13 @@ const VerfiedHospitalListing = () => {
     if (!isConfirmed) return;
 
     await blockOrUnBlockHospital({ userId, status: false });
-    await fetch();
-    notify.success("user Unblocked successfully");
+    setHospitals((prev) => {
+      return prev.map((pre) => {
+        return pre.userId != userId ? pre : { ...pre, isBlocked: false };
+      });
+    });
+    setIsActiveHospitalCount((prev) => prev + 1);
+    notify.success("Hospital Unblocked successfully");
   }
 
   async function fetch() {

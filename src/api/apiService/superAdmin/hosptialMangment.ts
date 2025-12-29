@@ -7,8 +7,12 @@ export const getHospitalRequestsActual = async (params: {
   city?: string;
   isActive?: boolean;
 }) => {
-  const res = await api.get("/super-admin/hospital", { params });
-  return res.data;
+  try {
+    const res = await api.get("/super-admin/hospital", { params });
+    return res.data;
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 export const blockOrUnBlockHospital = async (params: {

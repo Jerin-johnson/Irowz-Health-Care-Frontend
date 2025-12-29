@@ -36,7 +36,16 @@ export const loginThunk = createAsyncThunk(
       const res = await loginUserApi(userEmail, password, UserRole);
       console.log(res);
 
-      const { userId, email, accessToken, name, role } = res;
+      const {
+        userId,
+        email,
+        accessToken,
+        name,
+        role,
+        doctorId,
+        hospitalId,
+        patientId,
+      } = res;
 
       dispatch(
         setAuth({
@@ -45,6 +54,9 @@ export const loginThunk = createAsyncThunk(
           name,
           role,
           accessToken,
+          doctorId: doctorId || null,
+          hospitalId: hospitalId || null,
+          patientId: patientId || null,
         })
       );
 

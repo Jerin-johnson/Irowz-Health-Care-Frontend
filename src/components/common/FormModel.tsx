@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { FormErrors, FormModalProps } from "../../types/Form.types";
 import { X } from "lucide-react";
 
@@ -10,9 +10,16 @@ const FormModal: React.FC<FormModalProps> = ({
   subtitle,
   fields,
   submitButtonText = "Submit",
+  defaultValues,
 }) => {
   const [formData, setFormData] = useState<FormData>({});
   const [errors, setErrors] = useState<FormErrors>({});
+
+  useEffect(() => {
+    if (isOpen && defaultValues) {
+      setFormData(defaultValues);
+    }
+  }, [isOpen, defaultValues]);
 
   const handleChange = (fieldName: string, value: any) => {
     setFormData((prev) => ({ ...prev, [fieldName]: value }));
