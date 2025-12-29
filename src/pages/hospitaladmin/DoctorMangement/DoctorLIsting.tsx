@@ -1,25 +1,7 @@
-import React, { useEffect, useState } from "react";
-import { Clock, CheckCircle, XCircle } from "lucide-react";
 import { Pagination } from "../../../components/common/Pagination";
-import {
-  getHospitalRequests,
-  getHospitalStats,
-} from "../../../api/apiService/superAdmin/hosptialVerfication.service";
-import { useNavigate } from "react-router-dom";
+import type { HospitalRequest } from "../../superadmin/HosptialVerfication/HosptialVerficationRequest";
 
-export interface HospitalRequest {
-  _id: string;
-  hospitalName: string;
-  officialEmail?: string;
-  hospitalAddress: string;
-  city: string;
-  state: string;
-  registrationNumber: string;
-  submittedAt: string;
-  status: "PENDING" | "APPROVED" | "REJECTED";
-}
-
-const HospitalApprovalRequests: React.FC = () => {
+const DoctorLIsting = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [cityFilter, setCityFilter] = useState("All Cities");
   const [statusFilter, setStatusFilter] = useState("All Status");
@@ -286,4 +268,4 @@ const HospitalApprovalRequests: React.FC = () => {
   );
 };
 
-export default HospitalApprovalRequests;
+export default DoctorLIsting;

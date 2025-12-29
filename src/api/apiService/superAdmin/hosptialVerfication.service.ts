@@ -22,17 +22,25 @@ export const getHospitalRequestByID = async (id: string) => {
   return res.data;
 };
 
-export const approveHospitalVerficationRequest = async (id: string) => {
+export const approveHospitalVerficationRequest = async (
+  id: string,
+  adminRemarks: string
+) => {
   const res = await api.patch(
-    `/super-admin/hospital-verifications/${id}/approve`
+    `/super-admin/hospital-verifications/${id}/approve`,
+    { adminRemarks }
   );
   console.log("service side", res);
   return res.data;
 };
 
-export const rejectHospitalVerficationRequest = async (id: string) => {
+export const rejectHospitalVerficationRequest = async (
+  id: string,
+  adminRemarks: string
+) => {
   const res = await api.patch(
-    `/super-admin/hospital-verifications/${id}/reject`
+    `/super-admin/hospital-verifications/${id}/reject`,
+    { adminRemarks }
   );
   console.log("service side", res);
   return res.data;

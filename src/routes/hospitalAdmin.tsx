@@ -1,5 +1,6 @@
 import HospitalAdminLayout from "../layout/HospitalAdmin";
 import HospitalDashBoard from "../pages/hospitaladmin/HospitalDashBoard";
+import SpecialityListing from "../pages/hospitaladmin/SpecialityMangement/SpecialityListing";
 
 import ProtectedRoute from "./protectRoutes";
 
@@ -14,7 +15,10 @@ export const HospitalAdminRoutes = {
     {
       path: "/hospital-admin",
       element: <HospitalAdminLayout />,
-      children: [{ path: "dashboard", element: <HospitalDashBoard /> }],
+      children: [
+        { path: "dashboard", element: <HospitalDashBoard /> },
+        { path: "speciality", element: <SpecialityListing /> },
+      ],
     },
   ],
 };

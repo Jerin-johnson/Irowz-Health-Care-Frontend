@@ -2,6 +2,7 @@ import SuperAdminLayout from "../layout/SuperAdminLayout";
 import HospitalApprovalRequests from "../pages/superadmin/HosptialVerfication/HosptialVerficationRequest";
 import HospitalVerificationReview from "../pages/superadmin/HosptialVerfication/HosptialVerficationReview";
 import SuperAdminDashboard from "../pages/superadmin/dashborad/SuperAdminDashBoard";
+import VerfiedHospitalListing from "../pages/superadmin/verfiedHostial/VerfiedHospitalListing";
 import ProtectedRoute from "./protectRoutes";
 
 export const superAdminRoutes = {
@@ -22,6 +23,7 @@ export const superAdminRoutes = {
           path: "verfication-request/:id",
           element: <HospitalVerificationReview />,
         },
+        { path: "hospitals", element: <VerfiedHospitalListing /> },
       ],
     },
   ],

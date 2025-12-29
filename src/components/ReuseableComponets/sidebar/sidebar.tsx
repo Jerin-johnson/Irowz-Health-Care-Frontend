@@ -116,21 +116,21 @@ const doctorConfig: SidebarConfig = {
 const adminConfig: SidebarConfig = {
   logo: {
     icon: <Hospital className="w-6 h-6 text-white" />,
-    title: "MediCare",
-    subtitle: "Admin Panel",
+    title: "IrowzCure",
+    subtitle: "Hospital Admin Panel",
   },
   menuItems: [
     {
       id: "dashboard",
       label: "Dashboard",
       icon: <LayoutDashboard className="w-5 h-5" />,
-      path: "/admin/dashboard",
+      path: "/hospital-admin/dashboard",
     },
     {
       id: "doctors",
       label: "Manage Doctors",
       icon: <Stethoscope className="w-5 h-5" />,
-      path: "/admin/doctors",
+      path: "/hospital-admin/doctor",
     },
     {
       id: "patients",
@@ -145,10 +145,10 @@ const adminConfig: SidebarConfig = {
       path: "/admin/appointments",
     },
     {
-      id: "departments",
-      label: "Departments",
+      id: "speciality",
+      label: "Speciality Mangament",
       icon: <Building2 className="w-5 h-5" />,
-      path: "/admin/departments",
+      path: "/hospital-admin/speciality",
     },
     {
       id: "reports",

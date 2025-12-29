@@ -4,6 +4,7 @@ import { useParams } from "react-router-dom";
 import {
   approveHospitalVerficationRequest,
   getHospitalRequestByID,
+  rejectHospitalVerficationRequest,
 } from "../../../api/apiService/superAdmin/hosptialVerfication.service";
 import { confirmAction } from "../../../shared/notification/confirm";
 import { notify } from "../../../shared/notification/toast";
@@ -19,6 +20,7 @@ interface HospitalVerification {
   phone: string;
   licenseDocumentUrl: string;
   submittedAt: string;
+  adminRemarks: string;
   status: "PENDING" | "APPROVED" | "REJECTED";
 }
 
@@ -30,7 +32,7 @@ const HospitalVerificationReview: React.FC = () => {
     phoneVerified: false,
     addressVerified: false,
   });
-  const [loading, setLoading] = useState(false);
+
   const [data, setData] = useState<HospitalVerification | null>(null);
 
   const [internalNotes, setInternalNotes] = useState("");
@@ -51,12 +53,13 @@ const HospitalVerificationReview: React.FC = () => {
     if (!isConfirmed) return;
 
     try {
-      await approveHospitalVerficationRequest(id as string);
-      notify.success("Hospital approved successfully");
+      await rejectHospitalVerficationRequest(id as string, internalNotes);
+      setData((prev) => (prev ? { ...prev, status: "REJECTED" } : prev));
+      notify.info("Reject the hosptial verfication request");
     } catch (error: any) {
       console.log(error);
       notify.error(
-        error?.response?.data?.message || "Approval failed. Please try again."
+        error?.response?.data?.message || "Reject failed. Please try again."
       );
     }
   };
@@ -80,7 +83,8 @@ const HospitalVerificationReview: React.FC = () => {
     if (!isConfirmed) return;
 
     try {
-      await approveHospitalVerficationRequest(id as string);
+      await approveHospitalVerficationRequest(id as string, internalNotes);
+      setData((prev) => (prev ? { ...prev, status: "APPROVED" } : prev));
       notify.success("Hospital approved successfully");
     } catch (error: any) {
       console.log(error);
@@ -92,17 +96,13 @@ const HospitalVerificationReview: React.FC = () => {
 
   useEffect(() => {
     async function fetch() {
-      setLoading(true);
       console.log(id);
       const result = await getHospitalRequestByID(id as string);
       setData(result);
-      setLoading(false);
     }
 
     fetch();
   }, [id]);
-
-  if (loading) return <div>Loading</div>;
 
   if (!data) {
     return (
@@ -372,6 +372,15 @@ const HospitalVerificationReview: React.FC = () => {
                 rows={4}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm resize-none"
               />
+            </div>
+          )}
+
+          {data.status !== "PENDING" && data.adminRemarks && (
+            <div className="bg-white rounded-lg border border-gray-200 p-6">
+              <h3 className="text-base font-semibold text-gray-900 mb-4">
+                Internal Verification Notes
+              </h3>
+              <p>{data.adminRemarks}</p>
             </div>
           )}
 

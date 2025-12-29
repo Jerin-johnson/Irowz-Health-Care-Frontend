@@ -1,36 +1,43 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { CheckCircle, AlertTriangle, Home, Mail, Settings } from "lucide-react";
-import { useAppSelector } from "../../../store/hooks";
-
-interface SubmittedInfo {
-  hospitalName: string;
-  registrationNumber: string;
-  city: string;
-  state: string;
-  contactEmail: string;
-}
+import { useAppDispatch, useAppSelector } from "../../../store/hooks";
+import { useNavigate } from "react-router-dom";
+import { fetchHospitalVerificationStatusThunk } from "../../../store/slice/hospital/hospitalVerification.thunks";
 
 const VerificationStatus: React.FC = () => {
   const [emailResent, setEmailResent] = useState(false);
-  const { city, email, name, register_no, status } = useAppSelector(
-    (state) => state.hospitalVerification
-  );
-  const submittedInfo: SubmittedInfo = {
-    hospitalName: "St. Mary's Medical Center",
-    registrationNumber: "HRN-2024-0156",
-    city: "New York",
-    state: "NY",
-    contactEmail: "admin@stmarysmc.com",
-  };
 
+  const navigate = useNavigate();
+  const {
+    verificationId,
+    city,
+    email,
+    name,
+    register_no,
+    status,
+    adminRemarks,
+  } = useAppSelector((state) => state.hospitalVerification);
+
+  const dispatch = useAppDispatch();
   const handleResendEmail = () => {
     setEmailResent(true);
     setTimeout(() => setEmailResent(false), 3000);
     console.log("Confirmation email resent");
   };
 
+  useEffect(() => {
+    if (!verificationId) return;
+    async function fetch() {
+      await dispatch(
+        fetchHospitalVerificationStatusThunk(verificationId as string)
+      );
+    }
+    fetch();
+  }, [dispatch, verificationId]);
+
   const handleBackToHome = () => {
     console.log("Navigate to home");
+    navigate("/hospital/login");
   };
 
   return (
@@ -111,9 +118,7 @@ const VerificationStatus: React.FC = () => {
 
             <div>
               <p className="text-xs text-gray-500 mb-1">City</p>
-              <p className="text-sm font-medium text-gray-900">
-                {city}, {submittedInfo.state}
-              </p>
+              <p className="text-sm font-medium text-gray-900">{city}</p>
             </div>
 
             <div>
@@ -124,6 +129,13 @@ const VerificationStatus: React.FC = () => {
             <div>
               <p className="text-xs text-gray-500 mb-1">Verification status</p>
               <p className="text-sm font-medium text-yellow-900">{status}</p>
+            </div>
+
+            <div>
+              <p className="text-xs text-gray-500 mb-1">Admin Remarks</p>
+              <p className="text-sm font-medium text-yellow-900">
+                {adminRemarks ? adminRemarks : "no remarks"}
+              </p>
             </div>
           </div>
         </div>
@@ -163,8 +175,8 @@ const VerificationStatus: React.FC = () => {
             <div className="flex items-center gap-3">
               <CheckCircle className="w-5 h-5 text-green-600" />
               <p className="text-sm text-green-800 font-medium">
-                Confirmation email has been resent to{" "}
-                {submittedInfo.contactEmail}
+                Confirmation email has been resent to {/* {offic} */} Need to
+                fix this
               </p>
             </div>
           </div>

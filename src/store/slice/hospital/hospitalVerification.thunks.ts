@@ -53,12 +53,13 @@ export const fetchHospitalVerificationStatusThunk = createAsyncThunk<
   },
   string,
   { rejectValue: string }
->("hospitalVerification/status", async (email, { rejectWithValue }) => {
+>("hospitalVerification/status", async (id, { rejectWithValue }) => {
   try {
-    const res = await fetch(`/api/hospital/verification/status?email=${email}`);
+    const res = await fetch(`/api/hospital-admin/verification/status/${id}`);
 
     const data = await res.json();
 
+    console.log("data from fect", data);
     if (!res.ok) {
       return rejectWithValue(
         data?.message || "Failed to fetch verification status"

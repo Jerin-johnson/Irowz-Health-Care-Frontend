@@ -18,6 +18,15 @@ const hospitalVerificationSlice = createSlice({
   initialState,
   reducers: {
     resetVerificationState: () => initialState,
+    approveRequest: (state) => {
+      state.status = "APPROVED";
+    },
+    rejectRequest: (state) => {
+      state.status = "REJECTED";
+    },
+    clearError: (state) => {
+      state.error = null;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -48,5 +57,10 @@ const hospitalVerificationSlice = createSlice({
   },
 });
 
-export const { resetVerificationState } = hospitalVerificationSlice.actions;
+export const {
+  resetVerificationState,
+  approveRequest,
+  rejectRequest,
+  clearError,
+} = hospitalVerificationSlice.actions;
 export default hospitalVerificationSlice.reducer;

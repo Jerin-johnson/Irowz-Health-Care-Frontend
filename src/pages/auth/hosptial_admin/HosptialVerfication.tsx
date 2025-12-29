@@ -9,6 +9,7 @@ import { hospitalVerificationSchema } from "../../../validators/hospitalVerifica
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import { submitHospitalVerificationThunk } from "../../../store/slice/hospital/hospitalVerification.thunks";
+import { notify } from "../../../shared/notification/toast";
 
 type FormData = z.infer<typeof hospitalVerificationSchema>;
 
@@ -31,7 +32,6 @@ const HospitalVerification: React.FC = () => {
     handleSubmit,
     setValue,
     watch,
-    setError,
     formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(hospitalVerificationSchema),
@@ -67,24 +67,20 @@ const HospitalVerification: React.FC = () => {
     const formData = returnFormData(data);
     const result = await dispatch(submitHospitalVerificationThunk(formData));
 
-    if (submitHospitalVerificationThunk.rejected.match(result)) {
-      const payload: any = result.payload;
+    console.log(error);
+    const check = result as any;
+    if (check?.payload?.errors?.fieldErrors?.body) {
+      notify.error(check?.payload?.errors?.fieldErrors?.body[0]);
+      return;
+    }
 
-      if (payload?.fieldErrors) {
-        console.log("payload", payload);
-        Object.entries(payload.fieldErrors).forEach(([field, messages]) => {
-          setError(field as keyof FormData, {
-            type: "server",
-            message: (messages as string[])[0],
-          });
-        });
-      }
-
+    if (!check?.payload?.success) {
+      notify.error(check?.payload?.message);
       return;
     }
 
     console.log("result", result);
-    alert("Application submitted successfully!");
+    notify.success("Application submitted successfully!");
   };
 
   return (
