@@ -9,8 +9,13 @@ import { securitySchema } from "../../../validators/SecurityPasswordChangeSchema
 import InputField from "../../../components/common/InputField";
 import Card from "../../../components/common/Card";
 import { notify } from "../../../shared/notification/toast";
-import { getDoctorProfile } from "../../../api/apiService/hosptial/doctorProfile";
+import {
+  getDoctorProfile,
+  resetDoctorPasswordApi,
+} from "../../../api/apiService/hosptial/doctorProfile";
 import type { DoctorProfile } from "../../../types/doctor/doctorProfile.type";
+import { useAppDispatch } from "../../../store/hooks";
+import { logoutThunk } from "../../../store/slice/Auth/auth.thunks";
 
 type ProfileForm = z.infer<typeof doctorProfileSchema>;
 type SecurityForm = z.infer<typeof securitySchema>;
@@ -22,6 +27,8 @@ const DoctorProfileSettings: React.FC = () => {
     null
   );
 
+  const dispatch = useAppDispatch();
+
   const {
     register,
     handleSubmit,
@@ -30,11 +37,11 @@ const DoctorProfileSettings: React.FC = () => {
   } = useForm<ProfileForm>({
     resolver: zodResolver(doctorProfileSchema),
     defaultValues: {
-      fullName: "name",
-      mobile: "9946009319",
-      bio: "Dr. Ananya Rao is a senior cardiologist with over 12 years of experience in treating complex heart conditions.",
-      experienceYears: 12,
-      consultationFee: 600,
+      fullName: "",
+      mobile: "",
+      bio: "",
+      experienceYears: 0,
+      consultationFee: 0,
     },
   });
 
@@ -75,11 +82,25 @@ const DoctorProfileSettings: React.FC = () => {
     setTimeout(() => setShowSuccess(false), 3000);
   };
 
-  const onPasswordChange = (data: SecurityForm) => {
-    console.log("Password Change Payload:", data);
-    reset();
-    setShowSuccess(true);
-    setTimeout(() => setShowSuccess(false), 3000);
+  const onPasswordChange = async (data: SecurityForm) => {
+    const { currentPassword, newPassword } = data;
+
+    try {
+      await resetDoctorPasswordApi(currentPassword, newPassword);
+
+      notify.success("Password changed successfully");
+      notify.success("To apply the changes, please login again");
+
+      reset();
+      dispatch(logoutThunk());
+    } catch (error) {
+      console.error("Reset password error:", error);
+
+      notify.error(
+        error?.data?.data?.message ||
+          "Failed to reset password. Please try again."
+      );
+    }
   };
 
   return (
