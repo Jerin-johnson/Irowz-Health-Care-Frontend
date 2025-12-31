@@ -54,9 +54,9 @@ const FormModal: React.FC<FormModalProps> = ({
   const handleSubmit = () => {
     if (validateForm()) {
       onSubmit(formData);
-      setFormData({});
+      // setFormData({});
       setErrors({});
-      onClose();
+      // onClose();
     }
   };
 

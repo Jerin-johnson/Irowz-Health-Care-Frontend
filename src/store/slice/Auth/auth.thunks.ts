@@ -45,6 +45,7 @@ export const loginThunk = createAsyncThunk(
         doctorId,
         hospitalId,
         patientId,
+        forcePasswordReset,
       } = res;
 
       dispatch(
@@ -57,6 +58,7 @@ export const loginThunk = createAsyncThunk(
           doctorId: doctorId || null,
           hospitalId: hospitalId || null,
           patientId: patientId || null,
+          forcePasswordReset: forcePasswordReset ? true : false,
         })
       );
 

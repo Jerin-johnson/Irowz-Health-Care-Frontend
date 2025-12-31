@@ -2,16 +2,13 @@ import { Building2, Check, X } from "lucide-react";
 import { StatCard } from "../../../components/common/StatCard";
 import { useEffect, useState } from "react";
 import { Pagination } from "../../../components/common/Pagination";
-import {
-  blockOrUnBlockHospital,
-  getHospitalRequestsActual,
-} from "../../../api/apiService/superAdmin/hosptialMangment";
+
 import { confirmAction } from "../../../shared/notification/confirm";
 import { notify } from "../../../shared/notification/toast";
 import Button from "../../../components/common/Button";
 import FormModal from "../../../components/common/FormModel";
 import type { FormField } from "../../../types/Form.types";
-import { useAppDispatch, useAppSelector } from "../../../store/hooks";
+import { useAppSelector } from "../../../store/hooks";
 import {
   blockOrUnBlockSpecialty,
   createSpecialityApi,
@@ -135,7 +132,6 @@ const SpecialityListing = () => {
   }) {
     try {
       if (isEditMode && selectedSpecialty) {
-        // 🔹 UPDATE
         await editSpecialityApi(
           selectedSpecialty._id,
           data.name,

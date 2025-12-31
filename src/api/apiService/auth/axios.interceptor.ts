@@ -55,6 +55,7 @@ api.interceptors.response.use(
           hospitalId: user.hospitalId || null,
           doctorId: user.doctorId || null,
           accessToken,
+          forcePasswordReset: user.forcePasswordReset ? true : false,
         })
       );
 

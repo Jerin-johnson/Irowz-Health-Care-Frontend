@@ -17,6 +17,7 @@ const authPersistConfig = {
     "name",
     "accessToken",
     "isAuthenticated",
+    "forcePasswordReset",
   ],
 };
 

@@ -9,9 +9,9 @@ const PublicRoute = () => {
       case "SUPER_ADMIN":
         return <Navigate to="/super-admin/dashboard" replace />;
       case "DOCTOR":
-        return <Navigate to="/hospital-admin/dashboard" replace />;
+        return <Navigate to="/doctor/dashboard" replace />;
       case "HOSPITAL_ADMIN":
-        return <Navigate to="/hospital/dashboard" replace />;
+        return <Navigate to="/hospital-admin/dashboard" replace />;
       default:
         return <Navigate to="/" replace />;
     }

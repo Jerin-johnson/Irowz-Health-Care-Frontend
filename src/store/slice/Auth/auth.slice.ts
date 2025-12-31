@@ -7,7 +7,6 @@ import {
   verifyOtpThunk,
   type UserRole,
 } from "./auth.thunks";
-import { stat } from "fs";
 
 interface AuthState {
   userId: string | null;
@@ -21,6 +20,7 @@ interface AuthState {
   hospitalId?: string | null;
   doctorId?: string | null;
   patientId?: string | null;
+  forcePasswordReset?: boolean;
 }
 
 const initialState: AuthState = {
@@ -35,6 +35,7 @@ const initialState: AuthState = {
   hospitalId: null,
   patientId: null,
   doctorId: null,
+  forcePasswordReset: false,
 };
 
 const authSlice = createSlice({
@@ -52,6 +53,7 @@ const authSlice = createSlice({
         doctorId: string;
         patientId: string;
         hospitalId: string;
+        forcePasswordReset: boolean;
       }>
     ) => {
       state.userId = action.payload.userId;
@@ -63,6 +65,9 @@ const authSlice = createSlice({
       state.doctorId = action.payload.doctorId;
       state.patientId = action.payload.patientId;
       state.isAuthenticated = true;
+      state.forcePasswordReset = action.payload.forcePasswordReset
+        ? true
+        : false;
     },
     setError: (state, action) => {
       state.error = action.payload.error;
@@ -77,6 +82,7 @@ const authSlice = createSlice({
       state.doctorId = null;
       state.patientId = null;
       state.hospitalId = null;
+      state.forcePasswordReset = false;
     },
   },
   extraReducers: (builder) => {
@@ -96,6 +102,9 @@ const authSlice = createSlice({
         state.doctorId = action.payload.doctorId || null;
         state.patientId = action.payload.patientId || null;
         state.hospitalId = action.payload.hospitalId || null;
+        state.forcePasswordReset = action.payload.forcePasswordReset
+          ? true
+          : false;
         state.isAuthenticated = false;
       })
       .addCase(signupUserThunk.rejected, (state, action) => {
@@ -149,6 +158,7 @@ const authSlice = createSlice({
         state.name = null;
         state.accessToken = null;
         state.isAuthenticated = false;
+        state.forcePasswordReset = false;
       })
       .addCase(logoutThunk.rejected, (state, action) => {
         state.loading = false;

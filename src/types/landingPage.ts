@@ -1,7 +1,9 @@
 export interface ButtonProps {
   children: React.ReactNode;
+  onClick: () => void;
   variant?: "primary" | "secondary";
-  onClick?: () => void;
+  fullWidth?: boolean;
+  disabled?: boolean;
   className?: string;
 }
 

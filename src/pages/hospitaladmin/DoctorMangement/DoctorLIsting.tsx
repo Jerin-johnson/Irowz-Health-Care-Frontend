@@ -2,132 +2,165 @@ import { Building2, Check, X } from "lucide-react";
 import { StatCard } from "../../../components/common/StatCard";
 import { useEffect, useState } from "react";
 import { Pagination } from "../../../components/common/Pagination";
-import {
-  blockOrUnBlockHospital,
-  getHospitalRequestsActual,
-} from "../../../api/apiService/superAdmin/hosptialMangment";
 import { confirmAction } from "../../../shared/notification/confirm";
 import { notify } from "../../../shared/notification/toast";
+import Button from "../../../components/common/Button";
+import { useNavigate } from "react-router-dom";
+import type { Doctor } from "../../../types/DoctorListingAdmin.type";
+import {
+  getAllSpecialtNameApi,
+  getHospitalDoctorPaginatedApi,
+  toggleDoctorStatusApi,
+} from "../../../api/apiService/hospitalAdmin/DoctorMangement";
 
-interface Hospital {
+interface specailty {
   _id: string;
-  userId: string;
   name: string;
-  officialEmail?: string;
-  hospitalAddress: string;
-  city: string;
-  state: string;
-  registrationNumber: string;
-  submittedAt: string;
-  isVerfied: boolean;
-  isActive: boolean;
-  verifiedAt: string;
-  isBlocked: boolean;
 }
 
 const DoctorListing = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [cityFilter, setCityFilter] = useState("All Cities");
+  const [specialtyFilter, setSpecialtyFilter] = useState("0");
   const [statusFilter, setStatusFilter] = useState("All Status");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
-  const [hospitals, setHospitals] = useState<Hospital[]>([]);
+
+  const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [totalHospitals, setTotalHospital] = useState(0);
   const [IsActiveHospitalCount, setIsActiveHospitalCount] = useState(0);
+  const [specailtyNames, setSpecailtyNames] = useState<specailty[]>([]);
+  const navigate = useNavigate();
 
-  async function handleBlock(userId: string) {
+  async function handleBlock(doctorId: string) {
     const isConfirmed = await confirmAction({
-      title: "Block the User?",
-      description: "This Permantalley Block the User",
+      title: "Block the Doctor?",
+      description: "This will suspend the doctor",
       confirmText: "Block",
       type: "warning",
     });
 
     if (!isConfirmed) return;
 
-    await blockOrUnBlockHospital({ userId, status: true });
-    setHospitals((prev) => {
-      return prev.map((pre) => {
-        return pre.userId != userId ? pre : { ...pre, isBlocked: true };
-      });
+    await toggleDoctorStatusApi({
+      doctorId,
+      isActive: false,
     });
+
+    setDoctors((prev) =>
+      prev.map((doc) =>
+        doc._id !== doctorId ? doc : { ...doc, isActive: false }
+      )
+    );
+
     setIsActiveHospitalCount((prev) => prev - 1);
-    notify.error("Hospital blocked successfully");
+    notify.error("Doctor blocked successfully");
   }
 
-  async function handleUnBlock(userId: string) {
+  async function handleUnBlock(doctorId: string) {
     const isConfirmed = await confirmAction({
-      title: "UnBlock the Hospital?",
-      description: "This Permantalley UnBlock the Hosptial",
+      title: "UnBlock the Doctor?",
+      description: "This will activate the doctor",
       confirmText: "UnBlock",
       type: "warning",
     });
 
     if (!isConfirmed) return;
 
-    await blockOrUnBlockHospital({ userId, status: false });
-    setHospitals((prev) => {
-      return prev.map((pre) => {
-        return pre.userId != userId ? pre : { ...pre, isBlocked: false };
-      });
+    await toggleDoctorStatusApi({
+      doctorId,
+      isActive: true,
     });
+
+    setDoctors((prev) =>
+      prev.map((doc) =>
+        doc._id !== doctorId ? doc : { ...doc, isActive: true }
+      )
+    );
+
     setIsActiveHospitalCount((prev) => prev + 1);
-    notify.success("Hospital Unblocked successfully");
+    notify.success("Doctor unblocked successfully");
   }
 
   async function fetch() {
-    const res = await getHospitalRequestsActual({
+    setLoading(true);
+
+    const res = await getHospitalDoctorPaginatedApi({
       page: currentPage,
       limit: 10,
       search: searchTerm || undefined,
-      city: cityFilter !== "All Cities" ? cityFilter : undefined,
-      isActive: statusFilter == "Suspended" ? false : true,
+      isActive:
+        statusFilter === "Suspended"
+          ? false
+          : statusFilter === "Active"
+          ? true
+          : undefined,
+      specialtyId: specialtyFilter !== "0" ? specialtyFilter : undefined,
     });
-    setHospitals(res.data);
-    setTotalHospital(res.totalHospitals);
+
+    console.log(specialtyFilter);
+    setDoctors(res.data);
+    setTotalHospital(res.stats.totalDoctorCount);
+    setIsActiveHospitalCount(res.stats.activeDoctorCount);
     setTotalPages(res.pagination.totalPages);
-    setIsActiveHospitalCount(res.IsActiveHospitalCount);
     setLoading(false);
+
+    await fetchSpecialty();
+  }
+
+  async function fetchSpecialty() {
+    const result = await getAllSpecialtNameApi();
+    console.log(result);
+    setSpecailtyNames(result.data);
   }
 
   useEffect(() => {
-    async function sampleFetch() {
+    async function fetchData() {
       await fetch();
     }
-    sampleFetch();
-  }, [cityFilter, currentPage, searchTerm, statusFilter]);
+    fetchData();
+  }, [specialtyFilter, currentPage, searchTerm, statusFilter]);
 
   return (
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-7xl mx-auto">
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">Verfied Hospital</h1>
-          <p className="text-gray-600 text-sm mt-1">Manage Approved Hospital</p>
+          <h1 className="text-2xl font-bold text-gray-900">Verfied Doctor</h1>
+          <p className="text-gray-600 text-sm mt-1">Manage Approved Doctor</p>
         </div>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           <StatCard
-            label="Total Hospitals"
+            label="Total Doctors"
             value={totalHospitals}
             variant="blue"
             icon={<Building2 className="w-6 h-6 text-blue-600" />}
           />
 
           <StatCard
-            label="Active Hospitals"
+            label="Active Doctors"
             value={IsActiveHospitalCount}
             variant="green"
             icon={<Check className="w-6 h-6 text-green-600" />}
           />
 
           <StatCard
-            label="Suspended hospital"
+            label="Suspended Doctor"
             value={totalHospitals - IsActiveHospitalCount}
             variant="red"
             icon={<X className="w-6 h-6 text-red-600" />}
           />
+        </div>
+
+        <div className="flex justify-end">
+          <Button
+            className="my-3"
+            variant="primary"
+            onClick={() => navigate("/hospital-admin/doctor/add")}
+          >
+            Add Doctor
+          </Button>
         </div>
 
         <div className="bg-white rounded-lg border border-gray-200">
@@ -135,24 +168,26 @@ const DoctorListing = () => {
           <div className="p-6 border-b border-gray-200">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold text-gray-900">
-                Verfied Hospital Directory
+                Verfied Doctor Directory
               </h2>
               <div className="flex items-center gap-3">
                 <input
                   type="text"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder="Search hospitals..."
+                  placeholder="Search doctor..."
                   className="pl-4 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-64"
                 />
 
                 <select
-                  value={cityFilter}
-                  onChange={(e) => setCityFilter(e.target.value)}
+                  value={specialtyFilter}
+                  onChange={(e) => setSpecialtyFilter(e.target.value.valueOf())}
                   className="px-4 py-2 border border-gray-300 rounded-lg"
                 >
-                  <option>All Cities</option>
-                  <option>anganmaly</option>
+                  <option value={0}>Speciality</option>
+                  {specailtyNames.map((val) => {
+                    return <option value={val._id}>{val.name}</option>;
+                  })}
                 </select>
 
                 <select
@@ -172,25 +207,22 @@ const DoctorListing = () => {
             <table className="w-full">
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Hospital Name
+                  <th className="px-6 py-3 text-left text-xs font-medium">
+                    Doctor Name
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    City
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  <th className="px-6 py-3 text-left text-xs font-medium">
                     Email
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  <th className="px-6 py-3 text-left text-xs font-medium">
+                    Specialty
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium">
                     Reg-No
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Verfied At
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  <th className="px-6 py-3 text-left text-xs font-medium">
                     Status
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  <th className="px-6 py-3 text-left text-xs font-medium">
                     Actions
                   </th>
                 </tr>
@@ -199,57 +231,59 @@ const DoctorListing = () => {
               <tbody className="divide-y divide-gray-200">
                 {loading ? (
                   <tr>
-                    <td colSpan={7} className="text-center py-6">
+                    <td colSpan={6} className="text-center py-6">
                       Loading...
                     </td>
                   </tr>
                 ) : (
-                  hospitals.map((hospital) => (
-                    <tr key={hospital._id} className="hover:bg-gray-50">
+                  doctors.map((doctor) => (
+                    <tr key={doctor._id} className="hover:bg-gray-50">
                       <td className="px-6 py-4">
                         <div className="text-sm font-medium text-gray-900">
-                          {hospital.name}
+                          {doctor.user.name}
                         </div>
                         <div className="text-xs text-gray-500">
-                          {hospital.hospitalAddress}
+                          {doctor.user.phone}
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-sm">{hospital.city}</td>
+
+                      <td className="px-6 py-4 text-sm">{doctor.user.email}</td>
+
                       <td className="px-6 py-4 text-sm">
-                        {hospital.officialEmail}
+                        {doctor.specialty.name}
                       </td>
+
                       <td className="px-6 py-4 text-sm">
-                        {hospital.registrationNumber}
+                        {doctor.medicalRegistrationNumber}
                       </td>
-                      <td className="px-6 py-4 text-sm">
-                        {new Date(hospital.verifiedAt).toDateString()}
-                      </td>
+
                       <td className="px-6 py-4">
-                        {hospital.isBlocked ? (
-                          <span className="px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                            Blocked
-                          </span>
-                        ) : (
+                        {doctor.isActive ? (
                           <span className="px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                             Active
                           </span>
+                        ) : (
+                          <span className="px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                            Blocked
+                          </span>
                         )}
                       </td>
+
                       <td className="px-6 py-4">
                         <div className="flex justify-between w-full">
-                          {hospital.isBlocked ? (
+                          {doctor.isActive ? (
                             <button
-                              onClick={() => handleUnBlock(hospital.userId)}
-                              className="px-2 py-1 text-green-950 rounded-lg text-sm font-small hover:bg-green-400"
-                            >
-                              UnBlock
-                            </button>
-                          ) : (
-                            <button
-                              onClick={() => handleBlock(hospital.userId)}
+                              onClick={() => handleBlock(doctor._id)}
                               className="px-2 py-1 text-red-950 rounded-lg text-sm font-small hover:bg-red-400"
                             >
                               Block
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => handleUnBlock(doctor._id)}
+                              className="px-2 py-1 text-green-950 rounded-lg text-sm font-small hover:bg-green-400"
+                            >
+                              UnBlock
                             </button>
                           )}
                         </div>

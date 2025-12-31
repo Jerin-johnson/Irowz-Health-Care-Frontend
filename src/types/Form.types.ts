@@ -1,47 +1,49 @@
-type BaseField = {
+type BaseField<TValue> = {
   name: string;
   label: string;
   required?: boolean;
   placeholder?: string;
-  validation?: (value: any) => string | null;
+  validation?: (value: TValue) => string | null;
 };
 
-type InputField = BaseField & {
-  type?: "text" | "email" | "number" | "password";
+type InputField = BaseField<string | number> & {
+  type: "text" | "email" | "number" | "password";
 };
 
-type TextAreaField = BaseField & {
+type TextAreaField = BaseField<string> & {
   type: "textarea";
   rows?: number;
 };
 
-type SelectOption = {
+type SelectOption<T = string> = {
   label: string;
-  value: string;
+  value: T;
 };
 
-type SelectField = BaseField & {
+type SelectField<T = string> = BaseField<T> & {
   type: "select";
-  options: SelectOption[];
+  options: SelectOption<T>[];
 };
 
-type FileField = BaseField & {
+type FileField = BaseField<File | null> & {
   type: "file";
   accept?: string;
 };
 
 export type FormField = InputField | TextAreaField | SelectField | FileField;
 
-export interface FormModalProps {
+export interface FormModalProps<TFormData = Record<string, any>> {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (data: any) => void;
+  onSubmit: (data: TFormData) => void;
   title: string;
   subtitle?: string;
   fields: FormField[];
   submitButtonText?: string;
-  defaultValues?: Record<string, any>;
+  defaultValues?: Partial<TFormData>;
 }
 
-export type FormData = Record<string, any>;
-export type FormErrors = Record<string, string>;
+export type FormData<T = Record<string, any>> = T;
+export type FormErrors<T = Record<string, any>> = Partial<
+  Record<keyof T, string>
+>;
