@@ -9,10 +9,6 @@ import {
 } from "../../../api/apiService/hospitalAdmin/DoctorMangement";
 import { notify } from "../../../shared/notification/toast";
 
-/* =======================
-   Types
-======================= */
-
 export interface DoctorFormData {
   fullName: string;
   email: string;
@@ -209,10 +205,13 @@ const AddDoctor = () => {
       setIsSpecialtyModalOpen(false);
       navigate("/hospital-admin/doctor");
       console.log(data);
+
       notify.success("doctor created successfully");
+      return true;
     } catch (error: any) {
       console.log(error);
       notify.error(error.response.data.message);
+      return false;
     }
   }
 

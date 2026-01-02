@@ -87,7 +87,7 @@ const DoctorListing = () => {
 
     const res = await getHospitalDoctorPaginatedApi({
       page: currentPage,
-      limit: 10,
+      limit: 5,
       search: searchTerm || undefined,
       isActive:
         statusFilter === "Suspended"

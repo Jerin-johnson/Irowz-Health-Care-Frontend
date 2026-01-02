@@ -6,9 +6,11 @@ import react from "@vitejs/plugin-react-swc";
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
+    allowedHosts: ["desire-introspectible-monroe.ngrok-free.dev"],
     proxy: {
       "/api": {
         target: "http://localhost:3000",
+        // target: "https://desire-introspectible-monroe.ngrok-free.dev",
       },
     },
   },

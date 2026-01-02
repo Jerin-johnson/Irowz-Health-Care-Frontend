@@ -51,12 +51,17 @@ const FormModal: React.FC<FormModalProps> = ({
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (validateForm()) {
-      onSubmit(formData);
-      // setFormData({});
-      setErrors({});
-      // onClose();
+      const result = await onSubmit(formData);
+
+      if (result) {
+        setFormData({});
+        setErrors({});
+        onClose();
+      } else {
+        console.log("", result);
+      }
     }
   };
 

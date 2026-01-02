@@ -1,6 +1,6 @@
 import { Building2, Check, X } from "lucide-react";
 import { StatCard } from "../../../components/common/StatCard";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Pagination } from "../../../components/common/Pagination";
 
 import { confirmAction } from "../../../shared/notification/confirm";
@@ -13,17 +13,12 @@ import {
   blockOrUnBlockSpecialty,
   createSpecialityApi,
   editSpecialityApi,
-  getHospitalSpeicalityApi,
 } from "../../../api/apiService/hospitalAdmin/specialitymangement";
-
-interface HospitalSpeciality {
-  _id: string;
-  hosptialId: string;
-  name: string;
-  description: string;
-  isActive: boolean;
-  createdAt: Date;
-}
+import {
+  useHospitalSpeciality,
+  type HospitalSpeciality,
+} from "../../../hooks/hospitalAdmin/specialityMangment/useSpecialityList";
+import { useDebounce } from "../../../hooks/common/useDebounce";
 
 const specialtyFields: FormField[] = [
   {
@@ -49,18 +44,34 @@ const SpecialityListing = () => {
     useState<HospitalSpeciality | null>(null);
 
   const [searchTerm, setSearchTerm] = useState("");
+  const debouncedSearch = useDebounce(searchTerm, 500);
+
   const [statusFilter, setStatusFilter] = useState("All Status");
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [loading, setLoading] = useState(false);
-  const [specialitys, setspecialitys] = useState<HospitalSpeciality[]>([]);
-  const [totalSpecialityCount, setTotalSpecialityCount] = useState(0);
-  const [activeSpecialityCount, setActiveSpecialityCount] = useState(0);
   const [isSpecialtyModalOpen, setIsSpecialtyModalOpen] = useState(false);
 
   const auth = useAppSelector((state) => state.auth);
-
   console.log("The auth is ", auth);
+
+  const {
+    specialitys,
+    setspecialitys,
+    loading,
+    totalPages,
+    totalSpecialityCount,
+    activeSpecialityCount,
+    setActiveSpecialityCount,
+    refetch,
+  } = useHospitalSpeciality({
+    page: currentPage,
+    search: debouncedSearch || undefined,
+    isActive:
+      statusFilter === "All Status"
+        ? null
+        : statusFilter === "blocked"
+        ? false
+        : true,
+  });
 
   async function handleBlock(specialtyId: string) {
     const isConfirmed = await confirmAction({
@@ -73,11 +84,11 @@ const SpecialityListing = () => {
     if (!isConfirmed) return;
 
     await blockOrUnBlockSpecialty({ specailtyId: specialtyId, status: false });
-    setspecialitys((prev) => {
-      return prev.map((pre) => {
-        return pre._id != specialtyId ? pre : { ...pre, isActive: false };
-      });
-    });
+    setspecialitys((prev) =>
+      prev.map((pre) =>
+        pre._id !== specialtyId ? pre : { ...pre, isActive: false }
+      )
+    );
     setActiveSpecialityCount((prev) => prev - 1);
     notify.error("Specialty blocked successfully");
   }
@@ -91,39 +102,15 @@ const SpecialityListing = () => {
     });
 
     if (!isConfirmed) return;
+
     await blockOrUnBlockSpecialty({ specailtyId: specialtyId, status: true });
-    setspecialitys((prev) => {
-      return prev.map((pre) => {
-        return pre._id != specialtyId ? pre : { ...pre, isActive: true };
-      });
-    });
+    setspecialitys((prev) =>
+      prev.map((pre) =>
+        pre._id !== specialtyId ? pre : { ...pre, isActive: true }
+      )
+    );
     setActiveSpecialityCount((prev) => prev + 1);
     notify.success("user Unblocked successfully");
-  }
-
-  async function fetch() {
-    try {
-      const res = await getHospitalSpeicalityApi({
-        page: currentPage,
-        limit: 10,
-        search: searchTerm || undefined,
-        isActive:
-          statusFilter == "All Status"
-            ? null
-            : statusFilter == "blocked"
-            ? false
-            : true,
-      });
-
-      console.log("spelicaity", res);
-      setspecialitys(res.data);
-      setTotalSpecialityCount(res.totalSpecialityCount);
-      setTotalPages(res.pagination.totalPages);
-      setActiveSpecialityCount(res.activeSpecialityCount);
-      setLoading(false);
-    } catch (error) {
-      console.log(error, "specialit");
-    }
   }
 
   async function handleSpecialtySubmit(data: {
@@ -150,10 +137,9 @@ const SpecialityListing = () => {
       } else {
         await createSpecialityApi(data.name, data.description);
         notify.success("Specialty created successfully");
-        await fetch();
+        await refetch();
       }
 
-      // Reset modal state
       setIsSpecialtyModalOpen(false);
       setIsEditMode(false);
       setSelectedSpecialty(null);
@@ -163,6 +149,7 @@ const SpecialityListing = () => {
     }
   }
 
+  console.log("the total page all that", totalPages, currentPage);
   function handleEdit(id: string) {
     const specialty = specialitys.find((s) => s._id === id);
     if (!specialty) return;
@@ -171,13 +158,6 @@ const SpecialityListing = () => {
     setIsEditMode(true);
     setIsSpecialtyModalOpen(true);
   }
-
-  useEffect(() => {
-    async function sampleFetch() {
-      await fetch();
-    }
-    sampleFetch();
-  }, [currentPage, searchTerm, statusFilter]);
 
   return (
     <div className="min-h-screen bg-gray-50 p-8">
@@ -190,7 +170,6 @@ const SpecialityListing = () => {
             Manage speciality Hospital
           </p>
         </div>
-
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           <StatCard
@@ -199,14 +178,12 @@ const SpecialityListing = () => {
             variant="blue"
             icon={<Building2 className="w-6 h-6 text-blue-600" />}
           />
-
           <StatCard
             label="Active speciality"
             value={activeSpecialityCount}
             variant="green"
             icon={<Check className="w-6 h-6 text-green-600" />}
           />
-
           <StatCard
             label="UnActive speciality"
             value={totalSpecialityCount - activeSpecialityCount}
@@ -214,17 +191,15 @@ const SpecialityListing = () => {
             icon={<X className="w-6 h-6 text-red-600" />}
           />
         </div>
-
         <div className="flex justify-end">
           <Button
             className="my-3"
             variant="primary"
             onClick={() => setIsSpecialtyModalOpen(true)}
           >
-            Add Speciality{" "}
+            Add Speciality
           </Button>
         </div>
-
         <div className="bg-white rounded-lg border border-gray-200">
           {/* Filters Section */}
           <div className="p-6 border-b border-gray-200">
@@ -236,14 +211,19 @@ const SpecialityListing = () => {
                 <input
                   type="text"
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={(e) => {
+                    setSearchTerm(e.target.value);
+                    setCurrentPage(1);
+                  }}
                   placeholder="Search speciality..."
                   className="pl-4 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-64"
                 />
-
                 <select
                   value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
+                  onChange={(e) => {
+                    setStatusFilter(e.target.value);
+                    setCurrentPage(1);
+                  }}
                   className="px-4 py-2 border border-gray-300 rounded-lg"
                 >
                   <option>All Status</option>
@@ -253,7 +233,6 @@ const SpecialityListing = () => {
               </div>
             </div>
           </div>
-
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead className="bg-gray-50 border-b border-gray-200">
@@ -264,7 +243,6 @@ const SpecialityListing = () => {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                     Speciality description
                   </th>
-
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                     Created At
                   </th>
@@ -276,7 +254,6 @@ const SpecialityListing = () => {
                   </th>
                 </tr>
               </thead>
-
               <tbody className="divide-y divide-gray-200">
                 {loading ? (
                   <tr>
@@ -298,7 +275,6 @@ const SpecialityListing = () => {
                       <td className="px-6 py-4 text-sm">
                         {speciality.description}
                       </td>
-
                       <td className="px-6 py-4 text-sm">
                         {new Date(speciality.createdAt).toDateString()}
                       </td>
@@ -330,12 +306,14 @@ const SpecialityListing = () => {
                               UnBlock
                             </button>
                           )}
-                          <button
-                            onClick={() => handleEdit(speciality._id)}
-                            className="px-2 py-1 text-green-950 rounded-lg text-sm font-small hover:bg-green-400"
-                          >
-                            Edit
-                          </button>
+                          {
+                            <button
+                              onClick={() => handleEdit(speciality._id)}
+                              className="px-2 py-1 text-green-950 rounded-lg text-sm font-small hover:bg-green-400"
+                            >
+                              Edit
+                            </button>
+                          }
                         </div>
                       </td>
                     </tr>
@@ -344,7 +322,6 @@ const SpecialityListing = () => {
               </tbody>
             </table>
           </div>
-
           <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
             <p className="text-sm text-gray-600">
               Page {currentPage} of {totalPages}
@@ -385,5 +362,4 @@ const SpecialityListing = () => {
     </div>
   );
 };
-
 export default SpecialityListing;

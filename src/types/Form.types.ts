@@ -35,7 +35,7 @@ export type FormField = InputField | TextAreaField | SelectField | FileField;
 export interface FormModalProps<TFormData = Record<string, any>> {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (data: TFormData) => void;
+  onSubmit: (data: TFormData) => void | boolean;
   title: string;
   subtitle?: string;
   fields: FormField[];
