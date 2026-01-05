@@ -4,6 +4,7 @@ export interface DoctorProfile {
   fullName: string;
   email: string;
   phone: string;
+  profileImageUrl?: string;
 
   hospitalName: string;
   specialtyName: string;

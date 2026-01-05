@@ -16,6 +16,7 @@ import {
 import type { DoctorProfile } from "../../../types/doctor/doctorProfile.type";
 import { useAppDispatch } from "../../../store/hooks";
 import { logoutThunk } from "../../../store/slice/Auth/auth.thunks";
+import ProfileImageUpload from "../../../components/common/ProfileImageUpload";
 
 type ProfileForm = z.infer<typeof doctorProfileSchema>;
 type SecurityForm = z.infer<typeof securitySchema>;
@@ -26,6 +27,7 @@ const DoctorProfileSettings: React.FC = () => {
   const [doctorProfile, setDoctorProfile] = useState<DoctorProfile | null>(
     null
   );
+  const [profileImageFile, setProfileImageFile] = useState<File | null>(null);
 
   const dispatch = useAppDispatch();
 
@@ -77,6 +79,15 @@ const DoctorProfileSettings: React.FC = () => {
 
   const onProfileSave = (data: ProfileForm) => {
     console.log("Profile Update Payload:", data);
+    const formData = new FormData();
+
+    Object.entries(data).forEach(([key, value]) => {
+      formData.append(key, String(value));
+    });
+
+    if (profileImageFile) {
+      formData.append("profileImage", profileImageFile);
+    }
     setShowSuccess(true);
     setEditMode(false);
     setTimeout(() => setShowSuccess(false), 3000);
@@ -123,6 +134,10 @@ const DoctorProfileSettings: React.FC = () => {
         )}
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* <Card title="Profile Information">
+            
+          </Card> */}
+
           <Card title="Profile Information">
             {!editMode && (
               <div className="lg:col-span-2 flex justify-end">
@@ -137,6 +152,10 @@ const DoctorProfileSettings: React.FC = () => {
                 </button>
               </div>
             )}
+            <ProfileImageUpload
+              imageUrl={doctorProfile?.profileImageUrl}
+              onFileSelect={setProfileImageFile}
+            />
             <InputField
               label="Full Name"
               register={register("fullName")}

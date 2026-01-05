@@ -39,11 +39,6 @@ const AuthLoginTemplate: React.FC<LoginComponentProps> = ({
       return;
     }
 
-    if (!formData.email.includes("@gmail.com")) {
-      setLoading(false);
-      setError("invalid email");
-      return;
-    }
     if (onLogin) {
       onLogin(formData);
       setLoading(false);

@@ -104,6 +104,13 @@ const doctorConfig: SidebarConfig = {
       path: "/doctor/reports",
     },
     {
+      id: "availability",
+      label: "availability & Settings",
+      icon: <Settings className="w-5 h-5" />,
+      path: "/doctor/availability",
+    },
+
+    {
       id: "settings",
       label: "Profile & Settings",
       icon: <Settings className="w-5 h-5" />,

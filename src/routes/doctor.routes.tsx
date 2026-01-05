@@ -1,4 +1,5 @@
 import DoctorLayout from "../layout/DoctorLayout";
+import DoctorAvailabilitySetup from "../pages/doctor/DoctorAvailability/DoctorAvailabilitySetup";
 import DoctorDashboard from "../pages/doctor/DoctorDashboard";
 import DoctorProfileSettings from "../pages/doctor/Profile/DoctorProfileSettingd";
 import ForcePasswordResetGuard from "./forcePasswordReset";
@@ -20,6 +21,14 @@ export const doctorRoutes = {
           element: (
             <ForcePasswordResetGuard>
               <DoctorDashboard />
+            </ForcePasswordResetGuard>
+          ),
+        },
+        {
+          path: "availability",
+          element: (
+            <ForcePasswordResetGuard>
+              <DoctorAvailabilitySetup />
             </ForcePasswordResetGuard>
           ),
         },

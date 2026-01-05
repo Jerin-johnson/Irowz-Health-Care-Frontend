@@ -5,6 +5,7 @@ import { doctorRoutes } from "./doctor.routes";
 import { superAdminRoutes } from "./superAdmin.routes";
 import Unauthorized from "../pages/UnAuthorized.page";
 import { HospitalAdminRoutes } from "./hospitalAdmin";
+import { patientRoutes } from "./patient.routes";
 
 const routers = createBrowserRouter([
   {
@@ -19,6 +20,7 @@ const routers = createBrowserRouter([
   doctorRoutes,
   superAdminRoutes,
   HospitalAdminRoutes,
+  patientRoutes,
 ]);
 
 export default routers;
