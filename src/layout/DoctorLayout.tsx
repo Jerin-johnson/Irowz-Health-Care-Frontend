@@ -7,10 +7,15 @@ const DoctorLayout = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
-  const { role, name, forcePasswordReset, email } = useAppSelector(
-    (state) => state.auth
+  const { role, name, forcePasswordReset, email, profileImage } =
+    useAppSelector((state) => state.auth);
+
+  console.log(
+    "the forcePassword reset",
+    forcePasswordReset,
+    profileImage,
+    email
   );
-  console.log("the forcePassword reset", forcePasswordReset, email);
 
   return (
     <div className="flex h-screen">
@@ -18,6 +23,7 @@ const DoctorLayout = () => {
         userType="doctor"
         userName={name as string}
         userRole={role as string}
+        userAvatar={profileImage ? profileImage : undefined}
         // badges={{ appointments: 3, queue: 2 }}
         onItemClick={(_, path) => navigate(path)}
         onLogout={async () => {

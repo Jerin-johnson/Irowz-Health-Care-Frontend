@@ -21,6 +21,7 @@ interface AuthState {
   doctorId?: string | null;
   patientId?: string | null;
   forcePasswordReset?: boolean;
+  profileImage?: string;
 }
 
 const initialState: AuthState = {
@@ -36,6 +37,7 @@ const initialState: AuthState = {
   patientId: null,
   doctorId: null,
   forcePasswordReset: false,
+  profileImage: "",
 };
 
 const authSlice = createSlice({
@@ -54,6 +56,7 @@ const authSlice = createSlice({
         patientId: string;
         hospitalId: string;
         forcePasswordReset: boolean;
+        profileImage: string;
       }>
     ) => {
       state.userId = action.payload.userId;
@@ -68,9 +71,14 @@ const authSlice = createSlice({
       state.forcePasswordReset = action.payload.forcePasswordReset
         ? true
         : false;
+      state.profileImage = action.payload.profileImage;
     },
     setError: (state, action) => {
       state.error = action.payload.error;
+    },
+    setProfileImage: (state, action) => {
+      console.log("bdsfdsf", action);
+      state.profileImage = action.payload.profileImage;
     },
     clearAuth: (state) => {
       state.userId = null;
@@ -159,6 +167,7 @@ const authSlice = createSlice({
         state.accessToken = null;
         state.isAuthenticated = false;
         state.forcePasswordReset = false;
+        state.profileImage = "";
       })
       .addCase(logoutThunk.rejected, (state, action) => {
         state.loading = false;
@@ -181,5 +190,6 @@ const authSlice = createSlice({
   },
 });
 
-export const { setAuth, clearAuth, setError } = authSlice.actions;
+export const { setAuth, clearAuth, setError, setProfileImage } =
+  authSlice.actions;
 export default authSlice.reducer;

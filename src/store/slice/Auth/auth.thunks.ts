@@ -42,6 +42,7 @@ export const loginThunk = createAsyncThunk(
         accessToken,
         name,
         role,
+        profileImage,
         doctorId,
         hospitalId,
         patientId,
@@ -59,6 +60,7 @@ export const loginThunk = createAsyncThunk(
           hospitalId: hospitalId || null,
           patientId: patientId || null,
           forcePasswordReset: forcePasswordReset ? true : false,
+          profileImage,
         })
       );
 

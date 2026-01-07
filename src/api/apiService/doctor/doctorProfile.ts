@@ -25,3 +25,17 @@ export const resetDoctorPasswordApi = async (
 
   throw new Error(res?.data?.data?.message || "Reset password Request Failed");
 };
+
+export const editDoctorProfileApi = async (formData: FormData) => {
+  const res = await api.patch("/doctor/profile", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+
+  if (res.data.success) {
+    return res.data;
+  }
+
+  throw new Error(res?.data?.data?.message || "Edit doctor profile failed");
+};

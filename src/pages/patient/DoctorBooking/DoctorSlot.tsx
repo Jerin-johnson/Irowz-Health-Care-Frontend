@@ -21,6 +21,18 @@ const DoctorSlots: React.FC = () => {
   const [visitType, setVisitType] = useState<string>("");
 
   const timeSlots: TimeSlot[] = [
+    { time: "9:00 am", slots: 0, available: false },
+    { time: "9:35 am", slots: 1, available: true },
+    { time: "10:10 am", slots: 1, available: true },
+    { time: "10:45 am", slots: 1, available: true },
+    { time: "11:20 am", slots: 1, available: true },
+    { time: "11:55 am", slots: 1, available: true },
+    { time: "2:00 pm", slots: 1, available: true },
+    { time: "2:35 pm", slots: 1, available: true },
+    { time: "3:10 pm", slots: 1, available: true },
+    { time: "3:45 pm", slots: 1, available: true },
+    { time: "4:20 pm", slots: 1, available: true },
+    { time: "4:55 pm", slots: 1, available: true },
     { time: "9:00 am", slots: 1, available: true },
     { time: "9:35 am", slots: 1, available: true },
     { time: "10:10 am", slots: 1, available: true },
@@ -33,6 +45,30 @@ const DoctorSlots: React.FC = () => {
     { time: "3:45 pm", slots: 1, available: true },
     { time: "4:20 pm", slots: 1, available: true },
     { time: "4:55 pm", slots: 1, available: true },
+    { time: "9:00 am", slots: 1, available: true },
+    { time: "9:35 am", slots: 1, available: true },
+    { time: "10:10 am", slots: 1, available: true },
+    { time: "10:45 am", slots: 1, available: true },
+    { time: "11:20 am", slots: 1, available: true },
+    { time: "11:55 am", slots: 1, available: true },
+    { time: "2:00 pm", slots: 1, available: true },
+    { time: "2:35 pm", slots: 1, available: true },
+    { time: "3:10 pm", slots: 1, available: true },
+    { time: "3:45 pm", slots: 1, available: true },
+    { time: "4:20 pm", slots: 1, available: true },
+    { time: "4:55 pm", slots: 1, available: true },
+    { time: "9:00 am", slots: 1, available: true },
+    { time: "9:35 am", slots: 1, available: true },
+    { time: "10:10 am", slots: 1, available: true },
+    { time: "10:45 am", slots: 1, available: true },
+    { time: "11:20 am", slots: 1, available: true },
+    { time: "11:55 am", slots: 1, available: true },
+    { time: "2:00 pm", slots: 1, available: true },
+    { time: "2:35 pm", slots: 1, available: true },
+    { time: "3:10 pm", slots: 1, available: true },
+    { time: "3:45 pm", slots: 1, available: true },
+    { time: "4:20 pm", slots: 1, available: true },
+    { time: "4:55 pm", slots: 1, available: false },
   ];
 
   const getDaysInMonth = (date: Date): number => {
@@ -246,7 +282,7 @@ const DoctorSlots: React.FC = () => {
             Back
           </button>
           <button className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors">
-            Add Basic Information
+            Confirm Booking
             <ArrowRight className="w-4 h-4" />
           </button>
         </div>

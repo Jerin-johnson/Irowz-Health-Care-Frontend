@@ -1,118 +1,43 @@
-import React, { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import React from "react";
 import Alert from "../../../components/common/Alert";
 import Button from "../../../components/common/Button";
-import { z } from "zod";
-import { doctorProfileSchema } from "../../../validators/DoctorProfileSchema";
-import { securitySchema } from "../../../validators/SecurityPasswordChangeSchema";
 import InputField from "../../../components/common/InputField";
 import Card from "../../../components/common/Card";
 import { notify } from "../../../shared/notification/toast";
-import {
-  getDoctorProfile,
-  resetDoctorPasswordApi,
-} from "../../../api/apiService/hosptial/doctorProfile";
-import type { DoctorProfile } from "../../../types/doctor/doctorProfile.type";
-import { useAppDispatch } from "../../../store/hooks";
-import { logoutThunk } from "../../../store/slice/Auth/auth.thunks";
 import ProfileImageUpload from "../../../components/common/ProfileImageUpload";
-
-type ProfileForm = z.infer<typeof doctorProfileSchema>;
-type SecurityForm = z.infer<typeof securitySchema>;
+import { useDoctorProfile } from "../../../hooks/doctor/profile/useDoctorProfile";
+import { useDoctorSecurity } from "../../../hooks/doctor/profile/useDoctorSecurity";
 
 const DoctorProfileSettings: React.FC = () => {
-  const [showSuccess, setShowSuccess] = useState(false);
-  const [editMode, setEditMode] = useState(false);
-  const [doctorProfile, setDoctorProfile] = useState<DoctorProfile | null>(
-    null
-  );
-  const [profileImageFile, setProfileImageFile] = useState<File | null>(null);
-
-  const dispatch = useAppDispatch();
+  const {
+    form,
+    doctorProfile,
+    editMode,
+    setEditMode,
+    showSuccess,
+    setProfileImageFile,
+    saveProfile,
+    loading,
+    isSaving,
+  } = useDoctorProfile();
 
   const {
     register,
     handleSubmit,
-    reset: resetProfile,
     formState: { errors },
-  } = useForm<ProfileForm>({
-    resolver: zodResolver(doctorProfileSchema),
-    defaultValues: {
-      fullName: "",
-      mobile: "",
-      bio: "",
-      experienceYears: 0,
-      consultationFee: 0,
-    },
-  });
+  } = form;
 
-  async function fetchData() {
-    const data = await getDoctorProfile();
-    setDoctorProfile(data.data);
-    resetProfile({
-      fullName: data.data.fullName,
-      mobile: data.data.phone,
-      bio: data.data.bio,
-      experienceYears: data.data.experienceYears,
-      consultationFee: data.data.consultationFee,
-    });
+  const security = useDoctorSecurity();
 
-    console.log("the data from the frontedn", data);
-  }
-
-  useEffect(() => {
-    async function fetch() {
-      await fetchData();
-    }
-    fetch();
-  }, []);
+  const { form: securityForm, changePassword } = security;
 
   const {
     register: registerSecurity,
     handleSubmit: handleSecuritySubmit,
     formState: { errors: securityErrors },
-    reset,
-  } = useForm<SecurityForm>({
-    resolver: zodResolver(securitySchema),
-  });
+  } = securityForm;
 
-  const onProfileSave = (data: ProfileForm) => {
-    console.log("Profile Update Payload:", data);
-    const formData = new FormData();
-
-    Object.entries(data).forEach(([key, value]) => {
-      formData.append(key, String(value));
-    });
-
-    if (profileImageFile) {
-      formData.append("profileImage", profileImageFile);
-    }
-    setShowSuccess(true);
-    setEditMode(false);
-    setTimeout(() => setShowSuccess(false), 3000);
-  };
-
-  const onPasswordChange = async (data: SecurityForm) => {
-    const { currentPassword, newPassword } = data;
-
-    try {
-      await resetDoctorPasswordApi(currentPassword, newPassword);
-
-      notify.success("Password changed successfully");
-      notify.success("To apply the changes, please login again");
-
-      reset();
-      dispatch(logoutThunk());
-    } catch (error) {
-      console.error("Reset password error:", error);
-
-      notify.error(
-        error?.data?.data?.message ||
-          "Failed to reset password. Please try again."
-      );
-    }
-  };
+  if (loading) return <div>Loading doctor profile</div>;
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
@@ -153,7 +78,7 @@ const DoctorProfileSettings: React.FC = () => {
               </div>
             )}
             <ProfileImageUpload
-              imageUrl={doctorProfile?.profileImageUrl}
+              imageUrl={doctorProfile?.profileImage}
               onFileSelect={setProfileImageFile}
             />
             <InputField
@@ -214,7 +139,10 @@ const DoctorProfileSettings: React.FC = () => {
 
             {editMode && (
               <div className="mt-6">
-                <Button onClick={handleSubmit(onProfileSave)}>
+                <Button
+                  onClick={handleSubmit(saveProfile)}
+                  disabled={isSaving ? true : false}
+                >
                   Save Changes
                 </Button>
               </div>
@@ -244,7 +172,7 @@ const DoctorProfileSettings: React.FC = () => {
             />
 
             <div className="mt-6 mb-4">
-              <Button onClick={handleSecuritySubmit(onPasswordChange)}>
+              <Button onClick={handleSecuritySubmit(changePassword)}>
                 Change Password
               </Button>
             </div>
