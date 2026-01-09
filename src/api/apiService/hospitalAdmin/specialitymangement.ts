@@ -2,12 +2,14 @@ import { api } from "../../axios.config";
 
 export const createSpecialityApi = async (
   name: string,
-  description: string
+  description: string,
+  symptoms: string[]
 ) => {
   try {
     const res = await api.post(`/hospital-admin/speciality`, {
       name,
       description,
+      symptoms,
     });
     console.log("service side", res);
     return res.data;
@@ -44,12 +46,14 @@ export const blockOrUnBlockSpecialty = async (params: {
 export const editSpecialityApi = async (
   id: string,
   name: string,
-  description: string
+  description: string,
+  symptoms: string[]
 ) => {
   try {
     const res = await api.patch(`/hospital-admin/speciality/${id}`, {
       name,
       description,
+      symptoms,
     });
     console.log("service side", res);
     return res.data;

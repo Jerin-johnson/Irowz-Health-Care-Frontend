@@ -2,7 +2,7 @@ import { useState } from "react";
 
 import { SearchInput } from "../SearchInput";
 import { SelectDropdown } from "../SelectDropDown";
-import { MapPin, Stethoscope, User } from "lucide-react";
+import { MapPin, Stethoscope } from "lucide-react";
 import { Button } from "../Button";
 import type { FilterOptions } from "../../../types/patient/search.types";
 
@@ -17,8 +17,6 @@ export const SearchFilter: React.FC<SearchFilterProps> = ({
   onFilterChange,
   onSearch,
 }) => {
-  const [searchText, setSearchText] = useState("");
-
   return (
     <div className="bg-white rounded-lg shadow-md p-6 space-y-4">
       <h3 className="text-lg font-semibold text-gray-900 mb-4">
@@ -27,8 +25,13 @@ export const SearchFilter: React.FC<SearchFilterProps> = ({
 
       <SearchInput
         placeholder="Search doctors, clinics, etc."
-        value={searchText}
-        onChange={setSearchText}
+        value={filters.search}
+        onChange={(value: string) =>
+          onFilterChange({
+            ...filters,
+            search: value,
+          })
+        }
       />
 
       <SelectDropdown
@@ -42,19 +45,6 @@ export const SearchFilter: React.FC<SearchFilterProps> = ({
         ]}
         onChange={(value) => onFilterChange({ ...filters, location: value })}
         icon={<MapPin size={16} />}
-      />
-
-      <SelectDropdown
-        label="Gender"
-        value={filters.gender}
-        options={[
-          { value: "", label: "Search by gender" },
-          { value: "male", label: "Male" },
-          { value: "female", label: "Female" },
-          { value: "any", label: "Any" },
-        ]}
-        onChange={(value) => onFilterChange({ ...filters, gender: value })}
-        icon={<User size={16} />}
       />
 
       <SelectDropdown

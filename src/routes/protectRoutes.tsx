@@ -13,6 +13,8 @@ const ProtectedRoute = ({
 }: ProtectedRouteProps) => {
   const { isAuthenticated, role } = useAppSelector((state) => state.auth);
 
+  console.log(role);
+
   if (!isAuthenticated) {
     return <Navigate to={redirectTo} replace />;
   }

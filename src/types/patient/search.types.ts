@@ -1,7 +1,8 @@
 export interface FilterOptions {
   location: string;
-  gender: string;
+  gender?: string;
   specialty: string;
+  search?: string;
 }
 
 export interface SearchInputProps {

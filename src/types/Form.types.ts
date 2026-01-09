@@ -39,6 +39,7 @@ export interface FormModalProps<TFormData = Record<string, any>> {
   title: string;
   subtitle?: string;
   fields: FormField[];
+  children?: React.ReactNode;
   submitButtonText?: string;
   defaultValues?: Partial<TFormData>;
 }

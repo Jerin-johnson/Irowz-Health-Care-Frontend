@@ -8,29 +8,16 @@ import DoctorProfileTabs from "../../../components/patient/DoctorProfile/DoctorP
 import DoctorOverview from "../../../components/patient/DoctorProfile/DoctorOverview";
 import DoctorLocation from "../../../components/patient/DoctorProfile/DoctorLocation";
 import DoctorReviews from "../../../components/patient/DoctorProfile/DoctorReviews";
+import { useQuery } from "@tanstack/react-query";
+import { fetchDoctorProfile } from "../../../api/apiService/patient/doctorListing";
+import { useParams } from "react-router-dom";
+import { mapDoctorProfileToDoctor } from "../../../mapper/doctor.profile.mapper";
 
 const DoctorProfile = () => {
   const [activeTab, setActiveTab] = useState<
     "overview" | "location" | "reviews"
   >("overview");
   const [isFavorite, setIsFavorite] = useState(false);
-
-  const doctor: Doctor = {
-    id: "1",
-    name: "Dr Ruby Perrin",
-    specialty: "Dentist",
-    verified: true,
-    patientsTreated: 3,
-    votes: 0,
-    feedback: 0,
-    rating: 0,
-    address: "213 Old Trafford UK",
-    location: "New York",
-    price: 300,
-    phone: "9876543210",
-    clinicName: "The Family Dentistry Clinic",
-    about: "Lorem ipsum dolor sit amet...",
-  };
 
   const reviews: Review[] = [
     {
@@ -43,6 +30,25 @@ const DoctorProfile = () => {
     },
   ];
 
+  const { id: doctorId } = useParams();
+
+  const { data: doctor, isLoading } = useQuery({
+    queryKey: ["doctor:profile", doctorId],
+    queryFn: async () => {
+      const raw = await fetchDoctorProfile(doctorId!);
+      return mapDoctorProfileToDoctor(raw);
+    },
+    enabled: !!doctorId,
+  });
+
+  if (isLoading) {
+    return <div>Loading</div>;
+  }
+
+  if (!doctor) {
+    return <div>Something went wrong</div>;
+  }
+
   return (
     <>
       {/* Header */}
@@ -52,14 +58,14 @@ const DoctorProfile = () => {
             Search Doctors
           </h1>
           <p className="text-center text-gray-600 mt-2">
-            Home → Search Doctors
+            Home → Search → Doctor
           </p>
         </div>
       </div>
 
       <div className="min-h-screen bg-gray-50 py-8 px-4 max-w-6xl mx-auto">
         <DoctorProfileHeader
-          doctor={doctor}
+          doctor={doctor as Doctor}
           isFavorite={isFavorite}
           onToggleFavorite={() => setIsFavorite(!isFavorite)}
         />

@@ -5,6 +5,7 @@ export interface Doctor {
   image?: string;
   rating: number;
   votes: number;
+  verified: boolean;
   clinic: string;
   availability: "available" | "not-available" | "next-available";
   nextAvailable?: string;

@@ -20,6 +20,75 @@ import {
 } from "../../../hooks/hospitalAdmin/specialityMangment/useSpecialityList";
 import { useDebounce } from "../../../hooks/common/useDebounce";
 
+interface SymptomInputProps {
+  symptoms: string[];
+  symptomInput: string;
+  setSymptoms: React.Dispatch<React.SetStateAction<string[]>>;
+  setSymptomInput: React.Dispatch<React.SetStateAction<string>>;
+}
+
+const SymptomInput: React.FC<SymptomInputProps> = ({
+  symptoms,
+  symptomInput,
+  setSymptoms,
+  setSymptomInput,
+}) => {
+  const addSymptom = () => {
+    const value = symptomInput.trim().toLowerCase();
+    if (!value || symptoms.includes(value)) return;
+
+    setSymptoms((prev) => [...prev, value]);
+    setSymptomInput("");
+  };
+
+  return (
+    <div className="mb-4">
+      <label className="block text-sm font-medium text-gray-700 mb-1">
+        Common Symptoms <span className="text-red-500">*</span>
+      </label>
+
+      <div className="flex gap-2">
+        <input
+          type="text"
+          value={symptomInput}
+          onChange={(e) => setSymptomInput(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              addSymptom();
+            }
+          }}
+          placeholder="Type symptom and press Enter"
+          className="flex-1 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+        />
+
+        <Button variant="secondary" onClick={addSymptom}>
+          Add
+        </Button>
+      </div>
+
+      <div className="flex flex-wrap gap-2 mt-3">
+        {symptoms.map((symptom) => (
+          <span
+            key={symptom}
+            className="flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs"
+          >
+            {symptom}
+            <button
+              onClick={() =>
+                setSymptoms((prev) => prev.filter((s) => s !== symptom))
+              }
+              className="hover:text-red-600"
+            >
+              ✕
+            </button>
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 const specialtyFields: FormField[] = [
   {
     name: "name",
@@ -42,6 +111,8 @@ const SpecialityListing = () => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [selectedSpecialty, setSelectedSpecialty] =
     useState<HospitalSpeciality | null>(null);
+  const [symptoms, setSymptoms] = useState<string[]>([]);
+  const [symptomInput, setSymptomInput] = useState("");
 
   const [searchTerm, setSearchTerm] = useState("");
   const debouncedSearch = useDebounce(searchTerm, 500);
@@ -117,34 +188,36 @@ const SpecialityListing = () => {
     name: string;
     description: string;
   }) {
+    if (symptoms.length === 0) {
+      notify.error("Please add at least one symptom");
+      return;
+    }
+
     try {
       if (isEditMode && selectedSpecialty) {
         await editSpecialityApi(
           selectedSpecialty._id,
           data.name,
-          data.description
+          data.description,
+          symptoms
         );
-
-        setspecialitys((prev) =>
-          prev.map((item) =>
-            item._id === selectedSpecialty._id
-              ? { ...item, name: data.name, description: data.description }
-              : item
-          )
-        );
-
-        notify.success("Specialty updated successfully");
       } else {
-        await createSpecialityApi(data.name, data.description);
-        notify.success("Specialty created successfully");
-        await refetch();
+        await createSpecialityApi(data.name, data.description, symptoms);
       }
+
+      notify.success(
+        isEditMode
+          ? "Specialty updated successfully"
+          : "Specialty created successfully"
+      );
 
       setIsSpecialtyModalOpen(false);
       setIsEditMode(false);
       setSelectedSpecialty(null);
+      setSymptoms([]);
+      setSymptomInput("");
+      await refetch();
     } catch (error) {
-      console.error(error);
       notify.error("Something went wrong");
     }
   }
@@ -340,6 +413,8 @@ const SpecialityListing = () => {
           setIsSpecialtyModalOpen(false);
           setIsEditMode(false);
           setSelectedSpecialty(null);
+          setSymptoms([]);
+          setSymptomInput("");
         }}
         onSubmit={handleSpecialtySubmit}
         title={isEditMode ? "Edit Specialty" : "Add New Specialty"}
@@ -358,7 +433,14 @@ const SpecialityListing = () => {
               }
             : undefined
         }
-      />
+      >
+        <SymptomInput
+          symptoms={symptoms}
+          symptomInput={symptomInput}
+          setSymptoms={setSymptoms}
+          setSymptomInput={setSymptomInput}
+        />
+      </FormModal>
     </div>
   );
 };
