@@ -8,6 +8,7 @@ import LoginPageUser from "../pages/auth/user/Login";
 import UserSignupPage from "../pages/auth/user/Register";
 import OTPVerification from "../pages/auth/user/Otp";
 import PublicRoute from "./PublicRoute";
+import ReApplyHosptialVerficationRequest from "../pages/auth/hosptial_admin/ReApplyHospitalVerficationRequest";
 
 export const authRoutes = {
   element: <PublicRoute />,
@@ -24,6 +25,10 @@ export const authRoutes = {
         {
           path: "hospital/verification",
           element: <HospitalVerificationPage />,
+        },
+        {
+          path: "hospital/verification/reapply",
+          element: <ReApplyHosptialVerficationRequest />,
         },
         {
           path: "hospital/verification/pending",

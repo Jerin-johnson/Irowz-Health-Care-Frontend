@@ -5,8 +5,6 @@ import { persistReducer, persistStore } from "redux-persist";
 import authReducer from "./slice/Auth/auth.slice";
 import hospitalVerificationReducer from "./slice/hospital/hospitalVerification.slice";
 
-/* ---------------- Persist configs ---------------- */
-
 const authPersistConfig = {
   key: "auth",
   storage,
@@ -19,6 +17,8 @@ const authPersistConfig = {
     "isAuthenticated",
     "forcePasswordReset",
     "profileImage",
+    "doctorId",
+    "hospitalId",
   ],
 };
 

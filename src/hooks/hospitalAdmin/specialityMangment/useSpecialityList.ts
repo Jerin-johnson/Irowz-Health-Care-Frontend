@@ -6,6 +6,7 @@ export interface HospitalSpeciality {
   hosptialId: string;
   name: string;
   description: string;
+  symptoms: string[];
   isActive: boolean;
   createdAt: Date;
 }

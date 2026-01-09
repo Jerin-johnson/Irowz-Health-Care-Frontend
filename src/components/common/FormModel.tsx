@@ -11,6 +11,7 @@ const FormModal: React.FC<FormModalProps> = ({
   fields,
   submitButtonText = "Submit",
   defaultValues,
+  children,
 }) => {
   const [formData, setFormData] = useState<FormData>({});
   const [errors, setErrors] = useState<FormErrors>({});
@@ -169,6 +170,8 @@ const FormModal: React.FC<FormModalProps> = ({
               )}
             </div>
           ))}
+
+          {children}
 
           {/* Actions */}
           <div className="flex gap-3 pt-4">

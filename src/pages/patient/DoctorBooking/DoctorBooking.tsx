@@ -1,346 +1,297 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useAppSelector } from "../../../store/hooks";
+import { useConfirmNavigation } from "../../../hooks/common/useConfirmNavigation";
+import {
+  checkoutDoctorBooking,
+  fetchPatientBasicDetailsBeforeCheckout,
+  verifyDoctorPayment,
+} from "../../../api/apiService/patient/doctorBooking";
+import { unlockDoctorSlot } from "../../../api/apiService/patient/doctorSlots";
+import { notify } from "../../../shared/notification/toast";
 
-interface BillingDetails {
-  firstName: string;
-  lastName: string;
-  companyName: string;
-  country: string;
-  streetAddress: string;
-  apartment: string;
-  city: string;
-  state: string;
-  zipCode: string;
-  phone: string;
-  email: string;
-  orderNotes: string;
-}
+import InputField from "../../../components/common/InputField";
+import {
+  billingSchema,
+  type BillingFormValues,
+} from "../../../validators/checkoutDoctorBooking";
+import { openRazorpayCheckout } from "../../../services/payment/razorpay.service";
 
 const DoctorBooking: React.FC = () => {
-  const [paymentMethod, setPaymentMethod] = useState<string>("transfer");
+  const navigate = useNavigate();
+  const location = useLocation();
+  const userId = useAppSelector((state) => state.auth.userId);
+  const [paymentSuccess, setPaymentSuccess] = useState(false);
+  const [appointmentId, setAppointmentId] = useState("");
 
-  const [billingDetails, setBillingDetails] = useState<BillingDetails>({
-    firstName: "",
-    lastName: "",
-    companyName: "",
-    country: "",
-    streetAddress: "",
-    apartment: "",
-    city: "",
-    state: "",
-    zipCode: "",
-    phone: "",
-    email: "",
-    orderNotes: "",
-  });
-
-  const handleInputChange = (field: keyof BillingDetails, value: string) => {
-    setBillingDetails((prev) => ({ ...prev, [field]: value }));
+  const { doctorId, date, startTime } = location.state as {
+    doctorId: string;
+    date: string;
+    startTime: string;
   };
 
+  const [paymentMethod, setPaymentMethod] = useState("");
+  const [blockNavigation, setBlockNavigation] = useState(true);
+
+  const { data: billingPrefill } = useQuery({
+    queryKey: ["patient:profile:checkout", userId, doctorId],
+    enabled: !!userId && !!doctorId,
+    queryFn: () => fetchPatientBasicDetailsBeforeCheckout(doctorId),
+  });
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm<BillingFormValues>({
+    resolver: zodResolver(billingSchema),
+    defaultValues: {
+      firstName: "",
+      lastName: "",
+      country: "",
+      streetAddress: "",
+      city: "",
+      state: "",
+      zipCode: "",
+      phone: "",
+      email: "",
+      companyName: "",
+      apartment: "",
+      orderNotes: "",
+    },
+  });
+
+  useEffect(() => {
+    if (!billingPrefill) return;
+
+    reset({
+      firstName: billingPrefill.firstName ?? "",
+      lastName: billingPrefill.secondName ?? "",
+      country: billingPrefill.country ?? "",
+      streetAddress: billingPrefill.streetAddress ?? "",
+      city: billingPrefill.city ?? "",
+      state: billingPrefill.state ?? "",
+      zipCode: billingPrefill.zipCode ?? "",
+      phone: billingPrefill.phone ?? "",
+      email: billingPrefill.email ?? "",
+      companyName: "",
+      apartment: "",
+      orderNotes: "",
+    });
+  }, [billingPrefill, reset]);
+
+  const handleUnlockSlot = async () => {
+    try {
+      await unlockDoctorSlot({ doctorId, date, startTime });
+    } catch {
+      console.error("Failed to unlock slot");
+    }
+  };
+
+  useConfirmNavigation(
+    blockNavigation,
+    "Your booking slot will be cancelled. Are you sure you want to leave?",
+    handleUnlockSlot
+  );
+
+  const verifyPaymentMutation = useMutation({
+    mutationFn: verifyDoctorPayment,
+    onSuccess: () => {
+      setBlockNavigation(false);
+      setPaymentSuccess(true);
+      notify.success(
+        "Payment successfull and doctor apponiment is created successfully"
+      );
+    },
+    onError: () => {
+      notify.error("Payment verification failed");
+    },
+  });
+
+  useEffect(() => {
+    if (!paymentSuccess) return;
+
+    navigate(`/patient/booking-success/${appointmentId}`);
+  }, [paymentSuccess, navigate]);
+
+  const checkoutMutation = useMutation({
+    mutationFn: checkoutDoctorBooking,
+
+    onSuccess: (data) => {
+      console.log("the data is", data);
+      setAppointmentId(data.appointmentId);
+      openRazorpayCheckout({
+        orderId: data.razorpayOrderId,
+        amount: data.amount,
+        currency: "INR",
+        name: "Doctor Appointment",
+        description: "Consultation Fee",
+
+        prefill: {
+          name: billingPrefill?.firstName,
+          email: billingPrefill?.email,
+          contact: billingPrefill?.phone,
+        },
+
+        onSuccess: (response) => {
+          verifyPaymentMutation.mutate({
+            appointmentId: data.appointmentId,
+            razorpayOrderId: response.razorpay_order_id,
+            razorpayPaymentId: response.razorpay_payment_id,
+            razorpaySignature: response.razorpay_signature,
+          });
+          console.log(response);
+        },
+
+        onDismiss: () => {
+          notify.error("you have the oppurtunity to redo the payment");
+        },
+      });
+    },
+
+    onError: (err: any) => {
+      notify.error(err?.response?.data?.message || "Checkout failed");
+    },
+  });
+
+  const onSubmit = (data: BillingFormValues) => {
+    if (!paymentMethod) {
+      notify.error("Please select payment method");
+      return;
+    }
+
+    checkoutMutation.mutate({
+      doctorId,
+      date,
+      startTime,
+      billingDetails: data,
+      paymentMethod: "online",
+    });
+  };
+
+  useEffect(() => {
+    const handler = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = "";
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, []);
+
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4">
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="min-h-screen bg-gray-50 py-8 px-4"
+    >
       <div className="max-w-6xl mx-auto">
-        {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Checkout</h1>
           <p className="text-gray-500 text-sm">Home &gt; Checkout</p>
         </div>
 
         <div className="grid lg:grid-cols-3 gap-8">
-          {/* Billing Details */}
-          <div className="lg:col-span-2">
-            <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-6">
-                Billing details
-              </h2>
+          {/* Billing */}
+          <div className="lg:col-span-2 bg-white rounded-lg shadow p-6">
+            <h2 className="text-xl font-bold mb-6">Billing details</h2>
 
-              <div className="space-y-4">
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm text-gray-700 mb-1">
-                      First name <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      value={billingDetails.firstName}
-                      onChange={(e) =>
-                        handleInputChange("firstName", e.target.value)
-                      }
-                      placeholder="First name"
-                      className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm text-gray-700 mb-1">
-                      Last name <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      value={billingDetails.lastName}
-                      onChange={(e) =>
-                        handleInputChange("lastName", e.target.value)
-                      }
-                      placeholder="Last name"
-                      className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm text-gray-700 mb-1">
-                    Company name (optional)
-                  </label>
-                  <input
-                    type="text"
-                    value={billingDetails.companyName}
-                    onChange={(e) =>
-                      handleInputChange("companyName", e.target.value)
-                    }
-                    placeholder="Company name"
-                    className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm text-gray-700 mb-1">
-                    Country / Region <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={billingDetails.country}
-                    onChange={(e) =>
-                      handleInputChange("country", e.target.value)
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm text-gray-700 mb-1">
-                    Street address <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={billingDetails.streetAddress}
-                    onChange={(e) =>
-                      handleInputChange("streetAddress", e.target.value)
-                    }
-                    placeholder="Street address"
-                    className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm text-gray-700 mb-1">
-                    Apartment, suite, unit, etc. (optional)
-                  </label>
-                  <input
-                    type="text"
-                    value={billingDetails.apartment}
-                    onChange={(e) =>
-                      handleInputChange("apartment", e.target.value)
-                    }
-                    placeholder="Apartment, suite, unit, etc."
-                    className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm text-gray-700 mb-1">
-                    Town / City <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={billingDetails.city}
-                    onChange={(e) => handleInputChange("city", e.target.value)}
-                    placeholder="Town / City"
-                    className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm text-gray-700 mb-1">
-                    State <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={billingDetails.state}
-                    onChange={(e) => handleInputChange("state", e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm text-gray-700 mb-1">
-                    ZIP Code <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={billingDetails.zipCode}
-                    onChange={(e) =>
-                      handleInputChange("zipCode", e.target.value)
-                    }
-                    placeholder="ZIP Code"
-                    className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm text-gray-700 mb-1">
-                    Phone <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="tel"
-                    value={billingDetails.phone}
-                    onChange={(e) => handleInputChange("phone", e.target.value)}
-                    placeholder="Phone"
-                    className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm text-gray-700 mb-1">
-                    Email address <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="email"
-                    value={billingDetails.email}
-                    onChange={(e) => handleInputChange("email", e.target.value)}
-                    placeholder="Email address"
-                    className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm text-gray-700 mb-1">
-                    Order notes (optional)
-                  </label>
-                  <textarea
-                    value={billingDetails.orderNotes}
-                    onChange={(e) =>
-                      handleInputChange("orderNotes", e.target.value)
-                    }
-                    placeholder="Notes about your order, e.g. special notes for delivery."
-                    rows={4}
-                    className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm resize-none"
-                  />
-                </div>
-              </div>
+            <div className="grid md:grid-cols-2 gap-4">
+              <InputField
+                label="First name"
+                error={errors.firstName?.message}
+                register={register("firstName")}
+              />
+              <InputField
+                label="Last name"
+                error={errors.lastName?.message}
+                register={register("lastName")}
+              />
             </div>
+
+            <InputField
+              label="Country / Region"
+              error={errors.country?.message}
+              register={register("country")}
+            />
+
+            <InputField
+              label="Street address"
+              error={errors.streetAddress?.message}
+              register={register("streetAddress")}
+            />
+
+            <InputField
+              label="Town / City"
+              error={errors.city?.message}
+              register={register("city")}
+            />
+
+            <InputField
+              label="State"
+              error={errors.state?.message}
+              register={register("state")}
+            />
+
+            <InputField
+              label="ZIP Code"
+              error={errors.zipCode?.message}
+              register={register("zipCode")}
+            />
+
+            <InputField
+              label="Phone"
+              error={errors.phone?.message}
+              register={register("phone")}
+            />
+
+            <InputField
+              label="Email address"
+              type="email"
+              error={errors.email?.message}
+              register={register("email")}
+            />
           </div>
 
           {/* Order Summary */}
-          <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg shadow p-6 sticky top-4">
-              <h2 className="text-xl font-bold text-gray-900 mb-6">
-                Your order
-              </h2>
+          <div className="bg-white rounded-lg shadow p-6 sticky top-4">
+            <h2 className="text-xl font-bold mb-6">Your order</h2>
 
-              <div className="space-y-4 mb-6">
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-700">Product</span>
-                  <span className="text-gray-700">Subtotal</span>
-                </div>
-                <div className="flex justify-between text-sm border-b pb-4">
-                  <span className="text-gray-600">Doctor Booking × 1</span>
-                  <span className="font-medium">$200.00</span>
-                </div>
-                <div className="flex justify-between text-sm border-b pb-4">
-                  <span className="text-gray-700">Subtotal</span>
-                  <span className="font-medium">$200.00</span>
-                </div>
-                <div className="flex justify-between font-bold">
-                  <span>Total</span>
-                  <span>$200.00</span>
-                </div>
-              </div>
-
-              <div className="mb-6">
-                <h3 className="font-bold text-gray-900 mb-3">
-                  Payment Methods
-                </h3>
-                <div className="space-y-2">
-                  <label className="flex items-start space-x-2 cursor-pointer">
-                    <input
-                      type="radio"
-                      name="payment"
-                      value="transfer"
-                      checked={paymentMethod === "transfer"}
-                      onChange={(e) => setPaymentMethod(e.target.value)}
-                      className="mt-1"
-                    />
-                    <div className="flex-1">
-                      <div className="text-sm font-medium text-gray-900">
-                        Direct bank transfer
-                      </div>
-                      <p className="text-xs text-gray-500 mt-1">
-                        Lorem Ipsum dolor sit amet, consectetur adipiscing elit.
-                      </p>
-                    </div>
-                  </label>
-
-                  <label className="flex items-start space-x-2 cursor-pointer">
-                    <input
-                      type="radio"
-                      name="payment"
-                      value="check"
-                      checked={paymentMethod === "check"}
-                      onChange={(e) => setPaymentMethod(e.target.value)}
-                      className="mt-1"
-                    />
-                    <div className="flex-1">
-                      <div className="text-sm font-medium text-gray-900">
-                        Check payments
-                      </div>
-                    </div>
-                  </label>
-
-                  <label className="flex items-start space-x-2 cursor-pointer">
-                    <input
-                      type="radio"
-                      name="payment"
-                      value="cod"
-                      checked={paymentMethod === "cod"}
-                      onChange={(e) => setPaymentMethod(e.target.value)}
-                      className="mt-1"
-                    />
-                    <div className="flex-1">
-                      <div className="text-sm font-medium text-gray-900">
-                        Cash on delivery
-                      </div>
-                    </div>
-                  </label>
-
-                  <label className="flex items-start space-x-2 cursor-pointer">
-                    <input
-                      type="radio"
-                      name="payment"
-                      value="paypal"
-                      checked={paymentMethod === "paypal"}
-                      onChange={(e) => setPaymentMethod(e.target.value)}
-                      className="mt-1"
-                    />
-                    <div className="flex-1">
-                      <div className="text-sm font-medium text-gray-900">
-                        PayPal
-                      </div>
-                    </div>
-                  </label>
-                </div>
-              </div>
-
-              <p className="text-xs text-gray-500 mb-4">
-                Lorem Ipsum dolor sit amet, consectetur adipiscing elit.
-              </p>
-
-              <button className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors">
-                PLACE ORDER
-              </button>
+            <div className="flex justify-between mb-4">
+              <span>Doctor Booking</span>
+              <span>${billingPrefill?.doctorPrice}</span>
             </div>
+
+            <div className="font-bold border-t pt-4 flex justify-between">
+              <span>Total</span>
+              <span>${billingPrefill?.doctorPrice}</span>
+            </div>
+
+            <div className="mt-6">
+              <label className="flex gap-2 items-start">
+                <input
+                  type="radio"
+                  value="online"
+                  checked={paymentMethod === "online"}
+                  onChange={(e) => setPaymentMethod(e.target.value)}
+                />
+                Razorpay Online
+              </label>
+            </div>
+
+            <button
+              type="submit"
+              disabled={checkoutMutation.isPending}
+              className="w-full mt-6 bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50"
+            >
+              {checkoutMutation.isPending ? "Processing..." : "PLACE ORDER"}
+            </button>
           </div>
         </div>
       </div>
-    </div>
+    </form>
   );
 };
 

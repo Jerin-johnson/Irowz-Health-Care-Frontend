@@ -1,4 +1,5 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
+import { resubmit } from "./hospitalVerification.slice";
 
 export const submitHospitalVerificationThunk = createAsyncThunk<
   // Return type
@@ -45,6 +46,50 @@ export const submitHospitalVerificationThunk = createAsyncThunk<
     );
   }
 });
+
+interface ReSubmitHospitalVerificationArgs {
+  hospitalId: string;
+  formData: FormData;
+}
+
+export const reSubmitHospitalVerificationThunk = createAsyncThunk<
+  any,
+  ReSubmitHospitalVerificationArgs,
+  {
+    rejectValue: {
+      message: string;
+      fieldErrors?: Record<string, string[]>;
+    };
+  }
+>(
+  "hospitalVerification/reSubmit",
+  async ({ hospitalId, formData }, { rejectWithValue, dispatch }) => {
+    try {
+      const res = await fetch(
+        `/api/hospital-admin/verification/reapply/${hospitalId}`,
+        {
+          method: "POST",
+          body: formData,
+          credentials: "include",
+        }
+      );
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        return rejectWithValue(data);
+      }
+
+      dispatch(resubmit());
+
+      return data.data;
+    } catch (error: any) {
+      return rejectWithValue({
+        message: error?.message || "Network error. Please try again.",
+      });
+    }
+  }
+);
 
 export const fetchHospitalVerificationStatusThunk = createAsyncThunk<
   {

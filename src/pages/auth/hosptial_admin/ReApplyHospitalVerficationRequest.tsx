@@ -1,23 +1,23 @@
-import React, { useEffect, useState } from "react";
-import { Building2, Shield, Clock, Upload, Eye, EyeOff } from "lucide-react";
+import React, { useEffect } from "react";
+import { Building2, Shield, Clock, Upload } from "lucide-react";
 import { states } from "../../../constants/state";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { z } from "zod";
-import { hospitalVerificationSchema } from "../../../validators/hospitalVerification.schema";
+
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
-import { submitHospitalVerificationThunk } from "../../../store/slice/hospital/hospitalVerification.thunks";
+import { reSubmitHospitalVerificationThunk } from "../../../store/slice/hospital/hospitalVerification.thunks";
 import { notify } from "../../../shared/notification/toast";
+import { ReApplyhospitalVerificationSchema } from "../../../validators/ReapplyHosptialVerfication.schema";
 
-type FormData = z.infer<typeof hospitalVerificationSchema>;
+type FormData = z.infer<typeof ReApplyhospitalVerificationSchema>;
 
-const HospitalVerification: React.FC = () => {
-  const [showPassword, setShowPassword] = useState(false);
+const ReApplyHosptialVerficationRequest: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const { error, loading, status } = useAppSelector(
+  const { error, loading, status, verificationId } = useAppSelector(
     (state) => state.hospitalVerification
   );
 
@@ -34,7 +34,7 @@ const HospitalVerification: React.FC = () => {
     watch,
     formState: { errors },
   } = useForm<FormData>({
-    resolver: zodResolver(hospitalVerificationSchema),
+    resolver: zodResolver(ReApplyhospitalVerificationSchema),
   });
 
   const licenseDocument = watch("licenseDocument");
@@ -46,14 +46,9 @@ const HospitalVerification: React.FC = () => {
   function returnFormData(data: FormData) {
     const formData = new window.FormData();
 
-    formData.append("hospitalName", data.hospitalName);
-    formData.append("registrationNumber", data.registrationNumber);
     formData.append("hospitalAddress", data.hospitalAddress);
     formData.append("city", data.city);
     formData.append("state", data.state);
-    formData.append("officialEmail", data.officialEmail);
-    formData.append("password", data.password);
-    formData.append("phone", data.phone);
     formData.append("pincode", data.pincode);
 
     if (data.licenseDocument) {
@@ -65,7 +60,16 @@ const HospitalVerification: React.FC = () => {
 
   const onSubmit = async (data: FormData) => {
     const formData = returnFormData(data);
-    const result = await dispatch(submitHospitalVerificationThunk(formData));
+
+    if (!verificationId) {
+      return notify.error("verfication id is missing opps");
+    }
+    const result = await dispatch(
+      reSubmitHospitalVerificationThunk({
+        hospitalId: verificationId,
+        formData,
+      })
+    );
 
     console.log(error);
     const check = result as any;
@@ -185,7 +189,7 @@ const HospitalVerification: React.FC = () => {
             </div>
 
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              Hospital Verification Request
+              ReApply Hospital Verfication Request
             </h1>
             <p className="text-gray-600 mb-8">
               Submit your hospital details for platform approval.
@@ -198,36 +202,6 @@ const HospitalVerification: React.FC = () => {
             )}
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-              {/* Hospital Name */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Hospital Name <span className="text-red-500">*</span>
-                </label>
-                <input
-                  {...register("hospitalName")}
-                  placeholder="Enter hospital name"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg"
-                />
-                <p className="text-red-500 text-sm">
-                  {errors.hospitalName?.message}
-                </p>
-              </div>
-
-              {/* Registration Number */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Registration Number <span className="text-red-500">*</span>
-                </label>
-                <input
-                  {...register("registrationNumber")}
-                  placeholder="Enter registration number"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg"
-                />
-                <p className="text-red-500 text-sm">
-                  {errors.registrationNumber?.message}
-                </p>
-              </div>
-
               {/* Hospital Address */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -281,66 +255,8 @@ const HospitalVerification: React.FC = () => {
                 </div>
               </div>
 
-              {/* Email */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Official Email Address <span className="text-red-500">*</span>
-                </label>
-                <input
-                  {...register("officialEmail")}
-                  type="email"
-                  placeholder="hospital@example.com"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg"
-                />
-                <p className="text-red-500 text-sm">
-                  {errors.officialEmail?.message}
-                </p>
-              </div>
-
-              {/* Password */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Password <span className="text-red-500">*</span>
-                </label>
-                <div className="relative">
-                  <input
-                    {...register("password")}
-                    type={showPassword ? "text" : "password"}
-                    placeholder="Create a password"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg pr-12"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2"
-                  >
-                    {showPassword ? <EyeOff /> : <Eye />}
-                  </button>
-                </div>
-                <p className="text-xs text-gray-500 mt-1">
-                  At least 8 characters with uppercase, lowercase, and numbers
-                </p>
-                <p className="text-red-500 text-sm">
-                  {errors.password?.message}
-                </p>
-              </div>
-
               {/* Phone & Pincode */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Phone Number <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    {...register("phone")}
-                    placeholder="+91 XXX-XXX-XXXX"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg"
-                  />
-                  <p className="text-red-500 text-sm">
-                    {errors.phone?.message}
-                  </p>
-                </div>
-
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Pincode <span className="text-red-500">*</span>
@@ -429,4 +345,4 @@ const HospitalVerification: React.FC = () => {
   );
 };
 
-export default HospitalVerification;
+export default ReApplyHosptialVerficationRequest;

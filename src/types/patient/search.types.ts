@@ -1,7 +1,12 @@
 export interface FilterOptions {
-  location: string;
-  gender: string;
-  specialty: string;
+  location?: string; // fallback city
+  specialty?: string;
+  search: string;
+  useLocation?: boolean;
+  latitude?: number;
+  longitude?: number;
+  radiusKm?: number;
+  locationLabel?: string;
 }
 
 export interface SearchInputProps {

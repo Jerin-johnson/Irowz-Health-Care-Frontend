@@ -2,7 +2,7 @@ import type { NavItem } from "../../types/landingPage";
 import React, { useState } from "react";
 import { Menu, X, ChevronDown } from "lucide-react";
 import Button from "../common/Button";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { logoutThunk } from "../../store/slice/Auth/auth.thunks";
@@ -14,8 +14,8 @@ export const Navbar: React.FC = () => {
   const dispatch = useAppDispatch();
 
   const navItems: NavItem[] = [
-    { label: "Home", href: "#" },
-    { label: "Doctors", href: "#" },
+    { label: "Home", href: "/" },
+    { label: "Doctors", href: "/patient/doctors" },
     { label: "Blog", href: "#", hasDropdown: true },
     { label: "Contact Us", href: "#" },
   ];
@@ -46,18 +46,16 @@ export const Navbar: React.FC = () => {
           {/* Desktop Menu */}
           <div className="hidden lg:flex items-center space-x-8">
             {navItems.map((item) => (
-              <a
+              <Link
                 key={item.label}
-                href={item.href}
+                to={item.href}
                 className="text-gray-700 hover:text-blue-500 flex items-center gap-1"
               >
                 {item.label}
                 {item.hasDropdown && <ChevronDown size={16} />}
-              </a>
+              </Link>
             ))}
           </div>
-
-          {name && <Button variant="primary">{name}</Button>}
 
           {/* Auth Buttons */}
           {isAuthenticated ? (

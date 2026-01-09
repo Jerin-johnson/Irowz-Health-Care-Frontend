@@ -8,6 +8,7 @@ import {
   MessageSquare,
 } from "lucide-react";
 import type { Doctor } from "../../../types/patient/DoctorProfile/doctor.profile.types";
+import { useNavigate } from "react-router-dom";
 
 interface Props {
   doctor: Doctor;
@@ -20,6 +21,12 @@ const DoctorProfileHeader: React.FC<Props> = ({
   isFavorite,
   onToggleFavorite,
 }) => {
+  const navigate = useNavigate();
+
+  function handleBooking(doctorId: string) {
+    navigate(`/patient/doctor/slots/${doctorId}`);
+  }
+
   return (
     <div className="bg-white rounded-lg shadow-md p-6 mb-6">
       <div className="flex flex-col md:flex-row gap-6">
@@ -28,7 +35,7 @@ const DoctorProfileHeader: React.FC<Props> = ({
           <div className="relative">
             <div className="w-32 h-32 rounded-lg overflow-hidden bg-gray-200">
               <img
-                src="/image-2.png"
+                src={doctor.image}
                 alt={doctor.name}
                 className="w-full h-full object-cover"
               />
@@ -120,7 +127,10 @@ const DoctorProfileHeader: React.FC<Props> = ({
             <button className="px-6 py-2 border-2 border-blue-500 text-blue-500 rounded hover:bg-blue-50">
               Add Feedback
             </button>
-            <button className="px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+            <button
+              className="px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+              onClick={() => handleBooking(doctor.id)}
+            >
               Book Appointment
             </button>
           </div>

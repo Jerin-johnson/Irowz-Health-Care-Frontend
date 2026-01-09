@@ -1,12 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { CheckCircle, AlertTriangle, Home, Mail, Settings } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import { useNavigate } from "react-router-dom";
 import { fetchHospitalVerificationStatusThunk } from "../../../store/slice/hospital/hospitalVerification.thunks";
 
 const VerificationStatus: React.FC = () => {
-  const [emailResent, setEmailResent] = useState(false);
-
   const navigate = useNavigate();
   const {
     verificationId,
@@ -20,9 +18,7 @@ const VerificationStatus: React.FC = () => {
 
   const dispatch = useAppDispatch();
   const handleResendEmail = () => {
-    setEmailResent(true);
-    setTimeout(() => setEmailResent(false), 3000);
-    console.log("Confirmation email resent");
+    navigate("/hospital/verification/reapply");
   };
 
   useEffect(() => {
@@ -152,13 +148,15 @@ const VerificationStatus: React.FC = () => {
 
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-3 mb-6">
-          <button
-            onClick={handleResendEmail}
-            className="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition flex items-center justify-center gap-2 shadow-sm"
-          >
-            <Mail className="w-5 h-5" />
-            {emailResent ? "Email Sent!" : "Resend Confirmation Email"}
-          </button>
+          {status == "REJECTED" && (
+            <button
+              onClick={handleResendEmail}
+              className="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition flex items-center justify-center gap-2 shadow-sm"
+            >
+              <Mail className="w-5 h-5" />
+              ReApply Verfication Request
+            </button>
+          )}
 
           <button
             onClick={handleBackToHome}
@@ -168,19 +166,6 @@ const VerificationStatus: React.FC = () => {
             Back to Home
           </button>
         </div>
-
-        {/* Success Message */}
-        {emailResent && (
-          <div className="bg-green-50 border border-green-200 rounded-lg px-4 py-3 mb-6 animate-fade-in">
-            <div className="flex items-center gap-3">
-              <CheckCircle className="w-5 h-5 text-green-600" />
-              <p className="text-sm text-green-800 font-medium">
-                Confirmation email has been resent to {/* {offic} */} Need to
-                fix this
-              </p>
-            </div>
-          </div>
-        )}
 
         {/* Support Information */}
         <div className="text-center">

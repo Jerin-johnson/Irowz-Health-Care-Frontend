@@ -43,6 +43,12 @@ const HospitalVerificationReview: React.FC = () => {
   };
 
   const handleReject = async () => {
+    if (internalNotes.length < 3) {
+      return notify.error(
+        "Reject Reason is mandatory actually please add that "
+      );
+    }
+
     const isConfirmed = await confirmAction({
       title: "Reject Hospital?",
       description: "This will reject the hosptial verfication request",

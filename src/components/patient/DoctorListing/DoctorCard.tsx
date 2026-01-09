@@ -4,8 +4,8 @@ import { Badge } from "../Badge";
 import { AvailabilityBadge } from "./AvailabilityBadge";
 import { Button } from "../Button";
 import type { Doctor } from "../../../types/patient/doctorListing.type";
+import { formatDistance } from "../../../utils/distance";
 
-// DoctorCard Component
 interface DoctorCardProps {
   doctor: Doctor;
   onViewProfile: (doctorId: string) => void;
@@ -53,6 +53,13 @@ export const DoctorCard: React.FC<DoctorCardProps> = ({
               <Calendar size={14} />
               {doctor.votes} Votes
             </div>
+            {/* Distance */}
+            {doctor.distance !== undefined && (
+              <div className="flex items-center gap-1 text-sm text-gray-500 mt-1">
+                <MapPin size={14} />
+                <span>{formatDistance(doctor.distance)} away</span>
+              </div>
+            )}
           </div>
         </div>
 

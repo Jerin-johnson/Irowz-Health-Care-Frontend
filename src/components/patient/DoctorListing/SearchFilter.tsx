@@ -1,10 +1,32 @@
 import { useState } from "react";
-
+import { MapPin, X } from "lucide-react";
 import { SearchInput } from "../SearchInput";
 import { SelectDropdown } from "../SelectDropDown";
-import { MapPin, Stethoscope, User } from "lucide-react";
 import { Button } from "../Button";
 import type { FilterOptions } from "../../../types/patient/search.types";
+import { reverseGeocode } from "../../../utils/reverseGeoCode";
+
+export const getUserLocation = (): Promise<{
+  latitude: number;
+  longitude: number;
+}> => {
+  return new Promise((resolve, reject) => {
+    if (!navigator.geolocation) {
+      reject("Geolocation not supported");
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        resolve({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+        });
+      },
+      () => reject("Location permission denied"),
+      { enableHighAccuracy: true }
+    );
+  });
+};
 
 interface SearchFilterProps {
   filters: FilterOptions;
@@ -17,60 +39,112 @@ export const SearchFilter: React.FC<SearchFilterProps> = ({
   onFilterChange,
   onSearch,
 }) => {
-  const [searchText, setSearchText] = useState("");
+  const [locLoading, setLocLoading] = useState(false);
+
+  const enableLocation = async () => {
+    try {
+      setLocLoading(true);
+
+      const { latitude, longitude } = await getUserLocation();
+      const place = await reverseGeocode(latitude, longitude);
+
+      onFilterChange({
+        ...filters,
+        useLocation: true,
+        latitude,
+        longitude,
+        radiusKm: filters.radiusKm ?? 5,
+        locationLabel: place.city
+          ? `${place.city}, ${place.state}`
+          : place.displayName,
+      });
+    } catch {
+      alert("Unable to fetch location");
+    } finally {
+      setLocLoading(false);
+    }
+  };
+
+  const disableLocation = () => {
+    onFilterChange({
+      ...filters,
+      useLocation: false,
+      latitude: undefined,
+      longitude: undefined,
+      radiusKm: undefined,
+      locationLabel: undefined,
+    });
+  };
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6 space-y-4">
-      <h3 className="text-lg font-semibold text-gray-900 mb-4">
-        Search Filter
-      </h3>
+    <div className="bg-white rounded-lg shadow-md p-6 space-y-5">
+      <h3 className="text-lg font-semibold text-gray-900">Search & Filters</h3>
 
+      {/* Search */}
       <SearchInput
-        placeholder="Search doctors, clinics, etc."
-        value={searchText}
-        onChange={setSearchText}
+        placeholder="Search doctors, clinics, specialties..."
+        value={filters.search}
+        onChange={(value: string) =>
+          onFilterChange({ ...filters, search: value })
+        }
       />
 
-      <SelectDropdown
-        label="Location"
-        value={filters.location}
-        options={[
-          { value: "", label: "Select a location" },
-          { value: "new-york", label: "New York" },
-          { value: "los-angeles", label: "Los Angeles" },
-          { value: "chicago", label: "Chicago" },
-        ]}
-        onChange={(value) => onFilterChange({ ...filters, location: value })}
-        icon={<MapPin size={16} />}
-      />
+      {/* Location (CLEAN VERSION – ONLY THIS CHANGED) */}
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 text-gray-800">
+            <MapPin size={18} className="text-gray-500" />
+            <span className="text-sm font-medium">Use current location</span>
+          </div>
 
-      <SelectDropdown
-        label="Gender"
-        value={filters.gender}
-        options={[
-          { value: "", label: "Search by gender" },
-          { value: "male", label: "Male" },
-          { value: "female", label: "Female" },
-          { value: "any", label: "Any" },
-        ]}
-        onChange={(value) => onFilterChange({ ...filters, gender: value })}
-        icon={<User size={16} />}
-      />
+          {filters.useLocation ? (
+            <button
+              onClick={disableLocation}
+              className="text-xs text-red-500 hover:underline"
+            >
+              Disable
+            </button>
+          ) : (
+            <button
+              onClick={enableLocation}
+              disabled={locLoading}
+              className="text-xs text-blue-600 hover:underline disabled:opacity-50"
+            >
+              {locLoading ? "Detecting..." : "Enable"}
+            </button>
+          )}
+        </div>
 
-      <SelectDropdown
-        label="Specialist"
-        value={filters.specialty}
-        options={[
-          { value: "", label: "Select a specialty" },
-          { value: "cardiologist", label: "Cardiologist" },
-          { value: "dermatologist", label: "Dermatologist" },
-          { value: "dentist", label: "Dentist" },
-          { value: "general", label: "General Practice" },
-        ]}
-        onChange={(value) => onFilterChange({ ...filters, specialty: value })}
-        icon={<Stethoscope size={16} />}
-      />
+        {/* Location label */}
+        {filters.useLocation && (
+          <div className="flex items-center gap-2 text-sm text-gray-600 pl-1">
+            <MapPin size={14} />
+            <span className="truncate">{filters.locationLabel}</span>
+          </div>
+        )}
+      </div>
 
+      {/* Distance */}
+      {filters.useLocation && (
+        <SelectDropdown
+          label="Distance"
+          value={String(filters.radiusKm)}
+          options={[
+            { value: "2", label: "Within 2 km" },
+            { value: "5", label: "Within 5 km" },
+            { value: "10", label: "Within 10 km" },
+            { value: "15", label: "Within 15 km" },
+          ]}
+          onChange={(value) =>
+            onFilterChange({
+              ...filters,
+              radiusKm: Number(value),
+            })
+          }
+        />
+      )}
+
+      {/* Search Button */}
       <Button onClick={onSearch} fullWidth>
         SEARCH
       </Button>

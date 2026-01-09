@@ -1,60 +1,47 @@
 import { useState } from "react";
 import type { FilterOptions } from "../../../types/patient/search.types";
-import type { Doctor } from "../../../types/patient/doctorListing.type";
 import { SearchFilter } from "../../../components/patient/DoctorListing/SearchFilter";
 import { DoctorCard } from "../../../components/patient/DoctorListing/DoctorCard";
+import { Pagination } from "../../../components/common/Pagination";
+import { useDoctors } from "../../../hooks/patient/doctorListing/useSearchDoctor";
+import { useNavigate } from "react-router-dom";
+import { DoctorCardSkeleton } from "../../../components/patient/DoctorListing/DoctorShimmerUi";
+import { useDebounce } from "../../../hooks/common/useDebounce";
 
 const DoctorListing: React.FC = () => {
   const [filters, setFilters] = useState<FilterOptions>({
     location: "",
-    gender: "",
     specialty: "",
+    search: "",
+    useLocation: false,
   });
 
-  const [doctors] = useState<Doctor[]>([
-    {
-      id: "1",
-      name: "Dr Saeed Tamer",
-      specialty: "DOCTOR",
-      rating: 0,
-      votes: 0,
-      clinic: "The Family Dentistry Clinic",
-      availability: "not-available",
-      price: 998.0,
-      badges: ["Cardiologist"],
-    },
-    {
-      id: "2",
-      name: "Dr Ruby Perrin",
-      specialty: "DOCTOR",
-      rating: 0,
-      votes: 0,
-      clinic: "The Family Dentistry Clinic",
-      availability: "available",
-      schedule: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
-      price: 300.0,
-      badges: [],
-    },
-    {
-      id: "3",
-      name: "Dr Darren Elder",
-      specialty: "Cardiologist",
-      rating: 5,
-      votes: 1,
-      clinic: "The Family Dentistry Clinic",
-      availability: "available",
-      schedule: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
-      price: 150.0,
-      badges: ["Cardiologist"],
-    },
-  ]);
+  const debouncedSearch = useDebounce(filters.search, 500);
+
+  const navigate = useNavigate();
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const debouncedFilters = {
+    ...filters,
+    search: debouncedSearch,
+  };
+
+  const { data, isFetching, refetch } = useDoctors(
+    debouncedFilters,
+    currentPage
+  );
+
+  const doctors = data?.doctors ?? [];
+  const totalPages = data?.pagination.totalPages ?? 1;
 
   const handleSearch = () => {
-    console.log("Searching with filters:", filters);
+    setCurrentPage(1);
+    refetch();
   };
 
   const handleViewProfile = (doctorId: string) => {
-    console.log("Viewing profile for doctor:", doctorId);
+    console.log("View doctor:", doctorId);
+    navigate(`/patient/doctor/${doctorId}`);
   };
 
   return (
@@ -85,6 +72,10 @@ const DoctorListing: React.FC = () => {
 
           {/* Doctor List */}
           <div className="lg:col-span-3 space-y-4">
+            {!isFetching && doctors.length == 0 && (
+              <div>sorry not doctor found actually</div>
+            )}
+
             {doctors.map((doctor) => (
               <DoctorCard
                 key={doctor.id}
@@ -92,7 +83,24 @@ const DoctorListing: React.FC = () => {
                 onViewProfile={handleViewProfile}
               />
             ))}
+            {isFetching && (
+              <div className="space-y-4">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <DoctorCardSkeleton key={i} />
+                ))}
+              </div>
+            )}
           </div>
+        </div>
+        <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
+          <p className="text-sm text-gray-600">
+            Page {currentPage} of {totalPages}
+          </p>
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
         </div>
       </div>
     </div>

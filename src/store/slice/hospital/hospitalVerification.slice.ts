@@ -2,6 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 import type { HospitalVerificationState } from "./hospitalVerification.types";
 import {
   fetchHospitalVerificationStatusThunk,
+  reSubmitHospitalVerificationThunk,
   submitHospitalVerificationThunk,
 } from "./hospitalVerification.thunks";
 
@@ -26,6 +27,9 @@ const hospitalVerificationSlice = createSlice({
     },
     clearError: (state) => {
       state.error = null;
+    },
+    resubmit: (state) => {
+      state.status = "PENDING";
     },
   },
   extraReducers: (builder) => {
@@ -53,7 +57,12 @@ const hospitalVerificationSlice = createSlice({
           state.status = action.payload.status;
           state.adminRemarks = action.payload.adminRemarks ?? null;
         }
-      );
+      )
+      .addCase(reSubmitHospitalVerificationThunk.fulfilled, (state, action) => {
+        console.log("does this run correctly", state, action);
+        state.status = "PENDING";
+        state.city = action.payload.city ? action.payload.city : state.city;
+      });
   },
 });
 
@@ -62,5 +71,6 @@ export const {
   approveRequest,
   rejectRequest,
   clearError,
+  resubmit,
 } = hospitalVerificationSlice.actions;
 export default hospitalVerificationSlice.reducer;
