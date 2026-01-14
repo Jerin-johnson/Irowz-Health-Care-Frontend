@@ -36,7 +36,7 @@ export interface DoctorProfileApiResponse {
 
   averageRating: number;
   totalReviews: number;
-
+  location: any;
   isActive: boolean;
   createdAt: string;
 }
@@ -69,6 +69,8 @@ export const mapDoctorProfileToDoctor = (
     phone: data.userId.phone,
 
     clinicName: data.hospitalId.name,
+    latitude: data.location.coordinates[1],
+    longitude: data.location.coordinates[0],
 
     about: data.bio,
   };

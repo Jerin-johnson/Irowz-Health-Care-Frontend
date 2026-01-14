@@ -7,6 +7,8 @@ export interface Doctor {
   patientsTreated: number;
   votes: number;
   feedback: number;
+  latitude: number;
+  longitude: number;
   rating: number;
   address: string;
   location: string;
@@ -26,8 +28,6 @@ export interface Review {
 }
 
 export interface Feedback {
-  name: string;
-  email: string;
   rating: number;
   comment: string;
 }

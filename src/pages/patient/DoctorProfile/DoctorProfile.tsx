@@ -12,6 +12,7 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchDoctorProfile } from "../../../api/apiService/patient/doctorListing";
 import { useParams } from "react-router-dom";
 import { mapDoctorProfileToDoctor } from "../../../mapper/doctor.profile.mapper";
+import DoctorProfileShimmer from "../../../components/patient/DoctorProfile/DoctorProfileShimmer";
 
 const DoctorProfile = () => {
   const [activeTab, setActiveTab] = useState<
@@ -42,7 +43,11 @@ const DoctorProfile = () => {
   });
 
   if (isLoading) {
-    return <div>Loading</div>;
+    return (
+      <div>
+        <DoctorProfileShimmer />
+      </div>
+    );
   }
 
   if (!doctor) {
@@ -68,6 +73,7 @@ const DoctorProfile = () => {
           doctor={doctor as Doctor}
           isFavorite={isFavorite}
           onToggleFavorite={() => setIsFavorite(!isFavorite)}
+          setActiveTab={setActiveTab}
         />
 
         <div className="bg-white rounded-lg shadow-md">
@@ -78,7 +84,7 @@ const DoctorProfile = () => {
               <DoctorOverview name={doctor.name} about={doctor.about} />
             )}
             {activeTab === "location" && <DoctorLocation doctor={doctor} />}
-            {activeTab === "reviews" && <DoctorReviews reviews={reviews} />}
+            {activeTab === "reviews" && <DoctorReviews doctorId={doctor.id} />}
           </div>
         </div>
       </div>

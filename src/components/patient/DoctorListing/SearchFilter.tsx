@@ -48,6 +48,8 @@ export const SearchFilter: React.FC<SearchFilterProps> = ({
       const { latitude, longitude } = await getUserLocation();
       const place = await reverseGeocode(latitude, longitude);
 
+      console.log("The place is ", place);
+
       onFilterChange({
         ...filters,
         useLocation: true,
@@ -134,6 +136,7 @@ export const SearchFilter: React.FC<SearchFilterProps> = ({
             { value: "5", label: "Within 5 km" },
             { value: "10", label: "Within 10 km" },
             { value: "15", label: "Within 15 km" },
+            { value: "50", label: "Within 50 km" },
           ]}
           onChange={(value) =>
             onFilterChange({

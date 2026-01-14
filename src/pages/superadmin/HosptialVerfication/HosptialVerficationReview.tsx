@@ -5,9 +5,11 @@ import {
   approveHospitalVerficationRequest,
   getHospitalRequestByID,
   rejectHospitalVerficationRequest,
+  viewLinescheApi,
 } from "../../../api/apiService/superAdmin/hosptialVerfication.service";
 import { confirmAction } from "../../../shared/notification/confirm";
 import { notify } from "../../../shared/notification/toast";
+import { da } from "zod/v4/locales";
 
 interface HospitalVerification {
   _id: string;
@@ -97,6 +99,22 @@ const HospitalVerificationReview: React.FC = () => {
       notify.error(
         error?.response?.data?.message || "Approval failed. Please try again."
       );
+    }
+  };
+
+  const viewLicense = async () => {
+    try {
+      if (!id) return;
+      const data = await viewLinescheApi(id);
+
+      if (!data.success) {
+        notify.error("Something went wrong sorry");
+      }
+
+      window.open(data.signedUrl, "_blank", "noopener,noreferrer");
+    } catch (error) {
+      console.error("Failed to open license", error);
+      alert("Something went wrong");
     }
   };
 
@@ -281,15 +299,13 @@ const HospitalVerificationReview: React.FC = () => {
                 <FileText className="w-8 h-8 text-red-500" />
               </div>
 
-              <a
-                href={data.licenseDocumentUrl}
-                target="_blank"
-                rel="noopener noreferrer"
+              <button
+                onClick={() => viewLicense()}
                 className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 font-medium"
               >
                 <ExternalLink className="w-4 h-4" />
                 View Fullscreen
-              </a>
+              </button>
             </div>
           </div>
 

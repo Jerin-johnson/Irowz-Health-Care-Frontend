@@ -36,12 +36,12 @@ export interface verifyDoctorPaymentPayload {
 export const verifyDoctorPayment = async (
   payload: verifyDoctorPaymentPayload
 ) => {
-  const res = await api.post("patient/payment/verify", payload);
+  const res = await api.post("/patient/payment/verify", payload);
   return res.data;
 };
 
 export const successAppoinmentBooking = async (id: string) => {
-  const res = await api.get(`patient/appointment/success/${id}`);
+  const res = await api.get(`/patient/appointment/success/${id}`);
   console.log("The response is", res);
   return res.data.data;
 };

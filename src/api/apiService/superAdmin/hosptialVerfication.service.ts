@@ -45,3 +45,11 @@ export const rejectHospitalVerficationRequest = async (
   console.log("service side", res);
   return res.data;
 };
+
+export const viewLinescheApi = async (id: string) => {
+  const res = await api.get(
+    `/super-admin/hospital-verifications/${id}/license/view`
+  );
+  console.log("service side", res);
+  return res.data;
+};

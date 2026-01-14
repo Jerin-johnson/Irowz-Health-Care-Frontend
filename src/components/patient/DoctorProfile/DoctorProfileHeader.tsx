@@ -14,12 +14,14 @@ interface Props {
   doctor: Doctor;
   isFavorite: boolean;
   onToggleFavorite: () => void;
+  setActiveTab: any;
 }
 
 const DoctorProfileHeader: React.FC<Props> = ({
   doctor,
   isFavorite,
   onToggleFavorite,
+  setActiveTab,
 }) => {
   const navigate = useNavigate();
 
@@ -124,7 +126,10 @@ const DoctorProfileHeader: React.FC<Props> = ({
           </div>
 
           <div className="flex gap-3">
-            <button className="px-6 py-2 border-2 border-blue-500 text-blue-500 rounded hover:bg-blue-50">
+            <button
+              className="px-6 py-2 border-2 border-blue-500 text-blue-500 rounded hover:bg-blue-50"
+              onClick={() => setActiveTab("reviews")}
+            >
               Add Feedback
             </button>
             <button

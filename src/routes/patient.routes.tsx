@@ -1,39 +1,70 @@
 import PatientLayout from "../layout/PatientLayout";
+import PatientProfileLayout from "../layout/patientProfile.layout";
+
 import AppointmentSuccess from "../pages/patient/apponimentBookingStatus/AppointmentSuccess";
 import DoctorBooking from "../pages/patient/DoctorBooking/DoctorBooking";
 import DoctorSlots from "../pages/patient/DoctorBooking/DoctorSlot";
 import DoctorListing from "../pages/patient/DoctorListing/DoctorListing";
 import DoctorProfile from "../pages/patient/DoctorProfile/DoctorProfile";
+import PatientProfile from "../pages/patient/proflile/PatientProfile";
+
 import ProtectedRoute from "./protectRoutes";
 
 export const patientRoutes = {
   path: "/patient",
-  element: <PatientLayout />,
   children: [
-    // PUBLIC ROUTE
+    // ===========================
+    // MAIN PATIENT LAYOUT
+    // ===========================
     {
-      path: "doctors",
-      element: <DoctorListing />,
-    },
-    {
-      path: "doctor/:id",
-      element: <DoctorProfile />,
+      element: <PatientLayout />,
+      children: [
+        {
+          path: "doctors",
+          element: <DoctorListing />,
+        },
+        {
+          path: "doctor/:id",
+          element: <DoctorProfile />,
+        },
+        {
+          element: <ProtectedRoute allowedRoles={["PATIENT"]} />,
+          children: [
+            {
+              path: "doctor/slots/:id",
+              element: <DoctorSlots />,
+            },
+            {
+              path: "doctor/booking",
+              element: <DoctorBooking />,
+            },
+            {
+              path: "booking-success/:id",
+              element: <AppointmentSuccess />,
+            },
+          ],
+        },
+      ],
     },
 
+    // ===========================
+    // PROFILE LAYOUT (SEPARATE)
+    // ===========================
     {
       element: <ProtectedRoute allowedRoles={["PATIENT"]} />,
       children: [
         {
-          path: "doctor/slots/:id",
-          element: <DoctorSlots />,
-        },
-        {
-          path: "doctor/booking",
-          element: <DoctorBooking />,
-        },
-        {
-          path: "booking-success/:id",
-          element: <AppointmentSuccess />,
+          element: <PatientProfileLayout />,
+          children: [
+            {
+              path: "profile",
+              element: <PatientProfile />,
+            },
+            //   {
+            //     path: "appointments",
+            //     element: <PatientAppointments />,
+            //   },
+          ],
         },
       ],
     },
