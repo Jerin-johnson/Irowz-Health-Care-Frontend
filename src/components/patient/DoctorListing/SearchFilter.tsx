@@ -5,6 +5,7 @@ import { SelectDropdown } from "../SelectDropDown";
 import { Button } from "../Button";
 import type { FilterOptions } from "../../../types/patient/search.types";
 import { reverseGeocode } from "../../../utils/reverseGeoCode";
+import { notify } from "../../../shared/notification/toast";
 
 export const getUserLocation = (): Promise<{
   latitude: number;
@@ -12,7 +13,7 @@ export const getUserLocation = (): Promise<{
 }> => {
   return new Promise((resolve, reject) => {
     if (!navigator.geolocation) {
-      reject("Geolocation not supported");
+      return reject(new Error("Geolocation not supported"));
     }
 
     navigator.geolocation.getCurrentPosition(
@@ -22,8 +23,20 @@ export const getUserLocation = (): Promise<{
           longitude: position.coords.longitude,
         });
       },
-      () => reject("Location permission denied"),
-      { enableHighAccuracy: true }
+      (error) => {
+        reject(
+          new Error(
+            error.code === error.PERMISSION_DENIED
+              ? "Location permission denied"
+              : "Unable to fetch location"
+          )
+        );
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0,
+      }
     );
   });
 };
@@ -60,8 +73,12 @@ export const SearchFilter: React.FC<SearchFilterProps> = ({
           ? `${place.city}, ${place.state}`
           : place.displayName,
       });
-    } catch {
-      alert("Unable to fetch location");
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Failed to detect location";
+
+      console.error(err);
+      notify.error(message);
     } finally {
       setLocLoading(false);
     }

@@ -13,6 +13,7 @@ import {
   X,
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
+import { useAppSelector } from "../../../store/hooks";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -32,6 +33,12 @@ const menuItems = [
 ];
 
 const PatientSidebar = ({ isOpen, onClose }: SidebarProps) => {
+  const { userId, profileImage, name, patientId } = useAppSelector(
+    (state) => state.auth
+  );
+
+  console.log("the PatientId is ", patientId);
+
   return (
     <>
       {isOpen && (
@@ -59,11 +66,13 @@ const PatientSidebar = ({ isOpen, onClose }: SidebarProps) => {
         <div className="p-6 border-b">
           <div className="text-center">
             <img
-              src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150"
+              src={profileImage}
               className="w-24 h-24 rounded-full mx-auto mb-3"
             />
-            <h3 className="font-bold">Hendrita</h3>
-            <p className="text-xs text-gray-500">Patient ID: #P564654</p>
+            <h3 className="font-bold">{name}</h3>
+            <p className="text-xs text-gray-500">
+              Patient ID: {userId?.slice(-7)}
+            </p>
           </div>
         </div>
 

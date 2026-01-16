@@ -33,7 +33,6 @@ export function useDoctorProfile() {
     },
   });
 
-  // React Query for fetching
   const { data, isLoading, isError } = useQuery({
     queryKey: ["doctor-profile"],
     queryFn: getDoctorProfile,
@@ -56,7 +55,6 @@ export function useDoctorProfile() {
     },
   });
 
-  // Sync query data → form
   useEffect(() => {
     if (!data?.data) return;
     console.log("the data is ", data);

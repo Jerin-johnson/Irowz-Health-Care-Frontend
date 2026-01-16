@@ -20,17 +20,6 @@ const DoctorProfile = () => {
   >("overview");
   const [isFavorite, setIsFavorite] = useState(false);
 
-  const reviews: Review[] = [
-    {
-      id: "1",
-      patientName: "Sarah Johnson",
-      rating: 5,
-      date: "Dec 15, 2024",
-      comment: "Excellent doctor",
-      recommended: true,
-    },
-  ];
-
   const { id: doctorId } = useParams();
 
   const { data: doctor, isLoading } = useQuery({

@@ -21,6 +21,11 @@ const DoctorReviews: React.FC<DoctorReviewsProps> = ({ doctorId }) => {
 
   const auth = useAppSelector((state) => state.auth.isAuthenticated);
 
+  if (!auth) {
+    notify.error("Please login to continue");
+    return;
+  }
+
   const { data: reviews, isPending } = useQuery({
     queryKey: ["doctor:reviews", doctorId],
     queryFn: async () => await getDoctorReviewAPi(doctorId),
@@ -40,11 +45,6 @@ const DoctorReviews: React.FC<DoctorReviewsProps> = ({ doctorId }) => {
 
   const handleFeedbackSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!auth) {
-      notify.error("Please login to continue");
-      return;
-    }
 
     postDoctorReviewMutate.mutate({
       rating: feedbackForm.rating,
@@ -174,7 +174,16 @@ const DoctorReviews: React.FC<DoctorReviewsProps> = ({ doctorId }) => {
                   <h4 className="font-semibold text-gray-900">
                     {review.patientName}
                   </h4>
-                  <p className="text-sm text-gray-500">{review.date}</p>
+                  <p className="text-sm text-gray-500">
+                    {new Date(review.date).toLocaleString("en-IN", {
+                      day: "2-digit",
+                      month: "short",
+                      year: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      hour12: true,
+                    })}
+                  </p>
                 </div>
 
                 <div className="flex">

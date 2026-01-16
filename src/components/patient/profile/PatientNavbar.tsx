@@ -25,7 +25,7 @@ const PatientNavbar = ({ onMenuToggle }: PatientNavbarProps) => {
           >
             <Menu className="w-6 h-6" />
           </button>
-          <h1 className="text-lg font-bold text-gray-900">Patient Dashboard</h1>
+          <h1 className="text-lg font-bold text-gray-900">Your Profile</h1>
         </div>
 
         <button

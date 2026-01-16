@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Camera } from "lucide-react";
 
 interface ProfileImageUploadProps {
@@ -12,14 +12,30 @@ const ProfileImageUpload: React.FC<ProfileImageUploadProps> = ({
 }) => {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [preview, setPreview] = useState<string | undefined>(imageUrl);
+  const [isLocalPreview, setIsLocalPreview] = useState(false);
+
+  useEffect(() => {
+    if (imageUrl && !isLocalPreview) {
+      setPreview(imageUrl);
+    }
+  }, [imageUrl, isLocalPreview]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     setPreview(URL.createObjectURL(file));
+    setIsLocalPreview(true);
     onFileSelect(file);
   };
+
+  useEffect(() => {
+    return () => {
+      if (preview?.startsWith("blob:")) {
+        URL.revokeObjectURL(preview);
+      }
+    };
+  }, [preview]);
 
   return (
     <div className="relative w-32 h-32 mx-auto">

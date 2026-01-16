@@ -6,6 +6,7 @@ import DoctorBooking from "../pages/patient/DoctorBooking/DoctorBooking";
 import DoctorSlots from "../pages/patient/DoctorBooking/DoctorSlot";
 import DoctorListing from "../pages/patient/DoctorListing/DoctorListing";
 import DoctorProfile from "../pages/patient/DoctorProfile/DoctorProfile";
+import PatientProfileSettings from "../pages/patient/patientProfileSettings/PatientProfileSettings";
 import PatientProfile from "../pages/patient/proflile/PatientProfile";
 
 import ProtectedRoute from "./protectRoutes";
@@ -47,9 +48,6 @@ export const patientRoutes = {
       ],
     },
 
-    // ===========================
-    // PROFILE LAYOUT (SEPARATE)
-    // ===========================
     {
       element: <ProtectedRoute allowedRoles={["PATIENT"]} />,
       children: [
@@ -60,10 +58,10 @@ export const patientRoutes = {
               path: "profile",
               element: <PatientProfile />,
             },
-            //   {
-            //     path: "appointments",
-            //     element: <PatientAppointments />,
-            //   },
+            {
+              path: "settings",
+              element: <PatientProfileSettings />,
+            },
           ],
         },
       ],
