@@ -9,6 +9,8 @@ import UserSignupPage from "../pages/auth/user/Register";
 import OTPVerification from "../pages/auth/user/Otp";
 import PublicRoute from "./PublicRoute";
 import ReApplyHosptialVerficationRequest from "../pages/auth/hosptial_admin/ReApplyHospitalVerficationRequest";
+import ForgotPassword from "../pages/auth/forgotPassword/ForgotPassword";
+import ResetPassword from "../pages/auth/forgotPassword/ResetPassword";
 
 export const authRoutes = {
   element: <PublicRoute />,
@@ -36,6 +38,8 @@ export const authRoutes = {
         },
         { path: "hospital/login", element: <HospitalAdminLoginPage /> },
         { path: "superadmin/login", element: <SuperAdminLoginPage /> },
+        { path: "forgot-password", element: <ForgotPassword /> },
+        { path: "reset-password", element: <ResetPassword /> },
       ],
     },
   ],

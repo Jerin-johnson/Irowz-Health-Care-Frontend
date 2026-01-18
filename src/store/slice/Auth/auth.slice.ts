@@ -56,8 +56,8 @@ const authSlice = createSlice({
         patientId: string;
         hospitalId: string;
         forcePasswordReset: boolean;
-        profileImage: string;
-      }>
+        profileImage?: string;
+      }>,
     ) => {
       state.userId = action.payload.userId;
       state.email = action.payload.email;

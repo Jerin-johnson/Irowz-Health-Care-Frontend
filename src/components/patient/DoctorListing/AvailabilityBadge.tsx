@@ -11,7 +11,7 @@ export const AvailabilityBadge: React.FC<AvailabilityBadgeProps> = ({
   nextAvailable,
 }) => {
   if (availability === "available") {
-    return <Badge text="Available Today" variant="success" />;
+    return <Badge text="Available " variant="success" />;
   }
   if (availability === "not-available") {
     return <Badge text="Not Available" variant="default" />;

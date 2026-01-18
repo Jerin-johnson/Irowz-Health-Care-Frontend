@@ -1,11 +1,13 @@
+import { useNavigate } from "react-router-dom";
 import Button from "../components/common/Button";
-import { SearchBar } from "../components/common/Sreach";
+// import { SearchBar } from "../components/common/Sreach";
 import DoctorsSection from "../components/landingPage/DoctorCard";
 import Footer from "../components/landingPage/Footer";
 import HowItWorksSection from "../components/landingPage/HowItWork";
 import { Navbar } from "../components/navbar/PublicNavbar";
 
 const LandingPage: React.FC = () => {
+  const naviage = useNavigate();
   return (
     <>
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50">
@@ -26,15 +28,20 @@ const LandingPage: React.FC = () => {
               </div>
 
               <p className="text-gray-600 text-lg">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+                Discover instant bookings, real-time slots & secure payments on
+                mobile/web. Connect with top doctors now!
               </p>
 
-              <Button variant="primary" className="text-lg px-8 py-3">
+              <Button
+                variant="primary"
+                className="text-lg px-8 py-3"
+                onClick={() => naviage("patient/doctors")}
+              >
                 Start a Consult
               </Button>
 
               {/* Search Bar */}
-              <SearchBar />
+              {/* <SearchBar /> */}
             </div>
 
             {/* Right Content - Doctor Image */}

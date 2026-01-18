@@ -85,8 +85,7 @@ export const DoctorCard: React.FC<DoctorCardProps> = ({
             </div>
           )}
           <div className="flex items-center gap-2">
-            <DollarSign size={14} />
-            <span className="font-medium">${doctor.price.toFixed(2)}</span>
+            <span className="font-medium">₹{doctor.price.toFixed(2)}</span>
           </div>
         </div>
 

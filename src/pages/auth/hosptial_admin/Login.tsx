@@ -63,7 +63,7 @@ const HospitalAdminLoginPage = () => {
           userEmail: email,
           password,
           UserRole: role as UserRoleExluce,
-        })
+        }),
       ).unwrap();
 
       navigate("/hospital-admin/dashboard");
@@ -78,7 +78,7 @@ const HospitalAdminLoginPage = () => {
         config={adminLoginConfig}
         onLogin={handleLogin}
         onGoogleLogin={() => console.log("Google login")}
-        onForgotPassword={() => console.log("Forgot password")}
+        onForgotPassword={() => navigate("/forgot-password")}
         onSignUp={() => console.log("Sign up")}
       />
     </div>

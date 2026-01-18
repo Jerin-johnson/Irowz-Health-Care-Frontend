@@ -62,7 +62,7 @@ const UserLoginPage = () => {
           userEmail: email,
           password,
           UserRole: role as UserRoleExluce,
-        })
+        }),
       ).unwrap();
       notify.success("Patient logged in successfully");
       navigate("/");
@@ -76,7 +76,7 @@ const UserLoginPage = () => {
       config={userLoginConfig}
       onLogin={handleLogin}
       onGoogleLogin={() => console.log("Google login")}
-      onForgotPassword={() => console.log("Forgot password")}
+      onForgotPassword={() => navigate("/forgot-password")}
       onSignUp={() => console.log("Sign up")}
     />
   );

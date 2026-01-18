@@ -63,7 +63,7 @@ const SuperAdminLoginPage = () => {
           userEmail: email,
           password,
           UserRole: role as UserRoleExluce,
-        })
+        }),
       ).unwrap();
 
       navigate("/super-admin/dashboard");
@@ -76,7 +76,7 @@ const SuperAdminLoginPage = () => {
       config={superAdminLoginConfig}
       onLogin={handleLogin}
       onGoogleLogin={() => console.log("Google login")}
-      onForgotPassword={() => console.log("Forgot password")}
+      onForgotPassword={() => navigate("/forgot-password")}
       onSignUp={() => console.log("Sign up")}
     />
   );

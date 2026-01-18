@@ -13,7 +13,7 @@ api.interceptors.request.use(
 
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => Promise.reject(error),
 );
 
 let isRefreshing = false;
@@ -56,7 +56,7 @@ api.interceptors.response.use(
           doctorId: user.doctorId || null,
           accessToken,
           forcePasswordReset: user.forcePasswordReset ? true : false,
-        })
+        }),
       );
 
       originalRequest.headers.Authorization = `Bearer ${accessToken}`;
@@ -67,5 +67,5 @@ api.interceptors.response.use(
     } finally {
       isRefreshing = false;
     }
-  }
+  },
 );
