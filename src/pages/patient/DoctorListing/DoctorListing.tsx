@@ -7,6 +7,7 @@ import { useDoctors } from "../../../hooks/patient/doctorListing/useSearchDoctor
 import { useNavigate } from "react-router-dom";
 import { DoctorCardSkeleton } from "../../../components/patient/DoctorListing/DoctorShimmerUi";
 import { useDebounce } from "../../../hooks/common/useDebounce";
+import type { Doctor } from "../../../types/patient/doctorListing.type";
 
 const DoctorListing: React.FC = () => {
   const [filters, setFilters] = useState<FilterOptions>({
@@ -28,7 +29,7 @@ const DoctorListing: React.FC = () => {
 
   const { data, isFetching, refetch } = useDoctors(
     debouncedFilters,
-    currentPage
+    currentPage,
   );
 
   const doctors = data?.doctors ?? [];
@@ -76,7 +77,7 @@ const DoctorListing: React.FC = () => {
               <div>sorry not doctor found actually</div>
             )}
 
-            {doctors.map((doctor) => (
+            {doctors.map((doctor: Doctor) => (
               <DoctorCard
                 key={doctor.id}
                 doctor={doctor}

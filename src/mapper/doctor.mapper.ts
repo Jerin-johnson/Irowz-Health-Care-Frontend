@@ -25,5 +25,6 @@ export const mapDoctorFromApi = (item: DoctorApiItem): Doctor => {
     price: item.consultationFee,
     badges: [item.specialtyName],
     distance: item.distance,
+    experienceYears: item.experienceYears,
   };
 };

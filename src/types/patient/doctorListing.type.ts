@@ -13,4 +13,5 @@ export interface Doctor {
   schedule?: string[];
   price: number;
   badges?: string[];
+  experienceYears: number | string;
 }

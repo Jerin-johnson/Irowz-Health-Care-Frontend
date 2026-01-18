@@ -6,6 +6,8 @@ import { Button } from "../Button";
 import type { FilterOptions } from "../../../types/patient/search.types";
 import { reverseGeocode } from "../../../utils/reverseGeoCode";
 import { notify } from "../../../shared/notification/toast";
+import { useQuery } from "@tanstack/react-query";
+import { fetchSpecailtyApi } from "../../../api/apiService/patient/doctorListing";
 
 export const getUserLocation = (): Promise<{
   latitude: number;
@@ -28,15 +30,15 @@ export const getUserLocation = (): Promise<{
           new Error(
             error.code === error.PERMISSION_DENIED
               ? "Location permission denied"
-              : "Unable to fetch location"
-          )
+              : "Unable to fetch location",
+          ),
         );
       },
       {
         enableHighAccuracy: true,
         timeout: 10000,
         maximumAge: 0,
-      }
+      },
     );
   });
 };
@@ -83,6 +85,18 @@ export const SearchFilter: React.FC<SearchFilterProps> = ({
       setLocLoading(false);
     }
   };
+
+  const { data: speciality } = useQuery({
+    queryKey: ["doctor:search:filter", filters],
+    queryFn: fetchSpecailtyApi,
+    staleTime: 1000 * 60 * 10,
+  });
+
+  const specialtyOptions =
+    speciality?.map((s: any) => ({
+      value: s._id,
+      label: s.name,
+    })) ?? [];
 
   const disableLocation = () => {
     onFilterChange({
@@ -163,6 +177,42 @@ export const SearchFilter: React.FC<SearchFilterProps> = ({
           }
         />
       )}
+
+      <SelectDropdown
+        label="Specialty"
+        value={filters.specialtyId as string}
+        options={[{ value: "", label: "All Specialties" }, ...specialtyOptions]}
+        onChange={(value) =>
+          onFilterChange({
+            ...filters,
+            specialtyId: value || undefined,
+          })
+        }
+      />
+
+      <SelectDropdown
+        label="Sort By"
+        value={`${filters.sortBy}-${filters.sortOrder}`}
+        options={[
+          { value: "rating-desc", label: "Rating: High to Low" },
+          { value: "price-asc", label: "Price: Low to High" },
+          { value: "price-desc", label: "Price: High to Low" },
+          { value: "experience-desc", label: "experience: High to Low" },
+          { value: "experience-asc", label: "experience: Low to High" },
+        ]}
+        onChange={(value) => {
+          const [sortBy, sortOrder] = value.split("-") as [
+            "rating" | "price",
+            "asc" | "desc",
+          ];
+
+          onFilterChange({
+            ...filters,
+            sortBy,
+            sortOrder,
+          });
+        }}
+      />
 
       {/* Search Button */}
       <Button onClick={onSearch} fullWidth>

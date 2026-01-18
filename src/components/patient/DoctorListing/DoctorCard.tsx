@@ -1,4 +1,4 @@
-import { Calendar, DollarSign, MapPin, User } from "lucide-react";
+import { BriefcaseBusiness, Calendar, MapPin, User } from "lucide-react";
 import { RatingDisplay } from "../RatingDisplay";
 import { Badge } from "../Badge";
 import { AvailabilityBadge } from "./AvailabilityBadge";
@@ -84,6 +84,13 @@ export const DoctorCard: React.FC<DoctorCardProps> = ({
               <span>{doctor.schedule.join(", ")}</span>
             </div>
           )}
+          {doctor.experienceYears && (
+            <div className="flex items-center gap-2">
+              <BriefcaseBusiness size={14} />
+              <span>{doctor.experienceYears} years of experience</span>
+            </div>
+          )}
+
           <div className="flex items-center gap-2">
             <span className="font-medium">₹{doctor.price.toFixed(2)}</span>
           </div>
