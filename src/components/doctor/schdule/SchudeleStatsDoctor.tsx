@@ -1,4 +1,4 @@
-import type { Stats } from "../../types/doctor/doctor.schudele.types";
+import type { Stats } from "../../../types/doctor/doctor.schudele.types";
 
 const ScheduleStats: React.FC<{ stats: Stats }> = ({ stats }) => (
   <div className="flex gap-6 items-center">
