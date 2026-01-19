@@ -14,7 +14,7 @@ const DoctorLayout = () => {
     "the forcePassword reset",
     forcePasswordReset,
     profileImage,
-    email
+    email,
   );
 
   return (

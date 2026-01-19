@@ -1,6 +1,7 @@
 import DoctorLayout from "../layout/DoctorLayout";
 import DoctorAvailabilitySetup from "../pages/doctor/DoctorAvailability/DoctorAvailabilitySetup";
 import DoctorDashboard from "../pages/doctor/DoctorDashboard";
+import DoctorSchedule from "../pages/doctor/DoctorSchedule/DoctorSchedule";
 import DoctorProfileSettings from "../pages/doctor/Profile/DoctorProfileSettingd";
 import ForcePasswordResetGuard from "./forcePasswordReset";
 import ProtectedRoute from "./protectRoutes";
@@ -33,6 +34,7 @@ export const doctorRoutes = {
           ),
         },
         { path: "settings", element: <DoctorProfileSettings /> },
+        { path: "schedule", element: <DoctorSchedule /> },
       ],
     },
   ],

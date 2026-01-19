@@ -86,10 +86,10 @@ const doctorConfig: SidebarConfig = {
       path: "/doctor/consultations",
     },
     {
-      id: "history",
-      label: "Patient History",
+      id: "schedule",
+      label: "Booking schedule",
       icon: <FileText className="w-5 h-5" />,
-      path: "/doctor/history",
+      path: "/doctor/schedule",
     },
     {
       id: "prescriptions",
@@ -245,7 +245,7 @@ const superAdminConfig: SidebarConfig = {
 
 // Config selector
 const getConfig = (
-  userType: "doctor" | "admin" | "superadmin" | "patient"
+  userType: "doctor" | "admin" | "superadmin" | "patient",
 ): SidebarConfig => {
   switch (userType) {
     case "doctor":

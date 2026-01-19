@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { MapPin, X } from "lucide-react";
 import { SearchInput } from "../SearchInput";
 import { SelectDropdown } from "../SelectDropDown";
@@ -109,6 +109,10 @@ export const SearchFilter: React.FC<SearchFilterProps> = ({
     });
   };
 
+  useEffect(() => {
+    enableLocation();
+  }, []);
+
   return (
     <div className="bg-white rounded-lg shadow-md p-6 space-y-5">
       <h3 className="text-lg font-semibold text-gray-900">Search & Filters</h3>
@@ -122,7 +126,6 @@ export const SearchFilter: React.FC<SearchFilterProps> = ({
         }
       />
 
-      {/* Location (CLEAN VERSION – ONLY THIS CHANGED) */}
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 text-gray-800">
