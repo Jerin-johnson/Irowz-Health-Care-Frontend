@@ -3,14 +3,27 @@ import type { Slot, Stats } from "../../../types/doctor/doctor.schudele.types";
 import ScheduleStats from "../../../components/doctor/schdule/SchudeleStatsDoctor";
 import StatusBadge from "../../../components/doctor/schdule/StatusBadgeDoctor";
 import SlotCard from "../../../components/doctor/schdule/DoctorSchudele.cards";
+import { useQuery } from "@tanstack/react-query";
+import { useAppSelector } from "../../../store/hooks";
+import { getSchdueleDoctorApi } from "../../../api/apiService/doctor/doctor.schduele";
+import { isPastSlot } from "../../../utils/doctor.schudele";
+
+export interface BackendSlot {
+  startTime: string;
+  endTime: string;
+  status: "available" | "booked" | "blocked";
+  type?: "OPD" | "Teleconsult";
+  patientName?: string;
+  appointmentId?: string;
+}
 
 const DoctorSchedule: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"today" | "tomorrow" | "custom">(
-    "today",
+    "tomorrow",
   );
   const [customDate, setCustomDate] = useState("");
-  const [slots, setSlots] = useState<Slot[]>([]);
-  const [loading, setLoading] = useState(false);
+
+  const doctorId = useAppSelector((state) => state.auth.doctorId);
 
   const today = new Date();
   const todayStr = today.toISOString().split("T")[0];
@@ -19,39 +32,16 @@ const DoctorSchedule: React.FC = () => {
   tomorrow.setDate(today.getDate() + 1);
   const tomorrowStr = tomorrow.toISOString().split("T")[0];
 
-  const selectedDate =
-    activeTab === "today"
-      ? todayStr
-      : activeTab === "tomorrow"
-        ? tomorrowStr
-        : customDate;
+  const selectedDate = activeTab === "tomorrow" ? tomorrowStr : customDate;
 
-  const fetchSlots = async () => {
-    if (!selectedDate) return;
+  const { data: slots, isPending } = useQuery({
+    queryKey: ["doctor:schudele", doctorId, selectedDate],
+    queryFn: async () => await getSchdueleDoctorApi(selectedDate),
+    enabled: !!doctorId,
+    staleTime: 0,
+  });
 
-    setLoading(true);
-    const res = await fetch(`/slots?date=${selectedDate}`, {
-      credentials: "include",
-    });
-    const data = await res.json();
-
-    const mapped: Slot[] = data.map((s: any, idx: number) => ({
-      id: `${selectedDate}-${s.startTime}-${idx}`,
-      ...s,
-      date: selectedDate,
-    }));
-
-    setSlots(mapped);
-    setLoading(false);
-  };
-
-  useEffect(() => {
-    fetchSlots();
-  }, [selectedDate]);
-
-  /* =======================
-     BLOCK / UNBLOCK
-  ======================= */
+  console.log("The slots is", slots);
 
   const blockSlot = async (slot: Slot) => {
     await fetch(`/slots/block`, {
@@ -64,7 +54,6 @@ const DoctorSchedule: React.FC = () => {
         reason: "Doctor blocked",
       }),
     });
-    fetchSlots();
   };
 
   const unblockSlot = async (slot: Slot) => {
@@ -77,13 +66,17 @@ const DoctorSchedule: React.FC = () => {
         startTime: slot.startTime,
       }),
     });
-    fetchSlots();
   };
+
+  if (isPending && !slots) {
+    return <div>Loading</div>;
+  }
 
   const stats: Stats = {
     total: slots.length,
-    booked: slots.filter((s) => s.status === "booked").length,
-    available: slots.filter((s) => s.status === "available").length,
+    booked: slots.filter((s: BackendSlot) => s.status === "booked").length,
+    available: slots.filter((s: BackendSlot) => s.status === "available")
+      .length,
   };
 
   return (
@@ -97,7 +90,7 @@ const DoctorSchedule: React.FC = () => {
           <div className="flex justify-between items-center mb-6">
             <div className="flex items-center gap-4">
               <div className="flex gap-2">
-                <button
+                {/* <button
                   onClick={() => setActiveTab("today")}
                   className={`px-4 py-2 rounded-lg text-sm font-medium ${
                     activeTab === "today"
@@ -106,7 +99,7 @@ const DoctorSchedule: React.FC = () => {
                   }`}
                 >
                   Today
-                </button>
+                </button> */}
                 <button
                   onClick={() => setActiveTab("tomorrow")}
                   className={`px-4 py-2 rounded-lg text-sm font-medium ${
@@ -149,13 +142,13 @@ const DoctorSchedule: React.FC = () => {
           </div>
         </div>
 
-        {loading ? (
+        {isPending ? (
           <div className="text-center text-gray-500">Loading slots...</div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {slots.map((slot) => (
+            {slots.map((slot: BackendSlot) => (
               <SlotCard
-                key={slot.id}
+                key={slot.startTime}
                 slot={slot}
                 onBlock={() => blockSlot(slot)}
                 onUnblock={() => unblockSlot(slot)}

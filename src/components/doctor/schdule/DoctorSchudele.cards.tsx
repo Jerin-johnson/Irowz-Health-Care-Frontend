@@ -36,7 +36,7 @@ const SlotCard: React.FC<{
             }`}
           >
             {slot.status === "blocked"
-              ? "Blocked"
+              ? "unavailable"
               : slot.status === "booked"
                 ? "Booked"
                 : "Available"}
@@ -72,10 +72,11 @@ const SlotCard: React.FC<{
 
       {slot.status === "blocked" && (
         <button
+          disabled={true}
           onClick={onUnblock}
           className="mt-3 w-full bg-blue-600 text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
         >
-          Unblock Slot
+          unavailable
         </button>
       )}
 
