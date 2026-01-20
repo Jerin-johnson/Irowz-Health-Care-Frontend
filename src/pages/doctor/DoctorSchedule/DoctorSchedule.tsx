@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import type { Slot, Stats } from "../../../types/doctor/doctor.schudele.types";
 import ScheduleStats from "../../../components/doctor/schdule/SchudeleStatsDoctor";
 import StatusBadge from "../../../components/doctor/schdule/StatusBadgeDoctor";
@@ -6,7 +6,6 @@ import SlotCard from "../../../components/doctor/schdule/DoctorSchudele.cards";
 import { useQuery } from "@tanstack/react-query";
 import { useAppSelector } from "../../../store/hooks";
 import { getSchdueleDoctorApi } from "../../../api/apiService/doctor/doctor.schduele";
-import { isPastSlot } from "../../../utils/doctor.schudele";
 
 export interface BackendSlot {
   startTime: string;
