@@ -1,7 +1,11 @@
 import PatientLayout from "../layout/PatientLayout";
 import PatientProfileLayout from "../layout/patientProfile.layout";
 
+import PatientAppointments from "../pages/patient/apponimentBookingStatus/AppointmentListing";
+
 import AppointmentSuccess from "../pages/patient/apponimentBookingStatus/AppointmentSuccess";
+import PatientLiveQueueStatus from "../pages/patient/apponimentBookingStatus/LivePatientQueue";
+import { AppointmentViewPage } from "../pages/patient/apponimentBookingStatus/PatientViewAppointment";
 import DoctorBooking from "../pages/patient/DoctorBooking/DoctorBooking";
 import DoctorSlots from "../pages/patient/DoctorBooking/DoctorSlot";
 import DoctorListing from "../pages/patient/DoctorListing/DoctorListing";
@@ -61,6 +65,18 @@ export const patientRoutes = {
             {
               path: "settings",
               element: <PatientProfileSettings />,
+            },
+            {
+              path: "appointments",
+              element: <PatientAppointments />,
+            },
+            {
+              path: "appointments/:id",
+              element: <AppointmentViewPage />,
+            },
+            {
+              path: "appointment/queue/:id",
+              element: <PatientLiveQueueStatus />,
             },
           ],
         },

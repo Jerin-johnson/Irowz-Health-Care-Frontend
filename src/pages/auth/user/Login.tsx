@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import AuthLoginTemplate from "../../../components/ReuseableComponets/Auth/AuthLoginTemplate";
 import { useAppDispatch } from "../../../store/hooks";
 
@@ -48,6 +48,8 @@ const userLoginConfig: LoginConfig = {
 const UserLoginPage = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = (location.state as { from?: Location })?.from?.pathname || "/";
   async function handleLogin({
     email,
     password,
@@ -65,7 +67,7 @@ const UserLoginPage = () => {
         }),
       ).unwrap();
       notify.success("Patient logged in successfully");
-      navigate("/");
+      navigate(from, { replace: true });
     } catch (error) {
       console.log(error);
     }

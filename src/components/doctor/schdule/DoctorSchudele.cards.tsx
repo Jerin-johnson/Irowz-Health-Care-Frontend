@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import type { Slot } from "../../../types/doctor/doctor.schudele.types";
 
 const SlotCard: React.FC<{
@@ -16,6 +17,12 @@ const SlotCard: React.FC<{
     booked: "bg-blue-50",
     blocked: "bg-gray-50",
   };
+
+  const navigate = useNavigate();
+
+  function handleView() {
+    navigate(`/doctor/appointment/${slot.appointmentId}`);
+  }
 
   return (
     <div
@@ -81,7 +88,10 @@ const SlotCard: React.FC<{
       )}
 
       {slot.status === "booked" && (
-        <button className="mt-3 w-full bg-blue-600 text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
+        <button
+          className="mt-3 w-full bg-blue-600 text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+          onClick={handleView}
+        >
           View Appointment
         </button>
       )}

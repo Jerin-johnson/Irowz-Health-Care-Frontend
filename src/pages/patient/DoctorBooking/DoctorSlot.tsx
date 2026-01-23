@@ -100,7 +100,11 @@ const DoctorSlots: React.FC = () => {
   if (isLoading || isSlotLoading) {
     return <DoctorSlotsSkeleton />;
   }
-  if (!doctor || !timeSlots) return <div>Something went wrong</div>;
+  if (!doctor || !timeSlots) {
+    notify.error("Doctor does not avialitbilty sorry");
+    navigate(-1);
+    return;
+  }
 
   const renderCalendar = () => {
     const daysInMonth = getDaysInMonth(currentMonth);
@@ -126,7 +130,7 @@ const DoctorSlots: React.FC = () => {
       const dateObj = new Date(
         currentMonth.getFullYear(),
         currentMonth.getMonth(),
-        day
+        day,
       );
 
       const isPast = dateObj < today;
@@ -141,8 +145,8 @@ const DoctorSlots: React.FC = () => {
             isSelected
               ? "bg-blue-600 text-white"
               : isPast
-              ? "text-gray-300 cursor-not-allowed"
-              : "text-gray-700 hover:bg-gray-100"
+                ? "text-gray-300 cursor-not-allowed"
+                : "text-gray-700 hover:bg-gray-100"
           }`}
         >
           {day}
@@ -195,8 +199,8 @@ const DoctorSlots: React.FC = () => {
                   setCurrentMonth(
                     new Date(
                       currentMonth.getFullYear(),
-                      currentMonth.getMonth() - 1
-                    )
+                      currentMonth.getMonth() - 1,
+                    ),
                   )
                 }
               >
@@ -215,8 +219,8 @@ const DoctorSlots: React.FC = () => {
                   setCurrentMonth(
                     new Date(
                       currentMonth.getFullYear(),
-                      currentMonth.getMonth() + 1
-                    )
+                      currentMonth.getMonth() + 1,
+                    ),
                   )
                 }
               >

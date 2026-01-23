@@ -1,4 +1,8 @@
 import DoctorLayout from "../layout/DoctorLayout";
+import { AppointmentViewPage } from "../pages/doctor/appoinments/VewAppoinments";
+import AppointmentsQueue from "../pages/doctor/consultation/AppointmentsQueue";
+import PatientConsultationOverView from "../pages/doctor/consultation/PatientOverview";
+import PatientVitals from "../pages/doctor/consultation/PatientVital.Page";
 import DoctorAvailabilitySetup from "../pages/doctor/DoctorAvailability/DoctorAvailabilitySetup";
 import DoctorDashboard from "../pages/doctor/DoctorDashboard";
 import DoctorSchedule from "../pages/doctor/DoctorSchedule/DoctorSchedule";
@@ -35,6 +39,16 @@ export const doctorRoutes = {
         },
         { path: "settings", element: <DoctorProfileSettings /> },
         { path: "schedule", element: <DoctorSchedule /> },
+        { path: "queue", element: <AppointmentsQueue /> },
+        { path: "appointment/:id", element: <AppointmentViewPage /> },
+        {
+          path: "consultation/start",
+          element: <PatientConsultationOverView />,
+        },
+        {
+          path: "consultation/vitals/add",
+          element: <PatientVitals />,
+        },
       ],
     },
   ],

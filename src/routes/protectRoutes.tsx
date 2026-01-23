@@ -1,4 +1,4 @@
-import { Navigate, Outlet } from "react-router-dom";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAppSelector } from "../store/hooks";
 import type { UserRole } from "../store/slice/Auth/auth.thunks";
 
@@ -12,11 +12,10 @@ const ProtectedRoute = ({
   redirectTo = "/user/login",
 }: ProtectedRouteProps) => {
   const { isAuthenticated, role } = useAppSelector((state) => state.auth);
-
-  console.log(role);
+  const location = useLocation();
 
   if (!isAuthenticated) {
-    return <Navigate to={redirectTo} replace />;
+    return <Navigate to={redirectTo} replace state={{ from: location }} />;
   }
 
   if (allowedRoles && !allowedRoles.includes(role)) {
