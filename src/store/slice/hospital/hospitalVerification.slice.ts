@@ -56,7 +56,7 @@ const hospitalVerificationSlice = createSlice({
         (state, action) => {
           state.status = action.payload.status;
           state.adminRemarks = action.payload.adminRemarks ?? null;
-        }
+        },
       )
       .addCase(reSubmitHospitalVerificationThunk.fulfilled, (state, action) => {
         console.log("does this run correctly", state, action);

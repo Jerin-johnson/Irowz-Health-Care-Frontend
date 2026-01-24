@@ -21,6 +21,9 @@ const PatientProfileSettings: React.FC = () => {
   const userId = useAppSelector((state) => state.auth.userId);
   const queryClient = useQueryClient();
 
+  const [allergies, setAllergies] = useState<string[]>([]);
+  const [chronicConditions, setChronicConditions] = useState<string[]>([]);
+
   const [profileImageFile, setProfileImageFile] = useState<
     File | string | null
   >(null);
@@ -61,6 +64,9 @@ const PatientProfileSettings: React.FC = () => {
       email: data.email,
     });
 
+    setAllergies(data.allergies ?? []);
+    setChronicConditions(data.chronicConditions ?? []);
+
     setProfileImageFile((data.profileImage as string) ?? null);
   }, [data, reset]);
 
@@ -80,19 +86,26 @@ const PatientProfileSettings: React.FC = () => {
       }
       notify.error(
         data.response.errors.fieldErrors.body[0] ||
-          "faild to update the profile"
+          "faild to update the profile",
       );
     },
   });
 
   const saveProfile: SubmitHandler<PatientProfileInput> = (formValues) => {
-    const parsedData: PatientProfileOutput =
-      patientProfileSchema.parse(formValues);
+    const parsedData = patientProfileSchema.parse({
+      ...formValues,
+      allergies,
+      chronicConditions,
+    });
 
     const formData = new FormData();
 
     Object.entries(parsedData).forEach(([key, value]) => {
-      formData.append(key, String(value));
+      if (Array.isArray(value)) {
+        value.forEach((v) => formData.append(`${key}[]`, v));
+      } else {
+        formData.append(key, String(value));
+      }
     });
 
     if (profileImageFile instanceof File) {
@@ -174,6 +187,80 @@ const PatientProfileSettings: React.FC = () => {
               register={register("gender")}
               error={errors.gender?.message}
             />
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Allergies
+              </label>
+
+              <input
+                type="text"
+                placeholder="Type and press Enter"
+                className="w-full border rounded-md px-3 py-2"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    const value = e.currentTarget.value.trim();
+                    if (value && !allergies.includes(value)) {
+                      setAllergies([...allergies, value]);
+                    }
+                    e.currentTarget.value = "";
+                  }
+                }}
+              />
+
+              <div className="flex flex-wrap gap-2 mt-2">
+                {allergies.map((item, index) => (
+                  <span
+                    key={index}
+                    className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm cursor-pointer"
+                    onClick={() =>
+                      setAllergies(allergies.filter((_, i) => i !== index))
+                    }
+                  >
+                    {item} ✕
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Chronic Conditions
+              </label>
+
+              <input
+                type="text"
+                placeholder="Type and press Enter"
+                className="w-full border rounded-md px-3 py-2"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    const value = e.currentTarget.value.trim();
+                    if (value && !chronicConditions.includes(value)) {
+                      setChronicConditions([...chronicConditions, value]);
+                    }
+                    e.currentTarget.value = "";
+                  }
+                }}
+              />
+
+              <div className="flex flex-wrap gap-2 mt-2">
+                {chronicConditions.map((item, index) => (
+                  <span
+                    key={index}
+                    className="bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm cursor-pointer"
+                    onClick={() =>
+                      setChronicConditions(
+                        chronicConditions.filter((_, i) => i !== index),
+                      )
+                    }
+                  >
+                    {item} ✕
+                  </span>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
 

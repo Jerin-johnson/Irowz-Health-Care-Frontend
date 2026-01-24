@@ -42,7 +42,7 @@ export const doctorRoutes = {
         { path: "queue", element: <AppointmentsQueue /> },
         { path: "appointment/:id", element: <AppointmentViewPage /> },
         {
-          path: "consultation/start",
+          path: "patient/overview/:id",
           element: <PatientConsultationOverView />,
         },
         {

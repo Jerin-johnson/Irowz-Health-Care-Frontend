@@ -4,19 +4,47 @@ import Badge from "../../../components/doctor/consulation/common/Badge";
 import StatCard, {
   type StatData,
 } from "../../../components/doctor/consulation/common/ModifiedStats";
-import { useAppSelector } from "../../../store/hooks";
+import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import { useNavigate } from "react-router-dom";
 import type { Appointment } from "../../../types/doctor/doctor.live.queue.types";
 import { useDoctorQueueSocket } from "../../../hooks/doctor/queue/useDoctorQueueSocket";
 import { useDoctorQueueQuery } from "../../../hooks/doctor/queue/useDoctorQueueQuery";
+import { useMutation } from "@tanstack/react-query";
+import { startConsulationAPi } from "../../../api/apiService/doctor/doctor.consultation";
+import { notify } from "../../../shared/notification/toast";
+import { setPatient } from "../../../store/slice/doctor/consultation.doctor.slice";
 
 const AppointmentsQueue: React.FC = () => {
   const doctorId = useAppSelector((state) => state.auth.doctorId);
+
   const today = new Date().toISOString().split("T")[0];
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
   useDoctorQueueSocket(doctorId as string, today);
+  const patientId = useAppSelector(
+    (state) => state.doctorConsultation.patientId,
+  );
 
   const { data, isPending } = useDoctorQueueQuery(doctorId as string, today);
+
+  const consulationStartMutationApi = useMutation({
+    mutationFn: startConsulationAPi,
+    onSuccess: (data) => {
+      dispatch(
+        setPatient({
+          patientId: data.patientId,
+          medicalRecordId: data.medicalRecordId,
+          appointmentId: data.appointmentId,
+        }),
+      );
+      notify.success(`you started the consulation of ${data.patientName}`);
+      navigate(`/doctor/patient/overview/${data.appointmentId}`);
+    },
+    onError: (error) => {
+      console.log(error);
+      notify.error(error.message);
+    },
+  });
 
   if (isPending) return <div>Loading</div>;
   if (!data || !data.success) return <div>Loading</div>;
@@ -61,12 +89,17 @@ const AppointmentsQueue: React.FC = () => {
 
   const handleStartConsultation = (appointmentId: string) => {
     // TODO: call start consultation API
+    consulationStartMutationApi.mutate(appointmentId);
     console.log("Start consultation:", appointmentId);
   };
 
   const handleResumeConsultation = (appointmentId: string) => {
-    // TODO: call resume consultation API
-    console.log("Resume consultation:", appointmentId);
+    if (patientId) {
+      navigate(`/doctor/patient/overview/${appointmentId}`);
+      return;
+    }
+    console.log("The appointmentId", appointmentId);
+    notify.error("The patient ID does not present actually");
   };
 
   const handleViewAppointment = (appointmentId: string) => {

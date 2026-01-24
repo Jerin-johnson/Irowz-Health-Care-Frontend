@@ -13,4 +13,6 @@ export const patientProfileSchema = z.object({
   pincode: z.string(),
   address: z.string(),
   email: z.string().email(),
+  allergies: z.array(z.string()).optional(),
+  chronicConditions: z.array(z.string()).optional(),
 });

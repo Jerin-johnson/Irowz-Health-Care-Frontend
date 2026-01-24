@@ -5,9 +5,15 @@ interface Props {
   patient: Patient;
   notes: string;
   setNotes: (v: string) => void;
+  handleSaveObservationNote: () => void;
 }
 
-const PatientOverviewTab = ({ patient, notes, setNotes }: Props) => (
+const PatientOverviewTab = ({
+  patient,
+  notes,
+  setNotes,
+  handleSaveObservationNote,
+}: Props) => (
   <div className="space-y-6">
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       {/* Basic Information */}
@@ -19,25 +25,25 @@ const PatientOverviewTab = ({ patient, notes, setNotes }: Props) => (
           <div className="flex justify-between items-center">
             <span className="text-sm text-gray-600">Full Name</span>
             <span className="text-sm font-medium text-gray-900">
-              {patient.fullName}
+              {patient?.fullName}
             </span>
           </div>
           <div className="flex justify-between items-center">
             <span className="text-sm text-gray-600">Age</span>
             <span className="text-sm font-medium text-gray-900">
-              {patient.age} Years
+              {patient?.age} Years
             </span>
           </div>
           <div className="flex justify-between items-center">
             <span className="text-sm text-gray-600">Gender</span>
             <span className="text-sm font-medium text-gray-900">
-              {patient.gender}
+              {patient?.gender}
             </span>
           </div>
           <div className="flex justify-between items-center">
             <span className="text-sm text-gray-600">Blood Group</span>
             <span className="text-sm font-medium text-red-600">
-              {patient.bloodGroup}
+              {patient?.bloodGroup}
             </span>
           </div>
         </div>
@@ -50,25 +56,25 @@ const PatientOverviewTab = ({ patient, notes, setNotes }: Props) => (
           <div className="flex justify-between items-center">
             <span className="text-sm text-gray-600">Height</span>
             <span className="text-sm font-medium text-gray-900">
-              {patient.height} cm
+              {patient?.height} cm
             </span>
           </div>
           <div className="flex justify-between items-center">
             <span className="text-sm text-gray-600">Weight</span>
             <span className="text-sm font-medium text-gray-900">
-              {patient.weight} kg
+              {patient?.weight} kg
             </span>
           </div>
           <div className="flex justify-between items-center">
             <span className="text-sm text-gray-600">BMI</span>
             <span className="text-sm font-medium text-gray-900">
-              {patient.bmi}
+              {patient?.bmi}
             </span>
           </div>
           <div className="flex justify-between items-center">
             <span className="text-sm text-gray-600">BP</span>
             <span className="text-sm font-medium text-gray-900">
-              {patient.bp}
+              {patient?.bp}
             </span>
           </div>
         </div>
@@ -83,7 +89,7 @@ const PatientOverviewTab = ({ patient, notes, setNotes }: Props) => (
             <div className="flex-1">
               <span className="text-sm text-gray-600 block">Phone</span>
               <span className="text-sm font-medium text-gray-900">
-                {patient.phone}
+                {patient?.phone}
               </span>
             </div>
           </div>
@@ -92,7 +98,7 @@ const PatientOverviewTab = ({ patient, notes, setNotes }: Props) => (
             <div className="flex-1">
               <span className="text-sm text-gray-600 block">Email</span>
               <span className="text-sm font-medium text-gray-900 break-all">
-                {patient.email}
+                {patient?.email}
               </span>
             </div>
           </div>
@@ -101,7 +107,7 @@ const PatientOverviewTab = ({ patient, notes, setNotes }: Props) => (
             <div className="flex-1">
               <span className="text-sm text-gray-600 block">City</span>
               <span className="text-sm font-medium text-gray-900">
-                {patient.city}
+                {patient?.city}
               </span>
             </div>
           </div>
@@ -120,7 +126,7 @@ const PatientOverviewTab = ({ patient, notes, setNotes }: Props) => (
           </h3>
         </div>
         <ul className="space-y-2">
-          {patient.allergies.map((allergy, idx) => (
+          {patient?.allergies.map((allergy, idx) => (
             <li
               key={idx}
               className="flex items-center gap-2 text-sm text-red-700"
@@ -141,7 +147,7 @@ const PatientOverviewTab = ({ patient, notes, setNotes }: Props) => (
           </h3>
         </div>
         <ul className="space-y-2">
-          {patient.chronicConditions.map((condition, idx) => (
+          {patient?.chronicConditions.map((condition, idx) => (
             <li
               key={idx}
               className="flex items-center gap-2 text-sm text-amber-700"
@@ -166,7 +172,10 @@ const PatientOverviewTab = ({ patient, notes, setNotes }: Props) => (
         className="w-full min-h-24 p-3 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
       />
       <div className="flex justify-between items-center mt-4">
-        <button className="px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
+        <button
+          className="px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+          onClick={handleSaveObservationNote}
+        >
           Save Notes
         </button>
         <button className="px-4 py-2 text-sm text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors">

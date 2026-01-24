@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { User, Clock, Plus } from "lucide-react";
 
 import type {
@@ -17,27 +17,15 @@ import PatientOverviewTab from "../../../components/doctor/consulation/tabs/Pati
 import MedicalHistoryTab from "../../../components/doctor/consulation/tabs/MedicalHistoryTab";
 import PrescriptionTab from "../../../components/doctor/consulation/tabs/Percription.tab";
 import LabTestsTab from "../../../components/doctor/consulation/tabs/LabtestTab";
-
-const patient: Patient = {
-  id: "001",
-  fullName: "Michael Anderson",
-  age: 42,
-  gender: "Male",
-  bloodGroup: "O+",
-  height: 175,
-  weight: 78,
-  bmi: 25.4,
-  bp: "120/80 mmHg",
-  phone: "+1 555 0123",
-  email: "m.anderson@email.com",
-  city: "New York",
-  allergies: ["Penicillin", "Sulfa drugs"],
-  chronicConditions: ["Type 2 Diabetes", "Hypertension"],
-  visitType: "OPD Visit",
-  visitTime: "10:30 AM",
-  queue: 87,
-  status: "Consultation",
-};
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { useAppSelector } from "../../../store/hooks";
+import {
+  fetchConsulationPatientProfile,
+  saveDoctorQuickObservation,
+} from "../../../api/apiService/doctor/doctor.consultation";
+import { useParams } from "react-router-dom";
+import { availableTests } from "../../../utils/constants/available";
+import { notify } from "../../../shared/notification/toast";
 
 const medicalRecords: MedicalRecord[] = [
   {
@@ -63,15 +51,6 @@ const medicalRecords: MedicalRecord[] = [
   },
 ];
 
-const availableTests: LabTest[] = [
-  { id: "4", name: "Thyroid Function Test", category: "Endocrinology" },
-  { id: "5", name: "Liver Function Test", category: "Biochemistry" },
-  { id: "6", name: "Kidney Function Test", category: "Biochemistry" },
-  { id: "7", name: "Urine Routine", category: "Pathology" },
-  { id: "8", name: "ECG", category: "Cardiology" },
-  { id: "9", name: "X-Ray", category: "Radiology" },
-];
-
 const tabs: { id: TabType; label: string }[] = [
   { id: "overview", label: "Patient Overview" },
   { id: "history", label: "Medical History" },
@@ -79,37 +58,31 @@ const tabs: { id: TabType; label: string }[] = [
   { id: "labs", label: "Order Lab Tests" },
 ];
 
-/* =========================
-   PAGE COMPONENT
-   ========================= */
-
 const PatientConsultationOverView: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabType>("overview");
 
-  /* -------- Medical History -------- */
   const [dateRange, setDateRange] = useState("");
   const [selectedDoctor, setSelectedDoctor] = useState("all");
   const [diagnosisKeyword, setDiagnosisKeyword] = useState("");
 
-  /* -------- Prescription -------- */
   const [primaryDiagnosis, setPrimaryDiagnosis] = useState("");
   const [clinicalObservations, setClinicalObservations] = useState("");
   const [medications, setMedications] = useState<Medication[]>([]);
   const [generalAdvice, setGeneralAdvice] = useState("");
   const [followUpDate, setFollowUpDate] = useState("");
 
-  /* -------- Lab Tests -------- */
   const [selectedTests, setSelectedTests] = useState<LabTest[]>([]);
   const [testSearch, setTestSearch] = useState("");
   const [priority, setPriority] = useState<"normal" | "urgent">("normal");
   const [clinicalReason, setClinicalReason] = useState("");
 
-  /* -------- Notes -------- */
   const [notes, setNotes] = useState("");
 
-  /* =========================
-     COMMAND-BASED ACTIONS
-     ========================= */
+  const patientId = useAppSelector(
+    (state) => state.doctorConsultation.patientId,
+  );
+
+  const { id: appointmentId } = useParams();
 
   const addMedication = useCallback(() => {
     setMedications((prev) => [
@@ -125,6 +98,37 @@ const PatientConsultationOverView: React.FC = () => {
       },
     ]);
   }, []);
+
+  //fetching inital patient profile
+  const { data: patient, isPending } = useQuery<Patient>({
+    queryKey: ["doctor:consulation:patient:overview", patientId],
+    queryFn: () => fetchConsulationPatientProfile(appointmentId as string),
+    enabled: !!appointmentId,
+  });
+
+  //save note
+  const saveNoteMutateFn = useMutation({
+    mutationFn: ({
+      id,
+      observationNote,
+    }: {
+      id: string;
+      observationNote: string;
+    }) => saveDoctorQuickObservation(id, observationNote),
+  });
+
+  function handleSaveObservationNote() {
+    if (!notes) {
+      notify.error("please mark Qucik observation first");
+      return;
+    }
+    saveNoteMutateFn.mutate({
+      id: appointmentId as string,
+      observationNote: notes,
+    });
+  }
+
+  console.log("The patient id is", patient);
 
   const removeMedication = useCallback((id: string) => {
     setMedications((prev) => prev.filter((m) => m.id !== id));
@@ -149,18 +153,15 @@ const PatientConsultationOverView: React.FC = () => {
     setSelectedTests((prev) => prev.filter((t) => t.id !== id));
   }, []);
 
-  /* =========================
-     TAB RENDERING
-     ========================= */
-
-  const renderedTab = useMemo(() => {
+  const renderedTab = () => {
     switch (activeTab) {
       case "overview":
         return (
           <PatientOverviewTab
-            patient={patient}
+            patient={patient as Patient}
             notes={notes}
             setNotes={setNotes}
+            handleSaveObservationNote={handleSaveObservationNote}
           />
         );
 
@@ -211,31 +212,15 @@ const PatientConsultationOverView: React.FC = () => {
           />
         );
     }
-  }, [
-    activeTab,
-    notes,
-    dateRange,
-    selectedDoctor,
-    diagnosisKeyword,
-    primaryDiagnosis,
-    clinicalObservations,
-    medications,
-    generalAdvice,
-    followUpDate,
-    selectedTests,
-    testSearch,
-    priority,
-    clinicalReason,
-    addMedication,
-    updateMedication,
-    removeMedication,
-    addTest,
-    removeTest,
-  ]);
+  };
 
-  /* =========================
-     RENDER
-     ========================= */
+  if (isPending) {
+    return <div>Loading</div>;
+  }
+
+  if (!patient) {
+    return <div>Something went wrong</div>;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
@@ -249,7 +234,7 @@ const PatientConsultationOverView: React.FC = () => {
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">
-                  {patient.fullName}
+                  {patient?.fullName}
                 </h1>
                 <div className="flex items-center gap-4 mt-2 text-sm text-gray-600">
                   <span>
@@ -300,7 +285,7 @@ const PatientConsultationOverView: React.FC = () => {
         </Card>
 
         {/* Content */}
-        <div>{renderedTab}</div>
+        <div>{renderedTab()}</div>
 
         {/* Footer Action */}
         {activeTab !== "overview" && (

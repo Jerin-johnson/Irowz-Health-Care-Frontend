@@ -1,5 +1,3 @@
-// components/doctor/consultation/types.ts
-
 export interface Patient {
   id: string;
   fullName: string;

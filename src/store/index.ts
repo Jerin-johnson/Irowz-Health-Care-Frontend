@@ -4,6 +4,7 @@ import { persistReducer, persistStore } from "redux-persist";
 
 import authReducer from "./slice/Auth/auth.slice";
 import hospitalVerificationReducer from "./slice/hospital/hospitalVerification.slice";
+import doctorConsultationReducer from "./slice/doctor/consultation.doctor.slice";
 
 const authPersistConfig = {
   key: "auth",
@@ -36,13 +37,23 @@ const hospitalVerificationPersistConfig = {
   ],
 };
 
+const doctorConsultationConfig = {
+  key: "doctorConsultation",
+  storage,
+  whitelist: ["patientId", "medicalRecordId"],
+};
+
 /* ---------------- Persisted reducers ---------------- */
 
 const rootReducer = combineReducers({
   auth: persistReducer(authPersistConfig, authReducer),
   hospitalVerification: persistReducer(
     hospitalVerificationPersistConfig,
-    hospitalVerificationReducer
+    hospitalVerificationReducer,
+  ),
+  doctorConsultation: persistReducer(
+    doctorConsultationConfig,
+    doctorConsultationReducer,
   ),
 });
 

@@ -15,9 +15,14 @@ import {
   formatWaitTime,
   getStatusConfigLiveQueue,
 } from "../../../utils/liveQueue";
+import { usePatientQueueSocket } from "../../../hooks/patient/queue/usePatientQueueSocket";
+import { useAppSelector } from "../../../store/hooks";
 
 const PatientLiveQueueStatus: React.FC = () => {
   const { id } = useParams();
+
+  const userId = useAppSelector((state) => state.auth.userId);
+  usePatientQueueSocket(userId, id as string);
 
   const {
     data: queueStatus,
