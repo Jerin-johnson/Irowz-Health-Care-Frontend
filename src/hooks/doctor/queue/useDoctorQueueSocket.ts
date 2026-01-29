@@ -9,10 +9,10 @@ export function useDoctorQueueSocket(doctorId: string | null, date: string) {
   useEffect(() => {
     if (!doctorId) return;
 
-    const joinRoom = () => {
-      console.log("The doctor joined", doctorId);
-      socket.emit("join-doctor", doctorId);
-    };
+    // const joinRoom = () => {
+    //   console.log("The doctor joined", doctorId);
+    //   socket.emit("join-doctor", doctorId);
+    // };
 
     const onQueueUpdated = (payload?: { date?: string }) => {
       console.log("The queu updadte involed", payload);
@@ -22,15 +22,15 @@ export function useDoctorQueueSocket(doctorId: string | null, date: string) {
       });
     };
 
-    socket.on("connect", joinRoom);
+    // socket.on("connect", joinRoom);
     socket.on("queue-updated", onQueueUpdated);
 
-    if (socket.connected) {
-      joinRoom();
-    }
+    // if (socket.connected) {
+    //   joinRoom();
+    // }
 
     return () => {
-      socket.off("connect", joinRoom);
+      // socket.off("connect", joinRoom);
       socket.off("queue-updated", onQueueUpdated);
     };
   }, [doctorId, date, queryClient, socket]);

@@ -7,6 +7,7 @@ import DoctorAvailabilitySetup from "../pages/doctor/DoctorAvailability/DoctorAv
 import DoctorDashboard from "../pages/doctor/DoctorDashboard";
 import DoctorSchedule from "../pages/doctor/DoctorSchedule/DoctorSchedule";
 import DoctorProfileSettings from "../pages/doctor/Profile/DoctorProfileSettingd";
+import DoctorSessionBoundary from "./DoctorRealTime";
 import ForcePasswordResetGuard from "./forcePasswordReset";
 import ProtectedRoute from "./protectRoutes";
 
@@ -18,36 +19,41 @@ export const doctorRoutes = {
   ),
   children: [
     {
-      path: "/doctor",
-      element: <DoctorLayout />,
+      element: <DoctorSessionBoundary />,
       children: [
         {
-          path: "dashboard",
-          element: (
-            <ForcePasswordResetGuard>
-              <DoctorDashboard />
-            </ForcePasswordResetGuard>
-          ),
-        },
-        {
-          path: "availability",
-          element: (
-            <ForcePasswordResetGuard>
-              <DoctorAvailabilitySetup />
-            </ForcePasswordResetGuard>
-          ),
-        },
-        { path: "settings", element: <DoctorProfileSettings /> },
-        { path: "schedule", element: <DoctorSchedule /> },
-        { path: "queue", element: <AppointmentsQueue /> },
-        { path: "appointment/:id", element: <AppointmentViewPage /> },
-        {
-          path: "patient/overview/:id",
-          element: <PatientConsultationOverView />,
-        },
-        {
-          path: "consultation/vitals/add",
-          element: <PatientVitals />,
+          path: "/doctor",
+          element: <DoctorLayout />,
+          children: [
+            {
+              path: "dashboard",
+              element: (
+                <ForcePasswordResetGuard>
+                  <DoctorDashboard />
+                </ForcePasswordResetGuard>
+              ),
+            },
+            {
+              path: "availability",
+              element: (
+                <ForcePasswordResetGuard>
+                  <DoctorAvailabilitySetup />
+                </ForcePasswordResetGuard>
+              ),
+            },
+            { path: "settings", element: <DoctorProfileSettings /> },
+            { path: "schedule", element: <DoctorSchedule /> },
+            { path: "queue", element: <AppointmentsQueue /> },
+            { path: "appointment/:id", element: <AppointmentViewPage /> },
+            {
+              path: "patient/overview/:id",
+              element: <PatientConsultationOverView />,
+            },
+            {
+              path: "consultation/vitals/add",
+              element: <PatientVitals />,
+            },
+          ],
         },
       ],
     },

@@ -195,7 +195,6 @@ const PrescriptionTab = ({
     {/* Actions */}
     <div className="flex gap-3">
       <Button variant="secondary">Save Draft</Button>
-      <Button variant="success">Finalize & Generate Prescription</Button>
     </div>
   </div>
 );

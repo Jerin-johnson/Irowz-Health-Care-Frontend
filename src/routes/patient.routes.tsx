@@ -12,11 +12,13 @@ import DoctorListing from "../pages/patient/DoctorListing/DoctorListing";
 import DoctorProfile from "../pages/patient/DoctorProfile/DoctorProfile";
 import PatientProfileSettings from "../pages/patient/patientProfileSettings/PatientProfileSettings";
 import PatientProfile from "../pages/patient/proflile/PatientProfile";
+import PatientSessionBoundary from "./PatientRealTime";
 
 import ProtectedRoute from "./protectRoutes";
 
 export const patientRoutes = {
   path: "/patient",
+  element: <PatientSessionBoundary />,
   children: [
     // ===========================
     // MAIN PATIENT LAYOUT

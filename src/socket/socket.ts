@@ -11,3 +11,10 @@ export function getSocket(): Socket {
   }
   return socket;
 }
+
+export const disconnectSocket = () => {
+  if (socket) {
+    socket.disconnect();
+    socket = null;
+  }
+};

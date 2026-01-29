@@ -17,6 +17,16 @@ export const startConsulationAPi = async (id: string) => {
   return result.data.data;
 };
 
+export const markAsNoShowApi = async (id: string) => {
+  const result = await api.post(`/doctor/consultation/no-show/${id}`);
+  return result.data.data;
+};
+
+export const compelteConsulationAPi = async (id: string) => {
+  const result = await api.post(`/doctor/consultation/complete/${id}`);
+  return result.data.data;
+};
+
 export const fetchConsulationPatientProfile = async (id: string) => {
   const result = await api.get(
     `/doctor/consultation/start/patient/overview/${id}`,

@@ -67,12 +67,12 @@ const doctorConfig: SidebarConfig = {
       icon: <LayoutDashboard className="w-5 h-5" />,
       path: "/doctor/dashboard",
     },
-    {
-      id: "appointments",
-      label: "My Appointments",
-      icon: <Calendar className="w-5 h-5" />,
-      path: "/doctor/appointments",
-    },
+    // {
+    //   id: "appointments",
+    //   label: "My Appointments",
+    //   icon: <Calendar className="w-5 h-5" />,
+    //   path: "/doctor/appointments",
+    // },
     {
       id: "queue",
       label: "Live Queue",
@@ -91,18 +91,18 @@ const doctorConfig: SidebarConfig = {
       icon: <FileText className="w-5 h-5" />,
       path: "/doctor/schedule",
     },
-    {
-      id: "prescriptions",
-      label: "Prescriptions",
-      icon: <Pill className="w-5 h-5" />,
-      path: "/doctor/prescriptions",
-    },
-    {
-      id: "reports",
-      label: "Reports",
-      icon: <BarChart3 className="w-5 h-5" />,
-      path: "/doctor/reports",
-    },
+    // {
+    //   id: "prescriptions",
+    //   label: "Prescriptions",
+    //   icon: <Pill className="w-5 h-5" />,
+    //   path: "/doctor/prescriptions",
+    // },
+    // {
+    //   id: "reports",
+    //   label: "Reports",
+    //   icon: <BarChart3 className="w-5 h-5" />,
+    //   path: "/doctor/reports",
+    // },
     {
       id: "availability",
       label: "availability & Settings",

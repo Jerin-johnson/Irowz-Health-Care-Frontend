@@ -95,7 +95,7 @@ const DoctorBooking: React.FC = () => {
   useConfirmNavigation(
     blockNavigation,
     "Your booking slot will be cancelled. Are you sure you want to leave?",
-    handleUnlockSlot
+    handleUnlockSlot,
   );
 
   const verifyPaymentMutation = useMutation({
@@ -104,7 +104,7 @@ const DoctorBooking: React.FC = () => {
       setBlockNavigation(false);
       setPaymentSuccess(true);
       notify.success(
-        "Payment successfull and doctor apponiment is created successfully"
+        "Payment successfull and doctor apponiment is created successfully",
       );
     },
     onError: () => {
@@ -261,12 +261,12 @@ const DoctorBooking: React.FC = () => {
 
             <div className="flex justify-between mb-4">
               <span>Doctor Booking</span>
-              <span>${billingPrefill?.doctorPrice}</span>
+              <span>₹{billingPrefill?.doctorPrice}</span>
             </div>
 
             <div className="font-bold border-t pt-4 flex justify-between">
               <span>Total</span>
-              <span>${billingPrefill?.doctorPrice}</span>
+              <span>₹{billingPrefill?.doctorPrice}</span>
             </div>
 
             <div className="mt-6">

@@ -20,12 +20,17 @@ import LabTestsTab from "../../../components/doctor/consulation/tabs/LabtestTab"
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useAppSelector } from "../../../store/hooks";
 import {
+  compelteConsulationAPi,
   fetchConsulationPatientProfile,
   saveDoctorQuickObservation,
 } from "../../../api/apiService/doctor/doctor.consultation";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { availableTests } from "../../../utils/constants/available";
 import { notify } from "../../../shared/notification/toast";
+import { useDoctorOnlineConsultationSocket } from "../../../hooks/doctor/consultation/online/useDoctorOnlineConsultationSocket";
+import DoctorWaitingForPatient from "../../../components/onlineVideo/doctor/DoctorWaitingForPatient";
+import DoctorZegoVideoRoom from "../../../components/onlineVideo/doctor/DoctorZegoVideoRoom";
+import { useRingtone } from "../../../hooks/sound/RingTone";
 
 const medicalRecords: MedicalRecord[] = [
   {
@@ -78,11 +83,21 @@ const PatientConsultationOverView: React.FC = () => {
 
   const [notes, setNotes] = useState("");
 
+  const navigate = useNavigate();
+
   const patientId = useAppSelector(
     (state) => state.doctorConsultation.patientId,
   );
 
+  const doctorId = useAppSelector((state) => state.auth.doctorId);
+
   const { id: appointmentId } = useParams();
+
+  const { consultationId, status } = useDoctorOnlineConsultationSocket(
+    doctorId as string,
+  );
+
+  useRingtone(status === "CALLING");
 
   const addMedication = useCallback(() => {
     setMedications((prev) => [
@@ -106,6 +121,17 @@ const PatientConsultationOverView: React.FC = () => {
     enabled: !!appointmentId,
   });
 
+  const compelteConsulationMutate = useMutation({
+    mutationFn: compelteConsulationAPi,
+    onSuccess: () => {
+      notify.success("The patient consulation has comepleted successfully");
+      navigate("/doctor/queue");
+    },
+    onError: (error) => {
+      notify.error(error.message);
+      console.log(error);
+    },
+  });
   //save note
   const saveNoteMutateFn = useMutation({
     mutationFn: ({
@@ -115,6 +141,10 @@ const PatientConsultationOverView: React.FC = () => {
       id: string;
       observationNote: string;
     }) => saveDoctorQuickObservation(id, observationNote),
+
+    onSuccess: () => {
+      notify.success("percription saved succcessfully");
+    },
   });
 
   function handleSaveObservationNote() {
@@ -129,6 +159,18 @@ const PatientConsultationOverView: React.FC = () => {
   }
 
   console.log("The patient id is", patient);
+
+  function completeConsulation() {
+    if (notes.length < 3) {
+      return notify.error("The observation note is required");
+    }
+
+    // if (!primaryDiagnosis) {
+    //   return notify.error("The primary diginose is required");
+    // }
+    compelteConsulationMutate.mutate(appointmentId!);
+    console.log("The compelete consulation is called");
+  }
 
   const removeMedication = useCallback((id: string) => {
     setMedications((prev) => prev.filter((m) => m.id !== id));
@@ -288,11 +330,27 @@ const PatientConsultationOverView: React.FC = () => {
         <div>{renderedTab()}</div>
 
         {/* Footer Action */}
-        {activeTab !== "overview" && (
-          <div className="mt-6 flex justify-end">
-            <Button variant="success" icon={<Plus className="w-4 h-4" />}>
-              Complete Consultation
-            </Button>
+        {/* {activeTab !== "overview" && ( */}
+        <div className="mt-6 flex justify-end">
+          <Button variant="success" onClick={completeConsulation}>
+            Complete Consultation
+          </Button>
+        </div>
+        {/* )} */}
+
+        {patient?.visitType === "ONLINE" && (
+          <div className="bg-white rounded-xl shadow-sm border p-4 h-[80vh]">
+            {status === "CALLING" && (
+              <DoctorWaitingForPatient
+                onCancel={() => console.log("The canceled is called")}
+              />
+            )}
+
+            {status === "IN_PROGRESS" && consultationId && (
+              <div className="mt-6 h-[600px] w-full rounded-xl overflow-hidden border">
+                <DoctorZegoVideoRoom consultationId={consultationId} />
+              </div>
+            )}
           </div>
         )}
       </div>

@@ -116,7 +116,7 @@ const DoctorProfileHeader: React.FC<Props> = ({
           <div className="flex items-center gap-2 mb-4">
             <CreditCard size={16} className="text-gray-400" />
             <span className="text-xl font-bold">
-              ${doctor.price.toFixed(2)}
+              ₹{doctor.price.toFixed(2)}
             </span>
           </div>
 

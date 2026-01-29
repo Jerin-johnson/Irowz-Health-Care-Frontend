@@ -9,8 +9,11 @@ import { useNavigate } from "react-router-dom";
 import type { Appointment } from "../../../types/doctor/doctor.live.queue.types";
 import { useDoctorQueueSocket } from "../../../hooks/doctor/queue/useDoctorQueueSocket";
 import { useDoctorQueueQuery } from "../../../hooks/doctor/queue/useDoctorQueueQuery";
-import { useMutation } from "@tanstack/react-query";
-import { startConsulationAPi } from "../../../api/apiService/doctor/doctor.consultation";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  markAsNoShowApi,
+  startConsulationAPi,
+} from "../../../api/apiService/doctor/doctor.consultation";
 import { notify } from "../../../shared/notification/toast";
 import { setPatient } from "../../../store/slice/doctor/consultation.doctor.slice";
 
@@ -24,6 +27,8 @@ const AppointmentsQueue: React.FC = () => {
   const patientId = useAppSelector(
     (state) => state.doctorConsultation.patientId,
   );
+
+  const queryClient = useQueryClient();
 
   const { data, isPending } = useDoctorQueueQuery(doctorId as string, today);
 
@@ -40,9 +45,22 @@ const AppointmentsQueue: React.FC = () => {
       notify.success(`you started the consulation of ${data.patientName}`);
       navigate(`/doctor/patient/overview/${data.appointmentId}`);
     },
-    onError: (error) => {
+    onError: (error: any) => {
       console.log(error);
-      notify.error(error.message);
+      notify.error(error.response.data.message);
+    },
+  });
+
+  const MarkAsNoShowMutation = useMutation({
+    mutationFn: markAsNoShowApi,
+    onSuccess: () => {
+      notify.success("The patient mark as no show moved last of the queue");
+      queryClient.invalidateQueries({
+        queryKey: ["doctor:queue", doctorId, today],
+      });
+    },
+    onError: (error: any) => {
+      notify.error(error.response.data.message);
     },
   });
 
@@ -51,6 +69,16 @@ const AppointmentsQueue: React.FC = () => {
 
   const { appointments, stats, currentAppointmentId, nextAppointmentId } =
     data.data;
+
+  const orderedAppointments = [
+    ...appointments.filter((a) => a.status === "STARTED"),
+    ...appointments
+      .filter((a) => a.status === "BOOKED" || a.status === "NO_SHOW")
+      .sort((a, b) => a.queuePriority - b.queuePriority),
+    ...appointments.filter((a) =>
+      ["COMPLETED", "CANCELLED"].includes(a.status),
+    ),
+  ];
 
   const statCards: StatData[] = [
     {
@@ -80,15 +108,15 @@ const AppointmentsQueue: React.FC = () => {
   ];
 
   const canStartConsultation = (appointment: Appointment) =>
-    appointment.appointmentId === nextAppointmentId &&
-    currentAppointmentId === null;
+    (appointment.appointmentId === nextAppointmentId &&
+      currentAppointmentId === null) ||
+    appointment.status === "NO_SHOW";
 
   const isActiveConsultation = (appointment: Appointment) =>
     appointment.appointmentId === currentAppointmentId &&
     appointment.status === "STARTED";
 
   const handleStartConsultation = (appointmentId: string) => {
-    // TODO: call start consultation API
     consulationStartMutationApi.mutate(appointmentId);
     console.log("Start consultation:", appointmentId);
   };
@@ -108,7 +136,7 @@ const AppointmentsQueue: React.FC = () => {
   };
 
   const handleNoShow = (appointmentId: string) => {
-    // TODO: call mark no-show API
+    MarkAsNoShowMutation.mutate(appointmentId);
     console.log("Mark no show:", appointmentId);
   };
 
@@ -157,7 +185,7 @@ const AppointmentsQueue: React.FC = () => {
               </thead>
 
               <tbody className="divide-y divide-gray-100">
-                {appointments.map((appointment) => {
+                {orderedAppointments.map((appointment) => {
                   const canStart = canStartConsultation(appointment);
                   const isActive = isActiveConsultation(appointment);
 

@@ -6,6 +6,7 @@ import { Link, useNavigate } from "react-router-dom";
 
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { logoutThunk } from "../../store/slice/Auth/auth.thunks";
+import { disconnectSocket } from "../../socket/socket";
 
 export const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -43,6 +44,7 @@ export const Navbar: React.FC = () => {
     await dispatch(logoutThunk());
     setProfileOpen(false);
     setIsOpen(false);
+    disconnectSocket();
     navigate("/user/login");
   }
 
