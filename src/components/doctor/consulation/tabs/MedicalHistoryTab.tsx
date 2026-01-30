@@ -1,7 +1,6 @@
 import { Calendar, FileText, Search } from "lucide-react";
 import Card from "../common/Card";
 import Input from "../common/Input";
-import Select from "../common/Select";
 import Badge from "../common/Badge.2";
 import type { MedicalRecord } from "../../../../types/doctor/doctor.consulation.types";
 
@@ -18,8 +17,6 @@ interface Props {
 const MedicalHistoryTab = ({
   dateRange,
   setDateRange,
-  selectedDoctor,
-  setSelectedDoctor,
   diagnosisKeyword,
   setDiagnosisKeyword,
   records,
@@ -40,21 +37,7 @@ const MedicalHistoryTab = ({
             icon={<Calendar className="w-4 h-4" />}
           />
         </div>
-        <div>
-          <label className="block text-xs font-medium text-gray-700 mb-2">
-            DOCTOR NAME
-          </label>
-          <Select
-            value={selectedDoctor}
-            onChange={setSelectedDoctor}
-            options={[
-              { value: "all", label: "All Doctors" },
-              { value: "sarah", label: "Dr. Sarah Mitchell" },
-              { value: "james", label: "Dr. James Wilson" },
-              { value: "emily", label: "Dr. Emily Chen" },
-            ]}
-          />
-        </div>
+
         <div>
           <label className="block text-xs font-medium text-gray-700 mb-2">
             DIAGNOSIS KEYWORD

@@ -1,3 +1,4 @@
+import type { PrescriptionFormValues } from "../../../validators/doctor/consultation/Percription";
 import { api } from "../../axios.config";
 
 export const fetchAppointment = async (id: string) => {
@@ -42,6 +43,19 @@ export const saveDoctorQuickObservation = async (
     `/doctor/consultation/start/patient/quicknote/${id}`,
     {
       observationNote,
+    },
+  );
+  return result.data;
+};
+
+export const savePrescriptionFormValuesApi = async (
+  id: string,
+  data: PrescriptionFormValues,
+) => {
+  const result = await api.post(
+    `/doctor/consultation/start/patient/prescription/${id}`,
+    {
+      ...data,
     },
   );
   return result.data;

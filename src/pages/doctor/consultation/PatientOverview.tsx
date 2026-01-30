@@ -1,10 +1,9 @@
-import React, { useCallback, useState } from "react";
-import { User, Clock, Plus } from "lucide-react";
+import React, { useCallback, useEffect, useState } from "react";
+import { User, Clock } from "lucide-react";
 
 import type {
   LabTest,
   MedicalRecord,
-  Medication,
   Patient,
   TabType,
 } from "../../../types/doctor/doctor.consulation.types";
@@ -23,6 +22,7 @@ import {
   compelteConsulationAPi,
   fetchConsulationPatientProfile,
   saveDoctorQuickObservation,
+  savePrescriptionFormValuesApi,
 } from "../../../api/apiService/doctor/doctor.consultation";
 import { useNavigate, useParams } from "react-router-dom";
 import { availableTests } from "../../../utils/constants/available";
@@ -31,6 +31,12 @@ import { useDoctorOnlineConsultationSocket } from "../../../hooks/doctor/consult
 import DoctorWaitingForPatient from "../../../components/onlineVideo/doctor/DoctorWaitingForPatient";
 import DoctorZegoVideoRoom from "../../../components/onlineVideo/doctor/DoctorZegoVideoRoom";
 import { useRingtone } from "../../../hooks/sound/RingTone";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  prescriptionSchema,
+  type PrescriptionFormValues,
+} from "../../../validators/doctor/consultation/Percription";
+import { useForm } from "react-hook-form";
 
 const medicalRecords: MedicalRecord[] = [
   {
@@ -70,11 +76,17 @@ const PatientConsultationOverView: React.FC = () => {
   const [selectedDoctor, setSelectedDoctor] = useState("all");
   const [diagnosisKeyword, setDiagnosisKeyword] = useState("");
 
-  const [primaryDiagnosis, setPrimaryDiagnosis] = useState("");
-  const [clinicalObservations, setClinicalObservations] = useState("");
-  const [medications, setMedications] = useState<Medication[]>([]);
-  const [generalAdvice, setGeneralAdvice] = useState("");
-  const [followUpDate, setFollowUpDate] = useState("");
+  //percription
+  const prescriptionForm = useForm<PrescriptionFormValues>({
+    resolver: zodResolver(prescriptionSchema),
+    defaultValues: {
+      primaryDiagnosis: "",
+      clinicalObservations: "",
+      medications: [],
+      generalAdvice: "",
+      followUpDate: "",
+    },
+  });
 
   const [selectedTests, setSelectedTests] = useState<LabTest[]>([]);
   const [testSearch, setTestSearch] = useState("");
@@ -99,20 +111,7 @@ const PatientConsultationOverView: React.FC = () => {
 
   useRingtone(status === "CALLING");
 
-  const addMedication = useCallback(() => {
-    setMedications((prev) => [
-      ...prev,
-      {
-        id: Date.now().toString(),
-        name: "",
-        dosage: "",
-        dosageUnit: "M",
-        duration: 7,
-        durationUnit: "Days",
-        instructions: "After food",
-      },
-    ]);
-  }, []);
+  //APi calls
 
   //fetching inital patient profile
   const { data: patient, isPending } = useQuery<Patient>({
@@ -127,12 +126,12 @@ const PatientConsultationOverView: React.FC = () => {
       notify.success("The patient consulation has comepleted successfully");
       navigate("/doctor/queue");
     },
-    onError: (error) => {
-      notify.error(error.message);
+    onError: (error: any) => {
+      notify.error(error?.response?.data?.message);
       console.log(error);
     },
   });
-  //save note
+
   const saveNoteMutateFn = useMutation({
     mutationFn: ({
       id,
@@ -143,9 +142,25 @@ const PatientConsultationOverView: React.FC = () => {
     }) => saveDoctorQuickObservation(id, observationNote),
 
     onSuccess: () => {
-      notify.success("percription saved succcessfully");
+      notify.success("observation note saved succcessfully");
+    },
+    onError: (error: any) => {
+      notify.error(error?.response?.data?.message);
     },
   });
+
+  const PrescriptionMutate = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: PrescriptionFormValues }) =>
+      savePrescriptionFormValuesApi(id, data),
+    onSuccess: () => {
+      notify.success("percritption saved successfully");
+    },
+    onError: (error: any) => {
+      notify.error(error?.response?.data?.message);
+    },
+  });
+
+  //handlers
 
   function handleSaveObservationNote() {
     if (!notes) {
@@ -156,6 +171,10 @@ const PatientConsultationOverView: React.FC = () => {
       id: appointmentId as string,
       observationNote: notes,
     });
+  }
+
+  function savePercriptionHandler(data: PrescriptionFormValues) {
+    PrescriptionMutate.mutate({ id: appointmentId!, data });
   }
 
   console.log("The patient id is", patient);
@@ -172,19 +191,6 @@ const PatientConsultationOverView: React.FC = () => {
     console.log("The compelete consulation is called");
   }
 
-  const removeMedication = useCallback((id: string) => {
-    setMedications((prev) => prev.filter((m) => m.id !== id));
-  }, []);
-
-  const updateMedication = useCallback(
-    (id: string, field: keyof Medication, value: any) => {
-      setMedications((prev) =>
-        prev.map((m) => (m.id === id ? { ...m, [field]: value } : m)),
-      );
-    },
-    [],
-  );
-
   const addTest = useCallback((test: LabTest) => {
     setSelectedTests((prev) =>
       prev.find((t) => t.id === test.id) ? prev : [...prev, test],
@@ -194,6 +200,17 @@ const PatientConsultationOverView: React.FC = () => {
   const removeTest = useCallback((id: string) => {
     setSelectedTests((prev) => prev.filter((t) => t.id !== id));
   }, []);
+
+  useEffect(() => {
+    const handler = (e: BeforeUnloadEvent) => {
+      if (prescriptionForm.formState.isDirty) {
+        e.preventDefault();
+        e.returnValue = "";
+      }
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [prescriptionForm.formState.isDirty]);
 
   const renderedTab = () => {
     switch (activeTab) {
@@ -223,18 +240,8 @@ const PatientConsultationOverView: React.FC = () => {
       case "prescription":
         return (
           <PrescriptionTab
-            primaryDiagnosis={primaryDiagnosis}
-            setPrimaryDiagnosis={setPrimaryDiagnosis}
-            clinicalObservations={clinicalObservations}
-            setClinicalObservations={setClinicalObservations}
-            medications={medications}
-            addMedication={addMedication}
-            updateMedication={updateMedication}
-            removeMedication={removeMedication}
-            generalAdvice={generalAdvice}
-            setGeneralAdvice={setGeneralAdvice}
-            followUpDate={followUpDate}
-            setFollowUpDate={setFollowUpDate}
+            form={prescriptionForm}
+            onSave={savePercriptionHandler}
           />
         );
 
