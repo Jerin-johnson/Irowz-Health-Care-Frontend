@@ -1,4 +1,4 @@
-import { User } from "lucide-react";
+import { User, User2Icon } from "lucide-react";
 
 export const DoctorCardSkeleton = () => {
   return (
@@ -47,6 +47,17 @@ export const DoctorCardSkeleton = () => {
           </div>
         </div>
       </div>
+    </div>
+  );
+};
+
+export const EmptyState: React.FC = () => {
+  return (
+    <div className="bg-white rounded-lg shadow-sm p-12 text-center h-full">
+      <h3 className="text-xl font-semibold text-gray-900 mb-2">
+        No Doctor Found
+      </h3>
+      <p className="text-gray-600">Try adjusting your filters</p>
     </div>
   );
 };

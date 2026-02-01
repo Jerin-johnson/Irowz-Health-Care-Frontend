@@ -1,31 +1,26 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
+import React, { useState } from "react";
 import type { Wallet } from "../../../types/PatientWallet";
+import { useQuery } from "@tanstack/react-query";
+import { GetWalletApi } from "../../../api/apiService/patient/Wallet";
 
 export const WalletPatient: React.FC = () => {
-  const [wallet, setWallet] = useState<Wallet>({
-    balance: 2450,
-    transactions: [
-      {
-        _id: "txn_001",
-        amount: 500,
-        type: "CREDIT",
-        reason: "Appointment Cancellation Refund",
-        createdAt: new Date("2026-01-30T10:15:00.000Z"),
-      },
-      {
-        _id: "txn_002",
-        amount: 300,
-        type: "DEBIT",
-        reason: "Doctor Consultation Booking",
-        createdAt: new Date("2026-01-29T14:30:00.000Z"),
-      },
-    ],
+  const [filterType] = useState<string>("ALL");
+  const [filterDate] = useState<string>("");
+
+  const { data: wallet, isPending } = useQuery<Wallet>({
+    queryKey: ["patient:wallet"],
+    queryFn: GetWalletApi,
   });
 
-  const [filterType, setFilterType] = useState<string>("ALL");
-  const [filterDate, setFilterDate] = useState<string>("");
-  const [loading, setLoading] = useState(false);
+  if (isPending) {
+    return <div>Loading</div>;
+  }
+
+  if (!wallet) {
+    return <div>Sorry something went wrong</div>;
+  }
+
+  console.log("The wallet is ", wallet);
 
   const filteredTransactions = wallet.transactions.filter((t) => {
     const typeMatch = filterType === "ALL" || t.type === filterType;
@@ -98,48 +93,8 @@ export const WalletPatient: React.FC = () => {
           Transaction History
         </h2>
 
-        {/* Filters */}
-        <div className="mb-6 flex flex-wrap items-end gap-4">
-          <div className="flex-1 min-w-[200px]">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Filter by Type
-            </label>
-            <select
-              value={filterType}
-              onChange={(e) => setFilterType(e.target.value)}
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
-            >
-              <option value="ALL">All Transactions</option>
-              <option value="CREDIT">Credits</option>
-              <option value="DEBIT">Debits</option>
-            </select>
-          </div>
-
-          <div className="flex-1 min-w-[200px]">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Filter by Date
-            </label>
-            <input
-              type="date"
-              value={filterDate}
-              onChange={(e) => setFilterDate(e.target.value)}
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
-            />
-          </div>
-
-          <button
-            onClick={() => {
-              setFilterType("ALL");
-              setFilterDate("");
-            }}
-            className="px-6 py-2.5 text-gray-700 font-medium hover:text-gray-900"
-          >
-            Clear Filters
-          </button>
-        </div>
-
         {/* Transaction List */}
-        {loading ? (
+        {isPending ? (
           <div className="flex justify-center items-center py-12">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
           </div>

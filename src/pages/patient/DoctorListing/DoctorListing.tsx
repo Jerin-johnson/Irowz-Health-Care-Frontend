@@ -5,7 +5,10 @@ import { DoctorCard } from "../../../components/patient/DoctorListing/DoctorCard
 import { Pagination } from "../../../components/common/Pagination";
 import { useDoctors } from "../../../hooks/patient/doctorListing/useSearchDoctor";
 import { useNavigate } from "react-router-dom";
-import { DoctorCardSkeleton } from "../../../components/patient/DoctorListing/DoctorShimmerUi";
+import {
+  DoctorCardSkeleton,
+  EmptyState,
+} from "../../../components/patient/DoctorListing/DoctorShimmerUi";
 import { useDebounce } from "../../../hooks/common/useDebounce";
 import type { Doctor } from "../../../types/patient/doctorListing.type";
 
@@ -73,9 +76,7 @@ const DoctorListing: React.FC = () => {
 
           {/* Doctor List */}
           <div className="lg:col-span-3 space-y-4">
-            {!isFetching && doctors.length == 0 && (
-              <div>sorry not doctor found actually</div>
-            )}
+            {!isFetching && doctors.length == 0 && <EmptyState />}
 
             {doctors.map((doctor: Doctor) => (
               <DoctorCard
