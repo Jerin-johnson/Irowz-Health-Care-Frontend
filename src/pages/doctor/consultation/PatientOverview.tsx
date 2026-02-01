@@ -21,6 +21,7 @@ import { useAppSelector } from "../../../store/hooks";
 import {
   compelteConsulationAPi,
   fetchConsulationPatientProfile,
+  fetchPatientMedicalRecordForConsultationAPi,
   saveDoctorQuickObservation,
   savePrescriptionFormValuesApi,
 } from "../../../api/apiService/doctor/doctor.consultation";
@@ -37,30 +38,7 @@ import {
   type PrescriptionFormValues,
 } from "../../../validators/doctor/consultation/Percription";
 import { useForm } from "react-hook-form";
-
-const medicalRecords: MedicalRecord[] = [
-  {
-    id: "1",
-    date: "Dec 1, 2024",
-    doctorName: "Dr. Sarah Mitchell",
-    diagnosisSummary: "Hypertension follow-up, chest pain evaluation",
-    visitType: "OPD Visit",
-  },
-  {
-    id: "2",
-    date: "Nov 15, 2024",
-    doctorName: "Dr. James Wilson",
-    diagnosisSummary: "Routine cardiac checkup, medication review",
-    visitType: "Teleconsult",
-  },
-  {
-    id: "3",
-    date: "Oct 20, 2024",
-    doctorName: "Dr. Emily Chen",
-    diagnosisSummary: "Acute chest pain, emergency evaluation",
-    visitType: "OPD Visit",
-  },
-];
+import { useDebounce } from "../../../hooks/common/useDebounce";
 
 const tabs: { id: TabType; label: string }[] = [
   { id: "overview", label: "Patient Overview" },
@@ -69,11 +47,25 @@ const tabs: { id: TabType; label: string }[] = [
   { id: "labs", label: "Order Lab Tests" },
 ];
 
+export interface Pagination {
+  total: number;
+  page: number;
+  limit: number;
+}
+
+export interface MedicalHistoryResponse {
+  data: MedicalRecord[];
+  pagination: Pagination;
+}
+
 const PatientConsultationOverView: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabType>("overview");
 
-  const [dateRange, setDateRange] = useState("");
-  const [selectedDoctor, setSelectedDoctor] = useState("all");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [pageMedical, setPageMedical] = useState(1);
+  const limit = 4;
+
   const [diagnosisKeyword, setDiagnosisKeyword] = useState("");
 
   //percription
@@ -119,6 +111,31 @@ const PatientConsultationOverView: React.FC = () => {
     queryFn: () => fetchConsulationPatientProfile(appointmentId as string),
     enabled: !!appointmentId,
   });
+
+  const debouncedDiagnosisKeyword = useDebounce(diagnosisKeyword, 300);
+
+  const { data, isFetching } = useQuery<MedicalHistoryResponse>({
+    queryKey: [
+      "doctor:consultation:patient:medical-history",
+      patientId,
+      debouncedDiagnosisKeyword,
+      pageMedical,
+    ],
+    queryFn: () =>
+      fetchPatientMedicalRecordForConsultationAPi(
+        appointmentId as string,
+        debouncedDiagnosisKeyword,
+        pageMedical,
+        limit,
+      ),
+    enabled: !!appointmentId,
+  });
+
+  const medicalRecords = data?.data ?? [];
+  const pagination = data?.pagination;
+  const totalPages = pagination
+    ? Math.ceil(pagination.total / pagination.limit)
+    : 1;
 
   const compelteConsulationMutate = useMutation({
     mutationFn: compelteConsulationAPi,
@@ -227,13 +244,17 @@ const PatientConsultationOverView: React.FC = () => {
       case "history":
         return (
           <MedicalHistoryTab
-            dateRange={dateRange}
-            setDateRange={setDateRange}
-            selectedDoctor={selectedDoctor}
-            setSelectedDoctor={setSelectedDoctor}
+            startDate={startDate}
+            endDate={endDate}
+            setStartDate={setStartDate}
+            setEndDate={setEndDate}
             diagnosisKeyword={diagnosisKeyword}
             setDiagnosisKeyword={setDiagnosisKeyword}
             records={medicalRecords}
+            currentPage={pageMedical}
+            totalPages={totalPages}
+            onPageChange={setPageMedical}
+            isFetching={isFetching}
           />
         );
 

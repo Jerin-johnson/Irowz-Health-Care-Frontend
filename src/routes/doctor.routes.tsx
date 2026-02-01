@@ -1,6 +1,8 @@
+import PrescriptionView from "../components/ReuseableComponets/Percriptionview";
 import DoctorLayout from "../layout/DoctorLayout";
 import { AppointmentViewPage } from "../pages/doctor/appoinments/VewAppoinments";
 import AppointmentsQueue from "../pages/doctor/consultation/AppointmentsQueue";
+import DoctorPrescriptionViewPage from "../pages/doctor/consultation/DoctorPrescriptionPage";
 import PatientConsultationOverView from "../pages/doctor/consultation/PatientOverview";
 import PatientVitals from "../pages/doctor/consultation/PatientVital.Page";
 import DoctorAvailabilitySetup from "../pages/doctor/DoctorAvailability/DoctorAvailabilitySetup";
@@ -48,6 +50,10 @@ export const doctorRoutes = {
             {
               path: "patient/overview/:id",
               element: <PatientConsultationOverView />,
+            },
+            {
+              path: "prescription/view/:id",
+              element: <DoctorPrescriptionViewPage />,
             },
             {
               path: "consultation/vitals/add",

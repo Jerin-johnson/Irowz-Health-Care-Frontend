@@ -35,6 +35,21 @@ export const fetchConsulationPatientProfile = async (id: string) => {
   return result.data.data;
 };
 
+export const fetchPatientMedicalRecordForConsultationAPi = async (
+  id: string,
+  diagnosis: string,
+  page: number,
+  limit: number,
+) => {
+  const result = await api.get(
+    `/doctor/consultation/start/patient/medical-history/${id}`,
+    {
+      params: { diagnosis, page, limit },
+    },
+  );
+  return result.data.data;
+};
+
 export const saveDoctorQuickObservation = async (
   id: string,
   observationNote: string,
@@ -59,4 +74,9 @@ export const savePrescriptionFormValuesApi = async (
     },
   );
   return result.data;
+};
+
+export const fetchPrescriptionDoctorApi = async (id: string) => {
+  const result = await api.get(`/doctor/consultation/medical-record/${id}`);
+  return result.data.data;
 };

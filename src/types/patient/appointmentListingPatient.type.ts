@@ -36,6 +36,7 @@ export interface Appointment {
   consultationFee: number;
   discountAmount: number;
   taxAmount?: number;
+  isRescheduleAppointment: boolean;
   totalAmount: number;
   status: AppointmentStatus;
   cancelledAt?: Date;

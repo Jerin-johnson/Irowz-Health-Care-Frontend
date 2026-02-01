@@ -6,7 +6,7 @@ import {
   ArrowLeft,
   ArrowRight,
 } from "lucide-react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchDoctorProfile } from "../../../api/apiService/patient/doctorListing";
 import { mapDoctorProfileToDoctor } from "../../../mapper/doctor.profile.mapper";
@@ -16,6 +16,7 @@ import {
 } from "../../../api/apiService/patient/doctorSlots";
 import { notify } from "../../../shared/notification/toast";
 import DoctorSlotsSkeleton from "../../../components/patient/DoctorListing/DoctorSlotSleckton";
+import { useRescheduleAppointment } from "../../../hooks/patient/appointments/useRescheduleAppointment";
 
 const formatLocalDate = (date: Date) => {
   const year = date.getFullYear();
@@ -32,6 +33,13 @@ const DoctorSlots: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [currentMonth, setCurrentMonth] = useState<Date>(new Date());
+  const location = useLocation();
+
+  // reschdeuling
+  const isReschedule = location.state?.isReschedule === true;
+  const appointmentId = location.state?.appointmentId;
+
+  const rescheduleMutation = useRescheduleAppointment();
 
   const { data: doctor, isLoading } = useQuery({
     queryKey: ["doctor:profile", doctorId],
@@ -52,14 +60,6 @@ const DoctorSlots: React.FC = () => {
     staleTime: 0,
   });
 
-  const getDaysInMonth = (date: Date): number => {
-    return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
-  };
-
-  const getFirstDayOfMonth = (date: Date): number => {
-    return new Date(date.getFullYear(), date.getMonth(), 1).getDay();
-  };
-
   const lockDoctorSlotQuery = useMutation({
     mutationFn: ({
       doctorId,
@@ -71,32 +71,33 @@ const DoctorSlots: React.FC = () => {
       startTime: string;
     }) => lockDoctorSlots(doctorId, date, startTime),
 
-    onSuccess: (data, variables) => {
-      console.log("this is for testing puport", data, variables);
-      if (data.success) {
-        notify.success(data.message);
+    // onSuccess: (data, variables) => {
+    //   console.log("this is for testing puport", data, variables);
+    //   if (data.success) {
+    //     notify.success(data.message);
 
-        navigate("/patient/doctor/booking", {
-          state: {
-            doctorId: variables.doctorId,
-            date: variables.date,
-            startTime: variables.startTime,
-          },
-        });
+    //     // navigate("/patient/doctor/booking", {
+    //     //   state: {
+    //     //     doctorId: variables.doctorId,
+    //     //     date: variables.date,
+    //     //     startTime: variables.startTime,
+    //     //   },
+    //     // });
 
-        queryClient.invalidateQueries({
-          queryKey: ["doctor:slots", variables.doctorId, variables.date],
-        });
-      } else {
-        notify.error(data.message || "Something went wrong");
-      }
-    },
+    //     queryClient.invalidateQueries({
+    //       queryKey: ["doctor:slots", variables.doctorId, variables.date],
+    //     });
+    //   } else {
+    //     notify.error(data.message || "Something went wrong");
+    //   }
+    // },
 
-    onError: (error: any) => {
-      console.log(error);
-      notify.error(error?.response?.data?.message || "Booking failed");
-    },
+    // onError: (error: any) => {
+    //   console.log(error);
+    //   notify.error(error?.response?.data?.message || "Booking failed");
+    // },
   });
+
   if (isLoading || isSlotLoading) {
     return <DoctorSlotsSkeleton />;
   }
@@ -155,17 +156,75 @@ const DoctorSlots: React.FC = () => {
     });
   };
 
-  const handleConfirmBooking = () => {
+  const handleConfirmBooking = async () => {
     if (!selectedTime) {
       notify.error("Please select a time slot");
       return;
     }
 
-    lockDoctorSlotQuery.mutate({
+    const lockResult = await lockDoctorSlotQuery.mutateAsync({
       doctorId: doctorId as string,
       date: selectedDateISO,
       startTime: selectedTime,
     });
+
+    if (!lockResult.success) {
+      notify.error(lockResult.message || "Slot locking failed");
+      return;
+    }
+
+    if (isReschedule) {
+      if (!appointmentId) {
+        notify.error("Invalid reschedule request");
+        return;
+      }
+
+      await rescheduleMutation.mutateAsync({
+        appointmentId,
+        doctorId: doctorId as string,
+        date: selectedDateISO,
+        startTime: selectedTime,
+        endTime: "",
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ["patient:appointments"],
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ["doctor:slots", doctorId, selectedDateISO],
+      });
+
+      navigate("/patient/appointments");
+      return;
+    }
+
+    //normal booking flow
+
+    notify.success("slot locked successsfully");
+
+    queryClient.invalidateQueries({
+      queryKey: ["doctor:slots", doctorId, selectedDateISO],
+    });
+
+    navigate("/patient/doctor/booking", {
+      state: {
+        doctorId: doctorId,
+        date: selectedDateISO,
+        startTime: selectedTime,
+      },
+    });
+  };
+
+  const isSubmitting =
+    lockDoctorSlotQuery.isPending || rescheduleMutation.isPending;
+
+  const getDaysInMonth = (date: Date): number => {
+    return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+  };
+
+  const getFirstDayOfMonth = (date: Date): number => {
+    return new Date(date.getFullYear(), date.getMonth(), 1).getDay();
   };
 
   return (
@@ -293,10 +352,10 @@ const DoctorSlots: React.FC = () => {
 
           <button
             onClick={handleConfirmBooking}
-            disabled={lockDoctorSlotQuery.isPending}
+            disabled={isSubmitting}
             className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg disabled:opacity-50"
           >
-            Confirm Booking
+            {isReschedule ? "Confirm Reschedule" : "Confirm Booking"}
             <ArrowRight className="w-4 h-4" />
           </button>
         </div>

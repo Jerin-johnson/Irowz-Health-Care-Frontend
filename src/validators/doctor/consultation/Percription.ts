@@ -32,9 +32,7 @@ export const medicationSchema = z.object({
 export const prescriptionSchema = z.object({
   primaryDiagnosis: z.string().min(10, "Primary diagnosis is required"),
   clinicalObservations: z.string().optional(),
-  medications: z
-    .array(medicationSchema)
-    .min(1, "At least one medicine is required"),
+  medications: z.array(medicationSchema).optional(),
   generalAdvice: z.string().optional(),
   followUpDate: z.string().optional(),
 });

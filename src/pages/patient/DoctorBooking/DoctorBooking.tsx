@@ -19,6 +19,7 @@ import {
   type BillingFormValues,
 } from "../../../validators/checkoutDoctorBooking";
 import { openRazorpayCheckout } from "../../../services/payment/razorpay.service";
+import Select from "../../../components/doctor/consulation/common/Select";
 
 const DoctorBooking: React.FC = () => {
   const navigate = useNavigate();
@@ -26,6 +27,7 @@ const DoctorBooking: React.FC = () => {
   const userId = useAppSelector((state) => state.auth.userId);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [appointmentId, setAppointmentId] = useState("");
+  const [visitType, setVisitType] = useState("OPD");
 
   const { doctorId, date, startTime } = location.state as {
     doctorId: string;
@@ -170,6 +172,7 @@ const DoctorBooking: React.FC = () => {
       startTime,
       billingDetails: data,
       paymentMethod: "online",
+      visitType,
     });
   };
 
@@ -252,6 +255,17 @@ const DoctorBooking: React.FC = () => {
               type="email"
               error={errors.email?.message}
               register={register("email")}
+            />
+
+            <h5>visit type</h5>
+
+            <Select
+              options={[
+                { value: "OPD", label: "DIRECT-VISIT" },
+                { value: "ONLINE", label: "ONLINE" },
+              ]}
+              value={visitType}
+              onChange={setVisitType}
             />
           </div>
 

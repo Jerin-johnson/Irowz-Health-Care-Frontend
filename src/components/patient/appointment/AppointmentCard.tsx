@@ -18,6 +18,7 @@ interface AppointmentCardProps {
   appointment: Appointment;
   onView: (id: string) => void;
   onCancel: (id: string) => void;
+  onReschedule: (id: string, doctorId: string) => void;
   onViewLiveStatus: (id: string) => void;
 }
 
@@ -25,13 +26,15 @@ const AppointmentCard: React.FC<AppointmentCardProps> = ({
   appointment,
   onView,
   onCancel,
+  onReschedule,
   onViewLiveStatus,
 }) => {
   const showLiveStatus = canViewLiveStatus(
     appointment.date,
     appointment.status,
   );
-  const canCancel = appointment.status === "BOOKED";
+  const canCancel =
+    appointment.status === "BOOKED" && !appointment.isRescheduleAppointment;
 
   return (
     <div className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow p-6">
@@ -107,6 +110,18 @@ const AppointmentCard: React.FC<AppointmentCardProps> = ({
             >
               <X className="w-4 h-4" />
               Cancel
+            </button>
+          )}
+
+          {canCancel && (
+            <button
+              onClick={() =>
+                onReschedule(appointment._id, appointment.doctorId._id)
+              }
+              className="flex items-center gap-2 px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600"
+            >
+              <Calendar className="w-4 h-4" />
+              Reschedule
             </button>
           )}
         </div>

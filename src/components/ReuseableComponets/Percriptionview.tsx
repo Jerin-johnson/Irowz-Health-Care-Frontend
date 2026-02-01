@@ -57,7 +57,7 @@ const parseFrequency = (
   const lower = frequency.toLowerCase();
 
   // Default pattern for common frequencies
-  if (lower.includes("once") || lower === "1-0-0") {
+  if (lower.includes("m") || lower === "1-0-0") {
     return { morning: true, afternoon: false, night: false };
   }
   if (lower.includes("twice") || lower === "1-0-1") {

@@ -4,7 +4,6 @@ import type {
   Appointment,
   AppointmentStatus,
 } from "../../../types/patient/appointmentListingPatient.type";
-// import { getFilteredAppointments } from "../../../utils/patientAppointment.listng";
 import {
   EmptyState,
   LoadingState,
@@ -17,6 +16,12 @@ import { Pagination } from "../../../components/common/Pagination";
 import { fetchPatientAppointments } from "../../../api/apiService/patient/appointment";
 import { notify } from "../../../shared/notification/toast";
 import { useNavigate } from "react-router-dom";
+import {
+  useCancelAppointment,
+  useCancelEligibility,
+} from "../../../hooks/patient/appointments/useCancelAppointment";
+import { confirmAction } from "../../../shared/notification/confirm";
+import { useRescheduleEligibility } from "../../../hooks/patient/appointments/useRescheduleAppointment";
 
 const PAGE_SIZE = 10;
 
@@ -35,6 +40,9 @@ const PatientAppointments: React.FC = () => {
     setDateFilter("");
     setPage(1);
   };
+
+  const cancelEligibilityMutation = useCancelEligibility();
+  const cancelMutation = useCancelAppointment();
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["patient:appointments", userId, statusFilter, dateFilter, page],
@@ -58,29 +66,63 @@ const PatientAppointments: React.FC = () => {
     return;
   };
 
+  const rescheduleEligibilityMutation = useRescheduleEligibility();
+
   const handleCancelAppointment = async (appointmentId: string) => {
-    if (!window.confirm("Are you sure you want to cancel this appointment?")) {
-      return;
-    }
-
     try {
-      const response = await fetch(
-        `/api/appointments/${appointmentId}/cancel`,
-        {
-          method: "PATCH",
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-            "Content-Type": "application/json",
-          },
-        },
-      );
+      const firstConfirmed = await confirmAction({
+        title: "are you sure you want to cancel",
+        description: "this cannot be reverted",
+      });
 
-      if (!response.ok) {
-        throw new Error("Failed to cancel appointment");
+      if (!firstConfirmed) return;
+
+      const data = await cancelEligibilityMutation.mutateAsync(appointmentId);
+
+      console.log("The data is ", data);
+
+      if (!data.canCancel) {
+        notify.error("Appointment cannot be cancelled");
+        return;
       }
+
+      if (!data.isRefundAllowed) {
+        const secondConfirmed = await confirmAction({
+          title: "No Refund is avaiable",
+          description: "Refund is only avalible on the booking date",
+          type: "warning",
+        });
+        if (!secondConfirmed) return;
+      }
+
+      await cancelMutation.mutateAsync(appointmentId);
     } catch (error) {
-      console.error("Error cancelling appointment:", error);
-      alert("Failed to cancel appointment. Please try again.");
+      notify.error(error.response?.data?.message || "Cancel failed");
+    }
+  };
+
+  const handleReschedule = async (appointmentId: string, doctorId: string) => {
+    try {
+      const data =
+        await rescheduleEligibilityMutation.mutateAsync(appointmentId);
+
+      console.log("The rescheuling the data is", data);
+
+      if (!data.canReschedule) {
+        notify.error(
+          data.reason || "Reschedule not allowed for this appointment",
+        );
+        return;
+      }
+
+      navigate(`/patient/doctor/slots/${doctorId}`, {
+        state: {
+          isReschedule: true,
+          appointmentId,
+        },
+      });
+    } catch (error: any) {
+      notify.error(error?.response?.data?.message || "Reschedule check failed");
     }
   };
 
@@ -137,6 +179,7 @@ const PatientAppointments: React.FC = () => {
                 onView={handleViewAppointment}
                 onCancel={handleCancelAppointment}
                 onViewLiveStatus={handleViewLiveStatus}
+                onReschedule={handleReschedule}
               />
             ))
           )}

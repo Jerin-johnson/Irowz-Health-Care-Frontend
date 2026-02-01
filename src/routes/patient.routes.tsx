@@ -12,6 +12,7 @@ import DoctorListing from "../pages/patient/DoctorListing/DoctorListing";
 import DoctorProfile from "../pages/patient/DoctorProfile/DoctorProfile";
 import PatientProfileSettings from "../pages/patient/patientProfileSettings/PatientProfileSettings";
 import PatientProfile from "../pages/patient/proflile/PatientProfile";
+import { WalletPatient } from "../pages/patient/wallet/PatientWallet";
 import PatientSessionBoundary from "./PatientRealTime";
 
 import ProtectedRoute from "./protectRoutes";
@@ -79,6 +80,10 @@ export const patientRoutes = {
             {
               path: "appointment/queue/:id",
               element: <PatientLiveQueueStatus />,
+            },
+            {
+              path: "wallet",
+              element: <WalletPatient />,
             },
           ],
         },

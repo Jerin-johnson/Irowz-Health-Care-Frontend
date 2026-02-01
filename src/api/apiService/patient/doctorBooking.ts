@@ -2,7 +2,7 @@ import type { BillingFormValues } from "../../../validators/checkoutDoctorBookin
 import { api } from "../../axios.config";
 
 export const fetchPatientBasicDetailsBeforeCheckout = async (
-  doctorId: string
+  doctorId: string,
 ) => {
   const res = await api.get(`/patient/checkout/profile`, {
     params: {
@@ -19,6 +19,7 @@ export interface CheckoutPayload {
   startTime: string;
   billingDetails: BillingFormValues;
   paymentMethod: string;
+  visitType: string;
 }
 
 export const checkoutDoctorBooking = async (payload: CheckoutPayload) => {
@@ -34,7 +35,7 @@ export interface verifyDoctorPaymentPayload {
 }
 
 export const verifyDoctorPayment = async (
-  payload: verifyDoctorPaymentPayload
+  payload: verifyDoctorPaymentPayload,
 ) => {
   const res = await api.post("/patient/payment/verify", payload);
   return res.data;

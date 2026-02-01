@@ -117,7 +117,7 @@ export default function AppointmentSuccess() {
               <div className="flex-1">
                 <p className="text-sm text-gray-600">Patient Name</p>
                 <p className="text-base font-semibold text-gray-800">
-                  {appointmentData.patientSnapshot.firstName}
+                  {appointmentData.patientSnapshot?.firstName}
                 </p>
               </div>
             </div>

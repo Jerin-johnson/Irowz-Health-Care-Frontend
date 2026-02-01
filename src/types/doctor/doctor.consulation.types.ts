@@ -24,6 +24,7 @@ export interface MedicalRecord {
   date: string;
   doctorName: string;
   diagnosisSummary: string;
+  hospitalName: string;
   visitType: string;
 }
 

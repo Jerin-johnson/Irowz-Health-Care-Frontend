@@ -79,12 +79,12 @@ const doctorConfig: SidebarConfig = {
       icon: <Users className="w-5 h-5" />,
       path: "/doctor/queue",
     },
-    {
-      id: "consultations",
-      label: "Video Consultations",
-      icon: <Video className="w-5 h-5" />,
-      path: "/doctor/consultations",
-    },
+    // {
+    //   id: "consultations",
+    //   label: "Video Consultations",
+    //   icon: <Video className="w-5 h-5" />,
+    //   path: "/doctor/consultations",
+    // },
     {
       id: "schedule",
       label: "Booking schedule",
