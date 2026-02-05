@@ -3,6 +3,7 @@ import AddDoctor from "../pages/hospitaladmin/DoctorMangement/AddDoctor";
 import DoctorListing from "../pages/hospitaladmin/DoctorMangement/DoctorLIsting";
 import HospitalDashBoard from "../pages/hospitaladmin/HospitalDashBoard";
 import SpecialityListing from "../pages/hospitaladmin/SpecialityMangement/SpecialityListing";
+import HospitalAdminSubscriptionListing from "../pages/hospitaladmin/Subcription/SubscriptionListing.HospitalAdmin";
 
 import ProtectedRoute from "./protectRoutes";
 
@@ -22,6 +23,7 @@ export const HospitalAdminRoutes = {
         { path: "speciality", element: <SpecialityListing /> },
         { path: "doctor", element: <DoctorListing /> },
         { path: "doctor/add", element: <AddDoctor /> },
+        { path: "plans", element: <HospitalAdminSubscriptionListing /> },
       ],
     },
   ],

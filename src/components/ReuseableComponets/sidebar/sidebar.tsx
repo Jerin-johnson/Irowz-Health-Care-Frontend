@@ -1,27 +1,8 @@
 import React, { useState } from "react";
-import {
-  LayoutDashboard,
-  Calendar,
-  Users,
-  Video,
-  FileText,
-  Pill,
-  BarChart3,
-  Settings,
-  LogOut,
-  Building2,
-  ChevronRight,
-  Bell,
-  UserCog,
-  Shield,
-  Hospital,
-  Stethoscope,
-  ClipboardList,
-  Activity,
-  Database,
-  UserPlus,
-  TrendingUp,
-} from "lucide-react";
+import { LogOut, ChevronRight, Bell } from "lucide-react";
+import { adminConfig } from "./sidebarConfig/hosptialadmin";
+import { superAdminConfig } from "./sidebarConfig/superadmin";
+import { doctorConfig } from "./sidebarConfig/doctor";
 
 interface MenuItem {
   id: string;
@@ -31,7 +12,7 @@ interface MenuItem {
   badge?: number;
 }
 
-interface SidebarConfig {
+export interface SidebarConfig {
   logo: {
     icon: React.ReactNode;
     title: string;
@@ -51,198 +32,6 @@ interface SidebarProps {
   badges?: Record<string, number>;
 }
 
-// ==================== CONFIGURATIONS ====================
-
-// Doctor Configuration
-const doctorConfig: SidebarConfig = {
-  logo: {
-    icon: <Stethoscope className="w-6 h-6 text-white" />,
-    title: "IrowzCure",
-    subtitle: "Doctor Portal",
-  },
-  menuItems: [
-    {
-      id: "dashboard",
-      label: "Dashboard",
-      icon: <LayoutDashboard className="w-5 h-5" />,
-      path: "/doctor/dashboard",
-    },
-    // {
-    //   id: "appointments",
-    //   label: "My Appointments",
-    //   icon: <Calendar className="w-5 h-5" />,
-    //   path: "/doctor/appointments",
-    // },
-    {
-      id: "queue",
-      label: "Live Queue",
-      icon: <Users className="w-5 h-5" />,
-      path: "/doctor/queue",
-    },
-    // {
-    //   id: "consultations",
-    //   label: "Video Consultations",
-    //   icon: <Video className="w-5 h-5" />,
-    //   path: "/doctor/consultations",
-    // },
-    {
-      id: "schedule",
-      label: "Booking schedule",
-      icon: <FileText className="w-5 h-5" />,
-      path: "/doctor/schedule",
-    },
-    // {
-    //   id: "prescriptions",
-    //   label: "Prescriptions",
-    //   icon: <Pill className="w-5 h-5" />,
-    //   path: "/doctor/prescriptions",
-    // },
-    // {
-    //   id: "reports",
-    //   label: "Reports",
-    //   icon: <BarChart3 className="w-5 h-5" />,
-    //   path: "/doctor/reports",
-    // },
-    {
-      id: "availability",
-      label: "availability & Settings",
-      icon: <Settings className="w-5 h-5" />,
-      path: "/doctor/availability",
-    },
-
-    {
-      id: "settings",
-      label: "Profile & Settings",
-      icon: <Settings className="w-5 h-5" />,
-      path: "/doctor/settings",
-    },
-  ],
-};
-
-// Admin Configuration
-const adminConfig: SidebarConfig = {
-  logo: {
-    icon: <Hospital className="w-6 h-6 text-white" />,
-    title: "IrowzCure",
-    subtitle: "Hospital Admin Panel",
-  },
-  menuItems: [
-    {
-      id: "dashboard",
-      label: "Dashboard",
-      icon: <LayoutDashboard className="w-5 h-5" />,
-      path: "/hospital-admin/dashboard",
-    },
-    {
-      id: "doctors",
-      label: "Manage Doctors",
-      icon: <Stethoscope className="w-5 h-5" />,
-      path: "/hospital-admin/doctor",
-    },
-    {
-      id: "patients",
-      label: "Manage Patients",
-      icon: <Users className="w-5 h-5" />,
-      path: "/admin/patients",
-    },
-    {
-      id: "appointments",
-      label: "Appointments",
-      icon: <Calendar className="w-5 h-5" />,
-      path: "/admin/appointments",
-    },
-    {
-      id: "speciality",
-      label: "Speciality Mangament",
-      icon: <Building2 className="w-5 h-5" />,
-      path: "/hospital-admin/speciality",
-    },
-    {
-      id: "reports",
-      label: "Reports & Analytics",
-      icon: <TrendingUp className="w-5 h-5" />,
-      path: "/admin/reports",
-    },
-    {
-      id: "billing",
-      label: "Billing",
-      icon: <FileText className="w-5 h-5" />,
-      path: "/admin/billing",
-    },
-    {
-      id: "settings",
-      label: "Settings",
-      icon: <Settings className="w-5 h-5" />,
-      path: "/admin/settings",
-    },
-  ],
-};
-
-// Super Admin Configuration
-const superAdminConfig: SidebarConfig = {
-  logo: {
-    icon: <Shield className="w-6 h-6 text-white" />,
-    title: "IrowzCure",
-    subtitle: "Super Admin",
-  },
-  menuItems: [
-    {
-      id: "dashboard",
-      label: "Dashboard",
-      icon: <LayoutDashboard className="w-5 h-5" />,
-      path: "/super-admin/dashboard",
-    },
-    {
-      id: "hospitals",
-      label: "Manage Hospitals",
-      icon: <Hospital className="w-5 h-5" />,
-      path: "/super-admin/hospitals",
-    },
-    {
-      id: "verification",
-      label: "Verification Requests",
-      icon: <ClipboardList className="w-5 h-5" />,
-      path: "/super-admin/verfication-request",
-    },
-    {
-      id: "admins",
-      label: "Hospital Admins",
-      icon: <UserCog className="w-5 h-5" />,
-      path: "/super-admin/admins",
-    },
-    {
-      id: "doctors",
-      label: "All Doctors",
-      icon: <Stethoscope className="w-5 h-5" />,
-      path: "/super-admin/doctors",
-    },
-    {
-      id: "analytics",
-      label: "System Analytics",
-      icon: <Activity className="w-5 h-5" />,
-      path: "/super-admin/analytics",
-    },
-    {
-      id: "database",
-      label: "Database Management",
-      icon: <Database className="w-5 h-5" />,
-      path: "/super-admin/database",
-    },
-    {
-      id: "users",
-      label: "User Management",
-      icon: <UserPlus className="w-5 h-5" />,
-      path: "/super-admin/users",
-    },
-    {
-      id: "settings",
-      label: "System Settings",
-      icon: <Settings className="w-5 h-5" />,
-      path: "/super-admin/settings",
-    },
-  ],
-};
-
 // Config selector
 const getConfig = (
   userType: "doctor" | "admin" | "superadmin" | "patient",
@@ -258,8 +47,6 @@ const getConfig = (
       return doctorConfig;
   }
 };
-
-// ==================== SIDEBAR COMPONENT ====================
 
 const Sidebar: React.FC<SidebarProps> = ({
   userType,

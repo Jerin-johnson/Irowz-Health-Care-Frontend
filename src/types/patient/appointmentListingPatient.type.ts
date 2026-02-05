@@ -39,6 +39,11 @@ export interface Appointment {
   isRescheduleAppointment: boolean;
   totalAmount: number;
   status: AppointmentStatus;
+  availabilityAffected?: {
+    isAffected: boolean;
+    reason: string;
+  };
+
   cancelledAt?: Date;
   cancelReason?: string;
   createdAt: Date;

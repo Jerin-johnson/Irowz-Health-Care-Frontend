@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type {
   Doctor,
-  Review,
+  // Review,
 } from "../../../types/patient/DoctorProfile/doctor.profile.types";
 import DoctorProfileHeader from "../../../components/patient/DoctorProfile/DoctorProfileHeader";
 import DoctorProfileTabs from "../../../components/patient/DoctorProfile/DoctorProfileTabs";

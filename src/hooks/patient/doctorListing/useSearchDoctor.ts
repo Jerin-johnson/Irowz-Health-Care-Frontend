@@ -3,7 +3,7 @@ import type { FilterOptions } from "../../../types/patient/search.types";
 import { fetchDoctors } from "../../../api/apiService/patient/doctorListing";
 import { mapDoctorFromApi } from "../../../mapper/doctor.mapper";
 
-const PAGE_LIMIT = 5;
+const PAGE_LIMIT = 2;
 
 export const useDoctors = (filters: FilterOptions, page: number) => {
   return useQuery({

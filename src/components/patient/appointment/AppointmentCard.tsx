@@ -36,6 +36,9 @@ const AppointmentCard: React.FC<AppointmentCardProps> = ({
   const canCancel =
     appointment.status === "BOOKED" && !appointment.isRescheduleAppointment;
 
+  const availabilityAffected =
+    canCancel && appointment.availabilityAffected?.isAffected === true;
+
   return (
     <div className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow p-6">
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
@@ -80,6 +83,11 @@ const AppointmentCard: React.FC<AppointmentCardProps> = ({
                 {appointment.patientSnapshot.email} •{" "}
                 {appointment.patientSnapshot.phone}
               </div>
+              {availabilityAffected && (
+                <h4 className="text-xs text-red-500 mt-1">
+                  Action required...cancel or reschedule appointment
+                </h4>
+              )}
             </div>
           </div>
         </div>

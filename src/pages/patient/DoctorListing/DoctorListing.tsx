@@ -76,7 +76,7 @@ const DoctorListing: React.FC = () => {
 
           {/* Doctor List */}
           <div className="lg:col-span-3 space-y-4">
-            {!isFetching && doctors.length == 0 && <EmptyState />}
+            {!isFetching && doctors.length === 0 && <EmptyState />}
 
             {doctors.map((doctor: Doctor) => (
               <DoctorCard

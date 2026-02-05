@@ -1,17 +1,14 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { User, Clock } from "lucide-react";
-
 import type {
   LabTest,
   MedicalRecord,
   Patient,
   TabType,
 } from "../../../types/doctor/doctor.consulation.types";
-
 import Button from "../../../components/doctor/consulation/common/Button";
 import Badge from "../../../components/doctor/consulation/common/Badge.2";
 import Card from "../../../components/doctor/consulation/common/Card";
-
 import PatientOverviewTab from "../../../components/doctor/consulation/tabs/PatientOverView";
 import MedicalHistoryTab from "../../../components/doctor/consulation/tabs/MedicalHistoryTab";
 import PrescriptionTab from "../../../components/doctor/consulation/tabs/Percription.tab";
@@ -68,7 +65,6 @@ const PatientConsultationOverView: React.FC = () => {
 
   const [diagnosisKeyword, setDiagnosisKeyword] = useState("");
 
-  //percription
   const prescriptionForm = useForm<PrescriptionFormValues>({
     resolver: zodResolver(prescriptionSchema),
     defaultValues: {
@@ -101,16 +97,18 @@ const PatientConsultationOverView: React.FC = () => {
     doctorId as string,
   );
 
-  useRingtone(status === "CALLING");
+  console.log("the status is ", status);
 
   //APi calls
 
   //fetching inital patient profile
   const { data: patient, isPending } = useQuery<Patient>({
-    queryKey: ["doctor:consulation:patient:overview", patientId],
+    queryKey: ["doctor:consultation:patient:overview", patientId],
     queryFn: () => fetchConsulationPatientProfile(appointmentId as string),
     enabled: !!appointmentId,
   });
+
+  useRingtone(status === "CALLING" && patient?.visitType === "ONLINE");
 
   const debouncedDiagnosisKeyword = useDebounce(diagnosisKeyword, 300);
 
@@ -140,7 +138,7 @@ const PatientConsultationOverView: React.FC = () => {
   const compelteConsulationMutate = useMutation({
     mutationFn: compelteConsulationAPi,
     onSuccess: () => {
-      notify.success("The patient consulation has comepleted successfully");
+      notify.success("The patient consultation has completed successfully");
       navigate("/doctor/queue");
     },
     onError: (error: any) => {
@@ -159,7 +157,7 @@ const PatientConsultationOverView: React.FC = () => {
     }) => saveDoctorQuickObservation(id, observationNote),
 
     onSuccess: () => {
-      notify.success("observation note saved succcessfully");
+      notify.success("observation note saved successfully");
     },
     onError: (error: any) => {
       notify.error(error?.response?.data?.message);
@@ -170,7 +168,7 @@ const PatientConsultationOverView: React.FC = () => {
     mutationFn: ({ id, data }: { id: string; data: PrescriptionFormValues }) =>
       savePrescriptionFormValuesApi(id, data),
     onSuccess: () => {
-      notify.success("percritption saved successfully");
+      notify.success("precritption saved successfully");
     },
     onError: (error: any) => {
       notify.error(error?.response?.data?.message);
@@ -304,7 +302,7 @@ const PatientConsultationOverView: React.FC = () => {
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">
-                  {patient?.fullName}
+                  {patient?.fullName || ""}
                 </h1>
                 <div className="flex items-center gap-4 mt-2 text-sm text-gray-600">
                   <span>

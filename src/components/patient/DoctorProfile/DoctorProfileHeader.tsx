@@ -1,10 +1,10 @@
 import {
   MapPin,
   Star,
-  Heart,
+  // Heart,
   CreditCard,
   Phone,
-  User,
+  // User,
   MessageSquare,
 } from "lucide-react";
 import type { Doctor } from "../../../types/patient/DoctorProfile/doctor.profile.types";
@@ -19,8 +19,8 @@ interface Props {
 
 const DoctorProfileHeader: React.FC<Props> = ({
   doctor,
-  isFavorite,
-  onToggleFavorite,
+  // isFavorite,
+  // onToggleFavorite,
   setActiveTab,
 }) => {
   const navigate = useNavigate();
@@ -69,7 +69,7 @@ const DoctorProfileHeader: React.FC<Props> = ({
                 ))}
               </div>
 
-              <button
+              {/* <button
                 onClick={onToggleFavorite}
                 className="mt-3 text-sm text-gray-600 hover:text-red-500 flex items-center gap-1"
               >
@@ -78,18 +78,18 @@ const DoctorProfileHeader: React.FC<Props> = ({
                   className={isFavorite ? "fill-red-500 text-red-500" : ""}
                 />
                 Add to Favourites
-              </button>
+              </button> */}
             </div>
 
             <div className="text-right space-y-2 text-sm">
-              <div className="flex items-center gap-2 justify-end">
+              {/* <div className="flex items-center gap-2 justify-end">
                 <User size={16} className="text-gray-400" />
                 <span>{doctor.patientsTreated} Patients Treated</span>
-              </div>
-              <div className="flex items-center gap-2 justify-end">
+              </div> */}
+              {/* <div className="flex items-center gap-2 justify-end">
                 <Star size={16} className="text-gray-400" />
                 <span>{doctor.votes} Votes</span>
-              </div>
+              </div> */}
               <div className="flex items-center gap-2 justify-end">
                 <MessageSquare size={16} className="text-gray-400" />
                 <span>{doctor.feedback} Feedback</span>

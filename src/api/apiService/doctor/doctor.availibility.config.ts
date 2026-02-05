@@ -18,3 +18,21 @@ export const postDoctorAvailbilityConfigApi = async (payload: any) => {
     console.log(error);
   }
 };
+
+export const checkEditDoctorAvailbilityConfigApi = async (payload: any) => {
+  try {
+    const result = await api.post("/doctor/availability/check", payload);
+    return result.data.data;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const confirmEditDoctorAvailbilityConfigApi = async (payload: any) => {
+  try {
+    const result = await api.patch("/doctor/availability/confirm", payload);
+    return result.data.data;
+  } catch (error) {
+    console.log(error);
+  }
+};

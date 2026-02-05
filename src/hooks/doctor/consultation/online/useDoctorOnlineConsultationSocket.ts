@@ -21,7 +21,9 @@ export const useDoctorOnlineConsultationSocket = (doctorId: string) => {
           setConsultationId(res.data.data.consultationId);
           setStatus(res.data.data.status);
         }
-      } catch {}
+      } catch (error) {
+        console.log(error);
+      }
     };
 
     fetchActive();
@@ -60,7 +62,7 @@ export const useDoctorOnlineConsultationSocket = (doctorId: string) => {
       socket.off("ONLINE_CONSULTATION_ACCEPTED", onAccepted);
       socket.off("ONLINE_CONSULTATION_REJECTED", onRejected);
     };
-  }, [socket]);
+  }, [socket, doctorId]);
 
   return { consultationId, status };
 };

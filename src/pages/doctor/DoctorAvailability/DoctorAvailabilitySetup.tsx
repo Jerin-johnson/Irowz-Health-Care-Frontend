@@ -3,6 +3,8 @@ import { Save, AlertCircle } from "lucide-react";
 import { useAppSelector } from "../../../store/hooks";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
+  checkEditDoctorAvailbilityConfigApi,
+  confirmEditDoctorAvailbilityConfigApi,
   getDoctorAvailbilityConfigApi,
   postDoctorAvailbilityConfigApi,
 } from "../../../api/apiService/doctor/doctor.availibility.config";
@@ -15,6 +17,7 @@ import {
   buildWeeklySchedule,
   hydrateFromApi,
 } from "../../../mapper/doctorAvailability.mapper";
+import { confirmAction } from "../../../shared/notification/confirm";
 
 const DoctorAvailabilitySetup: React.FC = () => {
   const [workingDays, setWorkingDays] = useState<Record<DayKey, boolean>>({
@@ -102,7 +105,7 @@ const DoctorAvailabilitySetup: React.FC = () => {
   const updateWorkingHours = (
     index: number,
     field: "start" | "end" | "breakStart" | "breakEnd",
-    value: string
+    value: string,
   ) => {
     const updated = [...workingHours];
     updated[index][field] = value;
@@ -142,7 +145,15 @@ const DoctorAvailabilitySetup: React.FC = () => {
     },
   });
 
-  const handleEditSaveGenerate = () => {
+  const checkAvlaibiltyConfiltDoctorMutateFn = useMutation({
+    mutationFn: checkEditDoctorAvailbilityConfigApi,
+  });
+
+  const confirmAvlaibiltyConfiltDoctorMutateFn = useMutation({
+    mutationFn: confirmEditDoctorAvailbilityConfigApi,
+  });
+
+  const handleEditSaveGenerate = async () => {
     const payload = {
       weeklySchedule: buildWeeklySchedule(workingDays, workingHours),
       slotDurationMinutes: Number(slotDurationMinutes),
@@ -151,6 +162,34 @@ const DoctorAvailabilitySetup: React.FC = () => {
     };
 
     console.log("Edit payload", payload);
+
+    try {
+      const canEditData =
+        await checkAvlaibiltyConfiltDoctorMutateFn.mutateAsync(payload);
+
+      if (!canEditData.canProceed) {
+        const confirmResult = await confirmAction({
+          title: "Conflicting appointments found",
+          description: `This change affects ${canEditData.affectedAppointmentCount} appointments.
+Patients will be notified and can reschedule or receive a full refund.
+Do you want to continue?`,
+          type: "warning",
+        });
+
+        if (!confirmResult) return;
+      }
+
+      await confirmAvlaibiltyConfiltDoctorMutateFn.mutateAsync(payload);
+
+      //  IMPORTANT
+      queryClient.invalidateQueries({
+        queryKey: ["doctor:availbilty", doctorId],
+      });
+
+      notify.success("Availability updated successfully");
+    } catch (error) {
+      notify.error("Failed to update availability. Please try again.");
+    }
   };
 
   const handleSaveAndGenerate = () => {
