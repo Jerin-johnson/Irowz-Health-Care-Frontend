@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import SubscriptionPlans from "../../../components/common/SubcriptionPlanListing";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
@@ -51,6 +51,8 @@ const HospitalAdminSubscriptionListing: React.FC = () => {
     try {
       //  Create order from backend
       const order = await createOrderMutation.mutateAsync(planId);
+
+      console.log("The order is ", order);
 
       //  Open Razorpay checkout
       openRazorpayCheckout({

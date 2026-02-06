@@ -7,8 +7,8 @@ export const fetchHospitalPlans = async () => {
 
 //  create razorpay order
 export const createSubscriptionOrder = async (planId: string) => {
-  const res = await api.post("/hospital/subscriptions/order", { planId });
-  return res.data;
+  const res = await api.post("/hospital-admin/subscription/order", { planId });
+  return res.data.data;
 };
 
 //  confirm payment
@@ -18,6 +18,6 @@ export const confirmSubscriptionPayment = async (payload: {
   razorpay_order_id: string;
   razorpay_signature: string;
 }) => {
-  const res = await api.post("/hospital/subscriptions/confirm", payload);
+  const res = await api.post("/hospital-admin/subscription/confirm", payload);
   return res.data;
 };

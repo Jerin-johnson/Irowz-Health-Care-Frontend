@@ -37,18 +37,18 @@ export const superAdminConfig: SidebarConfig = {
       icon: <ClipboardList className="w-5 h-5" />,
       path: "/super-admin/verfication-request",
     },
-    {
-      id: "admins",
-      label: "Hospital Admins",
-      icon: <UserCog className="w-5 h-5" />,
-      path: "/super-admin/admins",
-    },
-    {
-      id: "doctors",
-      label: "All Doctors",
-      icon: <Stethoscope className="w-5 h-5" />,
-      path: "/super-admin/doctors",
-    },
+    // {
+    //   id: "admins",
+    //   label: "Hospital Admins",
+    //   icon: <UserCog className="w-5 h-5" />,
+    //   path: "/super-admin/admins",
+    // },
+    // {
+    //   id: "doctors",
+    //   label: "All Doctors",
+    //   icon: <Stethoscope className="w-5 h-5" />,
+    //   path: "/super-admin/doctors",
+    // },
 
     {
       id: "subcription",
@@ -68,11 +68,11 @@ export const superAdminConfig: SidebarConfig = {
       icon: <UserPlus className="w-5 h-5" />,
       path: "/super-admin/users",
     },
-    {
-      id: "settings",
-      label: "System Settings",
-      icon: <Settings className="w-5 h-5" />,
-      path: "/super-admin/settings",
-    },
+    // {
+    //   id: "settings",
+    //   label: "System Settings",
+    //   icon: <Settings className="w-5 h-5" />,
+    //   path: "/super-admin/settings",
+    // },
   ],
 };

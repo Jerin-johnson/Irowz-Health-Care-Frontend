@@ -52,7 +52,7 @@ const LandingPage: React.FC = () => {
         </div>
       </div>
 
-      <DoctorsSection />
+      {/* <DoctorsSection /> */}
 
       <HowItWorksSection />
       <Footer />

@@ -11,11 +11,11 @@ import DoctorSlots from "../pages/patient/DoctorBooking/DoctorSlot";
 import DoctorListing from "../pages/patient/DoctorListing/DoctorListing";
 import DoctorProfile from "../pages/patient/DoctorProfile/DoctorProfile";
 import PatientProfileSettings from "../pages/patient/patientProfileSettings/PatientProfileSettings";
-import PatientProfile from "../pages/patient/proflile/PatientProfile";
 import { WalletPatient } from "../pages/patient/wallet/PatientWallet";
 import PatientSessionBoundary from "./PatientRealTime";
 
 import ProtectedRoute from "./protectRoutes";
+import PatientDashboard from "../pages/patient/Dashboard/PatientDashboard";
 
 export const patientRoutes = {
   path: "/patient",
@@ -63,7 +63,7 @@ export const patientRoutes = {
           children: [
             {
               path: "profile",
-              element: <PatientProfile />,
+              element: <PatientDashboard />,
             },
             {
               path: "settings",

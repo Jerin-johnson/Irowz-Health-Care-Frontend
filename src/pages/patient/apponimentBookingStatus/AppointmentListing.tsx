@@ -23,7 +23,7 @@ import {
 import { confirmAction } from "../../../shared/notification/confirm";
 import { useRescheduleEligibility } from "../../../hooks/patient/appointments/useRescheduleAppointment";
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 6;
 
 const PatientAppointments: React.FC = () => {
   const navigate = useNavigate();

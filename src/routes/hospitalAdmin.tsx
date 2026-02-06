@@ -1,7 +1,7 @@
 import HospitalAdminLayout from "../layout/HospitalAdmin";
 import AddDoctor from "../pages/hospitaladmin/DoctorMangement/AddDoctor";
 import DoctorListing from "../pages/hospitaladmin/DoctorMangement/DoctorLIsting";
-import HospitalDashBoard from "../pages/hospitaladmin/HospitalDashBoard";
+import HospitalAdminDashboard from "../pages/hospitaladmin/HospitalDashBoard";
 import SpecialityListing from "../pages/hospitaladmin/SpecialityMangement/SpecialityListing";
 import HospitalAdminSubscriptionListing from "../pages/hospitaladmin/Subcription/SubscriptionListing.HospitalAdmin";
 
@@ -19,7 +19,7 @@ export const HospitalAdminRoutes = {
       path: "/hospital-admin",
       element: <HospitalAdminLayout />,
       children: [
-        { path: "dashboard", element: <HospitalDashBoard /> },
+        { path: "dashboard", element: <HospitalAdminDashboard /> },
         { path: "speciality", element: <SpecialityListing /> },
         { path: "doctor", element: <DoctorListing /> },
         { path: "doctor/add", element: <AddDoctor /> },
