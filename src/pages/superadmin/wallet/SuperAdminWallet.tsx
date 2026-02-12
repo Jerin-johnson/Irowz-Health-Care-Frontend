@@ -3,7 +3,7 @@ import type { Wallet } from "../../../types/PatientWallet";
 import { useQuery } from "@tanstack/react-query";
 import { GetSuperAdminWalletApi } from "../../../api/apiService/superAdmin/wallet";
 
-export const SuperAdminWallet: React.FC = () => {
+const SuperAdminWallet: React.FC = () => {
   const [filterType] = useState<string>("ALL");
   const [filterDate] = useState<string>("");
 
@@ -200,3 +200,5 @@ export const SuperAdminWallet: React.FC = () => {
     </div>
   );
 };
+
+export default SuperAdminWallet;

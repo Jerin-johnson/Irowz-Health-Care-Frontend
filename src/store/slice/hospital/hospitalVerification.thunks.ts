@@ -42,7 +42,7 @@ export const submitHospitalVerificationThunk = createAsyncThunk<
   } catch (error: any) {
     console.log(error);
     return rejectWithValue(
-      error?.message || "Network error. Please try again."
+      error?.message || "Network error. Please try again.",
     );
   }
 });
@@ -71,7 +71,7 @@ export const reSubmitHospitalVerificationThunk = createAsyncThunk<
           method: "POST",
           body: formData,
           credentials: "include",
-        }
+        },
       );
 
       const data = await res.json();
@@ -88,7 +88,7 @@ export const reSubmitHospitalVerificationThunk = createAsyncThunk<
         message: error?.message || "Network error. Please try again.",
       });
     }
-  }
+  },
 );
 
 export const fetchHospitalVerificationStatusThunk = createAsyncThunk<
@@ -107,14 +107,14 @@ export const fetchHospitalVerificationStatusThunk = createAsyncThunk<
     console.log("data from fect", data);
     if (!res.ok) {
       return rejectWithValue(
-        data?.message || "Failed to fetch verification status"
+        data?.message || "Failed to fetch verification status",
       );
     }
 
     return data;
-  } catch (error: any) {
+  } catch (error) {
     return rejectWithValue(
-      error?.message || "Network error. Please try again."
+      error?.message || "Network error. Please try again.",
     );
   }
 });

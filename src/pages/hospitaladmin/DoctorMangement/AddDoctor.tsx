@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import {
   createDoctorAdminApi,
   getAllSpecialtNameApi,
-  // createDoctorApi, // 🔜 you can enable later
+  // createDoctorApi, //
 } from "../../../api/apiService/hospitalAdmin/DoctorMangement";
 import { notify } from "../../../shared/notification/toast";
 
@@ -14,7 +14,7 @@ export interface DoctorFormData {
   email: string;
   phone: string;
 
-  specialtyId: string; // ✅ backend _id
+  specialtyId: string;
 
   medicalRegistrationNumber: string;
   medicalCouncil: "MCI" | "NMC" | "STATE_MEDICAL_COUNCIL";

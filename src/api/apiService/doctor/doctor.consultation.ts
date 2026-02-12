@@ -1,3 +1,4 @@
+import type { LabTest } from "../../../types/doctor/doctor.consulation.types";
 import type { PrescriptionFormValues } from "../../../validators/doctor/consultation/Percription";
 import { api } from "../../axios.config";
 
@@ -77,6 +78,28 @@ export const savePrescriptionFormValuesApi = async (
 };
 
 export const fetchPrescriptionDoctorApi = async (id: string) => {
-  const result = await api.get(`/doctor/consultation/medical-record/${id}`);
+  const result = await api.get(
+    `/doctor/consultation/medical-record/precription/${id}`,
+  );
   return result.data.data;
 };
+
+export const fetchLabTestOfMedicalRecordApi = async (id: string) => {
+  const result = await api.get(`/doctor/consultation/medical-record/lab/${id}`);
+  return result.data.data;
+};
+
+interface CreateLabOrderPayload {
+  appointmentId: string;
+  tests: LabTest[];
+  action: "Hospital" | "Outside";
+  clinicalReason: string;
+}
+
+export async function createLabOrder(payload: CreateLabOrderPayload) {
+  const res = await api.post(
+    "/doctor/consultation/lab/create-lab-order",
+    payload,
+  );
+  return res.data.data;
+}

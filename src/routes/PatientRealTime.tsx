@@ -14,15 +14,12 @@ const PatientSessionBoundary = () => {
     (state) => state.auth,
   );
 
-  //  connect socket ONLY if logged-in PATIENT
-  const shouldConnect = isAuthenticated && role === "PATIENT";
+  console.log(isAuthenticated, role);
 
-  if (shouldConnect) {
-    usePatientSocket(userId);
-    console.log("The socket is connectd");
-  } else {
-    console.log("The socket is not connected");
-  }
+  // //  connect socket ONLY if logged-in PATIENT
+  // const shouldConnect = isAuthenticated && role === "PATIENT";
+
+  usePatientSocket(userId);
 
   const { incomingCall, clearIncomingCall } = useIncomingConsultationCall();
 

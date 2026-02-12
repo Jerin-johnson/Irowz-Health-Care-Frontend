@@ -4,6 +4,7 @@ import {
   rescheduleAppointment,
 } from "../../../api/apiService/patient/appointment";
 import { notify } from "../../../shared/notification/toast";
+import type { ApiError } from "../../../types/api/Api.error";
 
 export const useRescheduleAppointment = () => {
   const queryClient = useQueryClient();
@@ -19,7 +20,7 @@ export const useRescheduleAppointment = () => {
       });
     },
 
-    onError: (error: any) => {
+    onError: (error: ApiError) => {
       notify.error(error?.response?.data?.message || "Reschedule failed");
     },
   });

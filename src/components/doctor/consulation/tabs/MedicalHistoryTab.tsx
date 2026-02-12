@@ -1,4 +1,4 @@
-import { Calendar, FileText, Search } from "lucide-react";
+import { FileText, Search } from "lucide-react";
 import Card from "../common/Card";
 import Input from "../common/Input";
 import Badge from "../common/Badge.2";
@@ -7,7 +7,6 @@ import { useEffect } from "react";
 import { notify } from "../../../../shared/notification/toast";
 import { formatDate } from "../../../../utils/patientAppointment.listng";
 import { Pagination } from "../../../common/Pagination";
-import { useNavigate } from "react-router-dom";
 
 interface Props {
   startDate: string;
@@ -17,10 +16,11 @@ interface Props {
   diagnosisKeyword: string;
   setDiagnosisKeyword: (v: string) => void;
   records: MedicalRecord[];
-
   currentPage: number;
   totalPages: number;
   onPageChange: (page: number) => void;
+  onClickViewPrecription: (id: string) => void;
+  onClickViewLabReports: (id: string) => void;
   isFetching: boolean;
 }
 
@@ -36,6 +36,8 @@ const MedicalHistoryTab = ({
   onPageChange,
   totalPages,
   isFetching,
+  onClickViewLabReports,
+  onClickViewPrecription,
 }: Props) => {
   useEffect(() => {
     if (startDate && endDate && startDate > endDate) {
@@ -43,8 +45,6 @@ const MedicalHistoryTab = ({
       setEndDate("");
     }
   }, [startDate, endDate, onPageChange, setEndDate]);
-
-  const navigate = useNavigate();
 
   useEffect(() => {
     onPageChange(1);
@@ -175,18 +175,14 @@ const MedicalHistoryTab = ({
                     <div className="flex items-center gap-2">
                       <button
                         className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center gap-1"
-                        onClick={() =>
-                          navigate(`/doctor/prescription/view/${record.id}`)
-                        }
+                        onClick={() => onClickViewPrecription(record.id)}
                       >
                         <FileText className="w-4 h-4" />
                         Prescription
                       </button>
                       <button
                         className="text-green-600 hover:text-green-700 text-sm font-medium flex items-center gap-1"
-                        onClick={() =>
-                          navigate(`/doctor/lab-report/view/${record.id}`)
-                        }
+                        onClick={() => onClickViewLabReports(record.id)}
                       >
                         <FileText className="w-4 h-4" />
                         Lab Reports
@@ -198,6 +194,12 @@ const MedicalHistoryTab = ({
             </tbody>
           </table>
         </div>
+
+        {!records.length && (
+          <p className="px-6 py-4 text-sm font-medium text-gray-900 text-center">
+            no record found
+          </p>
+        )}
         {records.length > 0 && (
           <div className="flex justify-end p-4">
             <Pagination

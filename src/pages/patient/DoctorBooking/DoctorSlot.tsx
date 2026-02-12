@@ -102,7 +102,9 @@ const DoctorSlots: React.FC = () => {
     return <DoctorSlotsSkeleton />;
   }
   if (!doctor || !timeSlots) {
-    notify.error("Doctor does not avialitbilty sorry");
+    notify.error(
+      "Doctor identified has fraud...our systmen will remove this doctor soon...sorry for the inconvience",
+    );
     navigate(-1);
     return;
   }
@@ -318,7 +320,7 @@ const DoctorSlots: React.FC = () => {
                   No slots available
                 </div>
               ) : (
-                timeSlots.map((slot: any) => (
+                timeSlots.map((slot) => (
                   <button
                     key={slot.startTime}
                     disabled={lockDoctorSlotQuery.isPending}

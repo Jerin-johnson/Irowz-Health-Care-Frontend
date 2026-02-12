@@ -15,11 +15,11 @@ export const signupUserThunk = createAsyncThunk(
     try {
       const res = await signupApi(data);
       return res;
-    } catch (error: any) {
+    } catch (error) {
       console.log(error);
       return rejectWithValue(error.response?.data?.message || "Signup failed");
     }
-  }
+  },
 );
 
 export const loginThunk = createAsyncThunk(
@@ -30,7 +30,7 @@ export const loginThunk = createAsyncThunk(
       password,
       UserRole,
     }: { userEmail: string; password: string; UserRole: UserRoleExluce },
-    { rejectWithValue, dispatch }
+    { rejectWithValue, dispatch },
   ) => {
     try {
       const res = await loginUserApi(userEmail, password, UserRole);
@@ -61,7 +61,7 @@ export const loginThunk = createAsyncThunk(
           patientId: patientId || null,
           forcePasswordReset: forcePasswordReset ? true : false,
           profileImage,
-        })
+        }),
       );
 
       return true;
@@ -69,14 +69,14 @@ export const loginThunk = createAsyncThunk(
       console.log(error);
       return rejectWithValue(error.response?.data?.message || "Login failed");
     }
-  }
+  },
 );
 
 export const verifyOtpThunk = createAsyncThunk(
   "auth/verifyOtp",
   async (
     { email, otp, userId }: { email: string; otp: string; userId: string },
-    { rejectWithValue }
+    { rejectWithValue },
   ) => {
     try {
       const res = await verifyOtpApi({ email, otp, userId });
@@ -86,7 +86,7 @@ export const verifyOtpThunk = createAsyncThunk(
       console.log(error);
       return rejectWithValue(error.response?.data?.message || "Invalid OTP");
     }
-  }
+  },
 );
 
 export const resendOtpThunk = createAsyncThunk(
@@ -97,10 +97,10 @@ export const resendOtpThunk = createAsyncThunk(
       return true;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Failed to resend OTP"
+        error.response?.data?.message || "Failed to resend OTP",
       );
     }
-  }
+  },
 );
 
 export const logoutThunk = createAsyncThunk(
@@ -112,7 +112,7 @@ export const logoutThunk = createAsyncThunk(
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || "Logout failed");
     }
-  }
+  },
 );
 
 export type UserRole =

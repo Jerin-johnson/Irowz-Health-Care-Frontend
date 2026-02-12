@@ -26,7 +26,7 @@ export const Navbar: React.FC = () => {
   const navItems: NavItem[] = [
     { label: "Home", href: "/" },
     { label: "Doctors", href: "/patient/doctors" },
-    { label: "Blog", href: "/blog", hasDropdown: true },
+    // { label: "Blog", href: "/blog", hasDropdown: true },
     { label: "Contact Us", href: "/contact" },
   ];
 

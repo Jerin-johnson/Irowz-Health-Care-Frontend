@@ -1,12 +1,8 @@
 import {
   LayoutDashboard,
   Calendar,
-  Heart,
-  Users,
   FileText,
   Wallet,
-  FileCheck,
-  Video,
   Settings,
   LogOut,
   ChevronRight,
@@ -75,7 +71,7 @@ const PatientSidebar = ({ isOpen, onClose }: SidebarProps) => {
         <div className="p-6 border-b">
           <div className="text-center">
             <img
-              src={profileImage}
+              src={profileImage ? profileImage : "/default-user.png"}
               className="w-24 h-24 rounded-full mx-auto mb-3"
             />
             <h3 className="font-bold">{name}</h3>

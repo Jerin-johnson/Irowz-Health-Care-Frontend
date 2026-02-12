@@ -13,15 +13,7 @@ import PatientOverviewTab from "../../../components/doctor/consulation/tabs/Pati
 import MedicalHistoryTab from "../../../components/doctor/consulation/tabs/MedicalHistoryTab";
 import PrescriptionTab from "../../../components/doctor/consulation/tabs/Percription.tab";
 import LabTestsTab from "../../../components/doctor/consulation/tabs/LabtestTab";
-import { useMutation, useQuery } from "@tanstack/react-query";
 import { useAppSelector } from "../../../store/hooks";
-import {
-  compelteConsulationAPi,
-  fetchConsulationPatientProfile,
-  fetchPatientMedicalRecordForConsultationAPi,
-  saveDoctorQuickObservation,
-  savePrescriptionFormValuesApi,
-} from "../../../api/apiService/doctor/doctor.consultation";
 import { useNavigate, useParams } from "react-router-dom";
 import { availableTests } from "../../../utils/constants/available";
 import { notify } from "../../../shared/notification/toast";
@@ -36,6 +28,9 @@ import {
 } from "../../../validators/doctor/consultation/Percription";
 import { useForm } from "react-hook-form";
 import { useDebounce } from "../../../hooks/common/useDebounce";
+import { usePatientProfile } from "../../../hooks/doctor/consultation/useConsultationPatient";
+import { useMedicalHistory } from "../../../hooks/doctor/consultation/useMedicalHistory";
+import { useConsultationMutations } from "../../../hooks/doctor/consultation/useConsultationActions";
 
 const tabs: { id: TabType; label: string }[] = [
   { id: "overview", label: "Patient Overview" },
@@ -78,7 +73,7 @@ const PatientConsultationOverView: React.FC = () => {
 
   const [selectedTests, setSelectedTests] = useState<LabTest[]>([]);
   const [testSearch, setTestSearch] = useState("");
-  const [priority, setPriority] = useState<"normal" | "urgent">("normal");
+  const [action, setAction] = useState<"Hospital" | "Outside">("Hospital");
   const [clinicalReason, setClinicalReason] = useState("");
 
   const [notes, setNotes] = useState("");
@@ -97,37 +92,23 @@ const PatientConsultationOverView: React.FC = () => {
     doctorId as string,
   );
 
-  console.log("the status is ", status);
-
-  //APi calls
-
   //fetching inital patient profile
-  const { data: patient, isPending } = useQuery<Patient>({
-    queryKey: ["doctor:consultation:patient:overview", patientId],
-    queryFn: () => fetchConsulationPatientProfile(appointmentId as string),
-    enabled: !!appointmentId,
-  });
+  const { data: patient, isPending } = usePatientProfile(
+    appointmentId,
+    patientId,
+  );
 
   useRingtone(status === "CALLING" && patient?.visitType === "ONLINE");
 
   const debouncedDiagnosisKeyword = useDebounce(diagnosisKeyword, 300);
 
-  const { data, isFetching } = useQuery<MedicalHistoryResponse>({
-    queryKey: [
-      "doctor:consultation:patient:medical-history",
-      patientId,
-      debouncedDiagnosisKeyword,
-      pageMedical,
-    ],
-    queryFn: () =>
-      fetchPatientMedicalRecordForConsultationAPi(
-        appointmentId as string,
-        debouncedDiagnosisKeyword,
-        pageMedical,
-        limit,
-      ),
-    enabled: !!appointmentId,
-  });
+  const { data, isFetching } = useMedicalHistory(
+    appointmentId,
+    patientId,
+    debouncedDiagnosisKeyword,
+    pageMedical,
+    limit,
+  );
 
   const medicalRecords = data?.data ?? [];
   const pagination = data?.pagination;
@@ -135,47 +116,34 @@ const PatientConsultationOverView: React.FC = () => {
     ? Math.ceil(pagination.total / pagination.limit)
     : 1;
 
-  const compelteConsulationMutate = useMutation({
-    mutationFn: compelteConsulationAPi,
-    onSuccess: () => {
-      notify.success("The patient consultation has completed successfully");
-      navigate("/doctor/queue");
-    },
-    onError: (error: any) => {
-      notify.error(error?.response?.data?.message);
-      console.log(error);
-    },
-  });
-
-  const saveNoteMutateFn = useMutation({
-    mutationFn: ({
-      id,
-      observationNote,
-    }: {
-      id: string;
-      observationNote: string;
-    }) => saveDoctorQuickObservation(id, observationNote),
-
-    onSuccess: () => {
-      notify.success("observation note saved successfully");
-    },
-    onError: (error: any) => {
-      notify.error(error?.response?.data?.message);
-    },
-  });
-
-  const PrescriptionMutate = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: PrescriptionFormValues }) =>
-      savePrescriptionFormValuesApi(id, data),
-    onSuccess: () => {
-      notify.success("precritption saved successfully");
-    },
-    onError: (error: any) => {
-      notify.error(error?.response?.data?.message);
-    },
-  });
+  const {
+    compelteConsulationMutate,
+    saveNoteMutateFn,
+    PrescriptionMutate,
+    createLabOrderMutation,
+  } = useConsultationMutations();
 
   //handlers
+
+  function handleCreateLabOrder() {
+    if (!selectedTests.length) {
+      return notify.error("Please select at least one lab test");
+    }
+
+    console.log({
+      appointmentId: appointmentId!,
+      tests: selectedTests,
+      action,
+      clinicalReason,
+    });
+
+    createLabOrderMutation.mutate({
+      appointmentId: appointmentId!,
+      tests: selectedTests,
+      action,
+      clinicalReason,
+    });
+  }
 
   function handleSaveObservationNote() {
     if (!notes) {
@@ -191,8 +159,6 @@ const PatientConsultationOverView: React.FC = () => {
   function savePercriptionHandler(data: PrescriptionFormValues) {
     PrescriptionMutate.mutate({ id: appointmentId!, data });
   }
-
-  console.log("The patient id is", patient);
 
   function completeConsulation() {
     if (notes.length < 3) {
@@ -253,6 +219,12 @@ const PatientConsultationOverView: React.FC = () => {
             totalPages={totalPages}
             onPageChange={setPageMedical}
             isFetching={isFetching}
+            onClickViewPrecription={(id?: string) =>
+              navigate(`/doctor/prescription/view/${id}`)
+            }
+            onClickViewLabReports={(id?: string) => {
+              navigate(`/doctor/lab-report/view/${id}`);
+            }}
           />
         );
 
@@ -273,10 +245,12 @@ const PatientConsultationOverView: React.FC = () => {
             availableTests={availableTests}
             testSearch={testSearch}
             setTestSearch={setTestSearch}
-            priority={priority}
-            setPriority={setPriority}
+            action={action}
+            setAction={setAction}
             clinicalReason={clinicalReason}
             setClinicalReason={setClinicalReason}
+            handleCreateLabOrder={handleCreateLabOrder}
+            isCreating={createLabOrderMutation.isPending}
           />
         );
     }
@@ -306,11 +280,11 @@ const PatientConsultationOverView: React.FC = () => {
                 </h1>
                 <div className="flex items-center gap-4 mt-2 text-sm text-gray-600">
                   <span>
-                    {patient.age} Years / {patient.gender}
+                    {patient?.age || "not Updated"} Years / {patient?.gender}
                   </span>
                   <span className="flex items-center gap-1">
                     <span className="w-1 h-1 bg-red-500 rounded-full"></span>
-                    {patient.bloodGroup}
+                    {patient?.bloodGroup}
                   </span>
                 </div>
               </div>
@@ -319,13 +293,13 @@ const PatientConsultationOverView: React.FC = () => {
               <div className="flex items-center justify-end gap-2 mb-2">
                 <Clock className="w-4 h-4 text-gray-400" />
                 <span className="text-sm text-gray-600">
-                  {patient.visitTime}
+                  {patient?.visitTime}
                 </span>
               </div>
               <div className="flex items-center justify-end gap-3">
-                <Badge variant="blue">{patient.visitType}</Badge>
-                <Badge variant="gray">Queue {patient.queue}</Badge>
-                <Badge variant="green">{patient.status}</Badge>
+                <Badge variant="blue">{patient?.visitType}</Badge>
+                <Badge variant="gray">Queue {patient?.queue}</Badge>
+                <Badge variant="green">{patient?.status}</Badge>
               </div>
             </div>
           </div>

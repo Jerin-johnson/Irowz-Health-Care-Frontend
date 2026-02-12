@@ -45,7 +45,7 @@ const AppointmentsQueue: React.FC = () => {
       notify.success(`you started the consulation of ${data.patientName}`);
       navigate(`/doctor/patient/overview/${data.appointmentId}`);
     },
-    onError: (error: any) => {
+    onError: (error: { response: { data: { message: string } } }) => {
       console.log(error);
       notify.error(error.response.data.message);
     },
@@ -59,7 +59,7 @@ const AppointmentsQueue: React.FC = () => {
         queryKey: ["doctor:queue", doctorId, today],
       });
     },
-    onError: (error: any) => {
+    onError: (error: { response: { data: { message: string } } }) => {
       notify.error(error.response.data.message);
     },
   });

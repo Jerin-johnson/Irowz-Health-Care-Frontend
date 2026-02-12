@@ -40,7 +40,6 @@ const DoctorListing: React.FC = () => {
 
   const handleSearch = () => {
     setCurrentPage(1);
-    refetch();
   };
 
   const handleViewProfile = (doctorId: string) => {

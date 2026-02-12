@@ -3,7 +3,7 @@ import type { Wallet } from "../../../types/PatientWallet";
 import { useQuery } from "@tanstack/react-query";
 import { GetWalletApi } from "../../../api/apiService/patient/Wallet";
 
-export const WalletPatient: React.FC = () => {
+const WalletPatient: React.FC = () => {
   const [filterType] = useState<string>("ALL");
   const [filterDate] = useState<string>("");
 
@@ -200,3 +200,5 @@ export const WalletPatient: React.FC = () => {
     </div>
   );
 };
+
+export default WalletPatient;

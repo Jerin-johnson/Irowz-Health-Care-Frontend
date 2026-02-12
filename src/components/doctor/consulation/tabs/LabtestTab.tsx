@@ -10,14 +10,16 @@ interface Props {
   availableTests: LabTest[];
   testSearch: string;
   setTestSearch: (v: string) => void;
-  priority: "normal" | "urgent";
-  setPriority: (v: "normal" | "urgent") => void;
+  action: "Hospital" | "Outside";
+  setAction: (v: "Hospital" | "Outside") => void;
   clinicalReason: string;
   setClinicalReason: (v: string) => void;
 
-  /** command-based actions */
   addTest: (test: LabTest) => void;
   removeTest: (id: string) => void;
+
+  handleCreateLabOrder: () => void;
+  isCreating: boolean;
 }
 
 const LabTestsTab = ({
@@ -25,12 +27,14 @@ const LabTestsTab = ({
   availableTests,
   testSearch,
   setTestSearch,
-  priority,
-  setPriority,
+  action,
+  setAction,
   clinicalReason,
   setClinicalReason,
   addTest,
   removeTest,
+  handleCreateLabOrder,
+  isCreating,
 }: Props) => {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -83,14 +87,14 @@ const LabTestsTab = ({
         {/* Priority */}
         <Card className="p-6">
           <label className="block text-sm font-medium text-gray-900 mb-3">
-            Priority <span className="text-red-500">*</span>
+            Action <span className="text-red-500">*</span>
           </label>
 
           <div className="grid grid-cols-2 gap-4">
             <button
-              onClick={() => setPriority("normal")}
+              onClick={() => setAction("Hospital")}
               className={`p-4 border-2 rounded-lg text-left transition-all ${
-                priority === "normal"
+                action === "Hospital"
                   ? "border-blue-500 bg-blue-50"
                   : "border-gray-200 hover:border-gray-300"
               }`}
@@ -98,24 +102,24 @@ const LabTestsTab = ({
               <div className="flex items-center gap-2 mb-1">
                 <div
                   className={`w-4 h-4 rounded-full border-2 ${
-                    priority === "normal"
+                    action === "Hospital"
                       ? "border-blue-500 bg-blue-500"
                       : "border-gray-300"
                   }`}
                 >
-                  {priority === "normal" && (
+                  {action === "Hospital" && (
                     <div className="w-2 h-2 bg-white rounded-full m-0.5" />
                   )}
                 </div>
-                <span className="font-medium text-sm">Normal</span>
+                <span className="font-medium text-sm">Hosptial</span>
               </div>
-              <p className="text-xs text-gray-600">Standard processing time</p>
+              <p className="text-xs text-gray-600">Result Auto Upload</p>
             </button>
 
             <button
-              onClick={() => setPriority("urgent")}
+              onClick={() => setAction("Outside")}
               className={`p-4 border-2 rounded-lg text-left transition-all ${
-                priority === "urgent"
+                action === "Outside"
                   ? "border-red-500 bg-red-50"
                   : "border-gray-200 hover:border-gray-300"
               }`}
@@ -123,19 +127,19 @@ const LabTestsTab = ({
               <div className="flex items-center gap-2 mb-1">
                 <div
                   className={`w-4 h-4 rounded-full border-2 ${
-                    priority === "urgent"
+                    action === "Outside"
                       ? "border-red-500 bg-red-500"
                       : "border-gray-300"
                   }`}
                 >
-                  {priority === "urgent" && (
+                  {action === "Outside" && (
                     <div className="w-2 h-2 bg-white rounded-full m-0.5" />
                   )}
                 </div>
-                <span className="font-medium text-sm">Urgent</span>
+                <span className="font-medium text-sm">Outside</span>
                 <span className="text-red-500 text-xs">⚠</span>
               </div>
-              <p className="text-xs text-gray-600">Priority processing</p>
+              <p className="text-xs text-gray-600">Patient Manullay Upload</p>
             </button>
           </div>
         </Card>
@@ -185,7 +189,7 @@ const LabTestsTab = ({
             <div className="pt-3 border-t">
               <div className="flex justify-between text-sm mb-2">
                 <span className="text-gray-600">Priority</span>
-                <span className="font-medium capitalize">{priority}</span>
+                <span className="font-medium capitalize">{action}</span>
               </div>
               <div className="flex justify-between text-sm mb-2">
                 <span className="text-gray-600">Laboratory</span>
@@ -202,8 +206,10 @@ const LabTestsTab = ({
             variant="success"
             fullWidth
             icon={<Plus className="w-4 h-4" />}
+            onClick={handleCreateLabOrder}
+            disabled={isCreating}
           >
-            Create Lab Order
+            {isCreating ? "Creating..." : "Create Lab Order"}
           </Button>
 
           <p className="text-xs text-center text-gray-500 mt-2">

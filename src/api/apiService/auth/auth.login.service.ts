@@ -5,7 +5,7 @@ import { LOGIN_ENDPOINT_BY_ROLE } from "./auth.endpoints";
 export const loginUserApi = async (
   email: string,
   password: string,
-  role: Exclude<UserRole, null>
+  role: Exclude<UserRole, null>,
 ) => {
   const endpoint = LOGIN_ENDPOINT_BY_ROLE[role];
   const response = await api.post(endpoint, {
@@ -15,12 +15,3 @@ export const loginUserApi = async (
 
   return response.data;
 };
-
-// export const loginSuperAdminApi = async (email: string, password: string) => {
-//   const response = await api.post("/auth/super-admin/login", {
-//     email,
-//     password,
-//   });
-
-//   return response.data;
-// };

@@ -5,12 +5,14 @@ const Button: React.FC<{
   icon?: React.ReactNode;
   fullWidth?: boolean;
   type?: "button" | "submit";
+  disabled?: boolean;
 }> = ({
   onClick,
   children,
   variant = "primary",
   icon,
   fullWidth,
+  disabled,
   type = "button",
 }) => {
   const baseClasses =
@@ -27,6 +29,7 @@ const Button: React.FC<{
       type={type}
       onClick={onClick}
       className={`${baseClasses} ${variants[variant]} ${fullWidth ? "w-full" : ""}`}
+      disabled={disabled}
     >
       {icon}
       {children}

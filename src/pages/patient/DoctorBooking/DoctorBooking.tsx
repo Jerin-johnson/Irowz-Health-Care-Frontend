@@ -35,7 +35,7 @@ const DoctorBooking: React.FC = () => {
     startTime: string;
   };
 
-  const [paymentMethod, setPaymentMethod] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState("RAZORPAY");
   const [blockNavigation, setBlockNavigation] = useState(true);
 
   const { data: billingPrefill } = useQuery({
@@ -118,44 +118,50 @@ const DoctorBooking: React.FC = () => {
     if (!paymentSuccess) return;
 
     navigate(`/patient/booking-success/${appointmentId}`);
-  }, [paymentSuccess, navigate]);
+  }, [paymentSuccess, navigate, appointmentId]);
 
   const checkoutMutation = useMutation({
     mutationFn: checkoutDoctorBooking,
 
     onSuccess: (data) => {
-      console.log("the data is", data);
       setAppointmentId(data.appointmentId);
-      openRazorpayCheckout({
-        orderId: data.razorpayOrderId,
-        amount: data.amount,
-        currency: "INR",
-        name: "Doctor Appointment",
-        description: "Consultation Fee",
+      if (paymentMethod === "RAZORPAY") {
+        openRazorpayCheckout({
+          orderId: data.razorpayOrderId,
+          amount: data.amount,
+          currency: "INR",
+          name: "Doctor Appointment",
+          description: "Consultation Fee",
 
-        prefill: {
-          name: billingPrefill?.firstName,
-          email: billingPrefill?.email,
-          contact: billingPrefill?.phone,
-        },
+          prefill: {
+            name: billingPrefill?.firstName,
+            email: billingPrefill?.email,
+            contact: billingPrefill?.phone,
+          },
 
-        onSuccess: (response) => {
-          verifyPaymentMutation.mutate({
-            appointmentId: data.appointmentId,
-            razorpayOrderId: response.razorpay_order_id,
-            razorpayPaymentId: response.razorpay_payment_id,
-            razorpaySignature: response.razorpay_signature,
-          });
-          console.log(response);
-        },
+          onSuccess: (response) => {
+            verifyPaymentMutation.mutate({
+              appointmentId: data.appointmentId,
+              razorpayOrderId: response.razorpay_order_id,
+              razorpayPaymentId: response.razorpay_payment_id,
+              razorpaySignature: response.razorpay_signature,
+            });
+          },
 
-        onDismiss: () => {
-          notify.error("you have the oppurtunity to redo the payment");
-        },
-      });
+          onDismiss: () => {
+            notify.error("you have the oppurtunity to redo the payment");
+          },
+        });
+      } else {
+        setBlockNavigation(false);
+        setPaymentSuccess(true);
+        notify.success(
+          "Payment successfull and doctor apponiment is created successfully",
+        );
+      }
     },
 
-    onError: (err: any) => {
+    onError: (err: { response: { data: { message: string } } }) => {
       notify.error(err?.response?.data?.message || "Checkout failed");
     },
   });
@@ -171,7 +177,7 @@ const DoctorBooking: React.FC = () => {
       date,
       startTime,
       billingDetails: data,
-      paymentMethod: "online",
+      paymentMethod,
       visitType,
     });
   };
@@ -287,11 +293,21 @@ const DoctorBooking: React.FC = () => {
               <label className="flex gap-2 items-start">
                 <input
                   type="radio"
-                  value="online"
-                  checked={paymentMethod === "online"}
+                  value="RAZORPAY"
+                  checked={paymentMethod === "RAZORPAY"}
                   onChange={(e) => setPaymentMethod(e.target.value)}
                 />
                 Razorpay Online
+              </label>
+
+              <label className="flex gap-2 items-start">
+                <input
+                  type="radio"
+                  value="WALLET"
+                  checked={paymentMethod === "WALLET"}
+                  onChange={(e) => setPaymentMethod(e.target.value)}
+                />
+                WALLET
               </label>
             </div>
 

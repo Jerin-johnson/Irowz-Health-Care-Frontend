@@ -4,6 +4,7 @@ import {
   checkCancelEligibility,
 } from "../../../api/apiService/patient/appointment";
 import { notify } from "../../../shared/notification/toast";
+import type { ApiError } from "../../../types/api/Api.error";
 
 export const useCancelEligibility = () =>
   useMutation({
@@ -20,7 +21,7 @@ export const useCancelAppointment = () => {
       notify.success("Appointment cancelled successfully");
       queryClient.invalidateQueries({ queryKey: ["patient:appointments"] });
     },
-    onError: (err) => {
+    onError: (err: ApiError) => {
       notify.error(err.response?.data?.message || "Cancel failed");
     },
   });

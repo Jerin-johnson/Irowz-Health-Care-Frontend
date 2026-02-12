@@ -42,25 +42,27 @@ const BmiCircle = ({
   value,
   category,
 }: {
-  value: number;
-  category: string;
+  value?: number;
+  category?: string;
 }) => {
+  const safeValue = typeof value === "number" ? value : 0;
+  const safeCategory = category ?? "Not available";
+
   const radius = 70;
   const circumference = 2 * Math.PI * radius;
-  const percentage = Math.min(value / 40, 1); // assuming 40 as max reasonable BMI
+  const percentage = Math.min(safeValue / 40, 1);
   const offset = circumference - percentage * circumference;
 
   const getColor = () => {
-    if (value < 18.5) return "#3b82f6"; // Underweight - blue
-    if (value < 25) return "#22c55e"; // Normal - green
-    if (value < 30) return "#f59e0b"; // Overweight - amber
-    return "#ef4444"; // Obese - red
+    if (safeValue < 18.5) return "#3b82f6";
+    if (safeValue < 25) return "#22c55e";
+    if (safeValue < 30) return "#f59e0b";
+    return "#ef4444";
   };
 
   return (
     <div className="relative flex flex-col items-center justify-center">
       <svg width="180" height="180" viewBox="0 0 180 180">
-        {/* Background circle */}
         <circle
           cx="90"
           cy="90"
@@ -69,7 +71,6 @@ const BmiCircle = ({
           stroke="#e5e7eb"
           strokeWidth="14"
         />
-        {/* Progress circle */}
         <circle
           cx="90"
           cy="90"
@@ -81,7 +82,6 @@ const BmiCircle = ({
           strokeDashoffset={offset}
           transform="rotate(-90 90 90)"
         />
-        {/* Text in center */}
         <text
           x="90"
           y="85"
@@ -89,7 +89,7 @@ const BmiCircle = ({
           className="text-4xl font-bold"
           fill="#1f2937"
         >
-          {value.toFixed(1)}
+          {safeValue.toFixed(1)}
         </text>
         <text
           x="90"
@@ -101,16 +101,17 @@ const BmiCircle = ({
           BMI
         </text>
       </svg>
+
       <div className="mt-4 text-center">
         <p className="text-xl font-semibold" style={{ color: getColor() }}>
-          {category}
+          {safeCategory}
         </p>
         <p className="text-sm text-gray-500 mt-1">
-          {value < 18.5
+          {safeValue < 18.5
             ? "Underweight"
-            : value < 25
+            : safeValue < 25
               ? "Healthy range"
-              : value < 30
+              : safeValue < 30
                 ? "Overweight"
                 : "Obese"}
         </p>
@@ -160,25 +161,25 @@ const PatientDashboard: React.FC = () => {
       <div className="mb-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Total Appointments"
-          value={data.stats.total}
+          value={data?.stats?.total || 0}
           icon={Calendar}
           color="blue"
         />
         <StatCard
           title="Completed"
-          value={data.stats.completed}
+          value={data?.stats?.completed || 0}
           icon={CheckCircle2}
           color="green"
         />
         <StatCard
           title="Cancelled"
-          value={data.stats.cancelled}
+          value={data?.stats?.cancelled || 0}
           icon={XCircle}
           color="orange"
         />
         <StatCard
           title="No-Shows"
-          value={data.stats.noShow}
+          value={data?.stats?.noShow || 0}
           icon={Clock}
           color="orange"
         />
@@ -188,7 +189,7 @@ const PatientDashboard: React.FC = () => {
         {/* BMI Section */}
         <div className="rounded-xl border bg-white p-6 shadow-sm">
           <h2 className="mb-6 text-xl font-semibold">Your BMI</h2>
-          <BmiCircle value={data.bmi.value} category={data.bmi.category} />
+          <BmiCircle value={data?.bmi?.value} category={data?.bmi?.category} />
         </div>
 
         {/* Upcoming Appointments */}

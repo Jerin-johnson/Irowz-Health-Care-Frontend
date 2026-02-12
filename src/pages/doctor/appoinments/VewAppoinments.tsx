@@ -4,7 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { ViewAppointment } from "../../../components/doctor/appoinments/ViewAppointment";
 import { fetchAppointment } from "../../../api/apiService/doctor/doctor.consultation";
 
-export const AppointmentViewPage: React.FC = () => {
+const AppointmentViewPage: React.FC = () => {
   const { id: appointmentId } = useParams();
   const navigate = useNavigate();
   const {
@@ -65,3 +65,5 @@ export const AppointmentViewPage: React.FC = () => {
     </div>
   );
 };
+
+export default AppointmentViewPage;

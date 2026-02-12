@@ -38,10 +38,10 @@ export const adminConfig: SidebarConfig = {
     //   path: "/admin/patients",
     // },
     {
-      id: "appointments",
-      label: "Appointments",
+      id: "orders",
+      label: "lab orders",
       icon: <Calendar className="w-5 h-5" />,
-      path: "/admin/appointments",
+      path: "/hospital-admin/lab",
     },
     {
       id: "speciality",

@@ -1,4 +1,3 @@
-import { email } from "zod";
 import type { UserSignupFormData } from "../../../validators/userSignup.schema";
 import { api } from "../../axios.config";
 
