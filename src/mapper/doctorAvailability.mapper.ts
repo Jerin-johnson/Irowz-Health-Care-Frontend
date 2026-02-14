@@ -7,7 +7,7 @@ import {
 
 export function buildWeeklySchedule(
   workingDays: Record<DayKey, boolean>,
-  workingHours: WorkingHours[]
+  workingHours: WorkingHours[],
 ) {
   return workingHours.map((item) => {
     const isWorking = workingDays[item.day];
@@ -29,7 +29,25 @@ export function buildWeeklySchedule(
   });
 }
 
-export function hydrateFromApi(apiData: any) {
+type ApiScheduleItem = {
+  day: keyof typeof REVERSE_DAY_MAP;
+  isWorking: boolean;
+  workingHours?: {
+    start: string;
+    end: string;
+  };
+  breakTime?: {
+    start: string;
+    end: string;
+  };
+};
+
+export function hydrateFromApi(apiData: {
+  weeklySchedule: ApiScheduleItem[];
+  slotDurationMinutes: number;
+  maxPatientsPerDay: number;
+  teleConsultationEnabled: boolean;
+}) {
   const days: Record<DayKey, boolean> = {
     monday: false,
     tuesday: false,
@@ -40,7 +58,7 @@ export function hydrateFromApi(apiData: any) {
     sunday: false,
   };
 
-  const hours = apiData.weeklySchedule.map((item: any) => {
+  const hours = apiData.weeklySchedule.map((item) => {
     const map = REVERSE_DAY_MAP[item.day];
     days[map.key] = item.isWorking;
 

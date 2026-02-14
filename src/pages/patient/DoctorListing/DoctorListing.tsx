@@ -30,10 +30,7 @@ const DoctorListing: React.FC = () => {
     search: debouncedSearch,
   };
 
-  const { data, isFetching, refetch } = useDoctors(
-    debouncedFilters,
-    currentPage,
-  );
+  const { data, isFetching } = useDoctors(debouncedFilters, currentPage);
 
   const doctors = data?.doctors ?? [];
   const totalPages = data?.pagination.totalPages ?? 1;

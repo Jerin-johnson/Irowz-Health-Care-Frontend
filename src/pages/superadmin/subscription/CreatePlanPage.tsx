@@ -51,7 +51,7 @@ const CreatePlanPage: React.FC = () => {
 
   const createMutationApi = useMutation({
     mutationFn: createPlan,
-    onError: (error) => {
+    onError: (error: any) => {
       notify.error(
         error.response.data.message || error.message || "something went wrong",
       );

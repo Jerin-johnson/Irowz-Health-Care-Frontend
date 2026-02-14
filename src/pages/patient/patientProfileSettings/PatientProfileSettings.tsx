@@ -15,7 +15,7 @@ import { patientProfileSchema } from "../../../validators/patient/patientProfie.
 import { setProfileImage } from "../../../store/slice/Auth/auth.slice";
 
 type PatientProfileInput = z.input<typeof patientProfileSchema>;
-type PatientProfileOutput = z.output<typeof patientProfileSchema>;
+// type PatientProfileOutput = z.output<typeof patientProfileSchema>;
 
 const PatientProfileSettings: React.FC = () => {
   const userId = useAppSelector((state) => state.auth.userId);

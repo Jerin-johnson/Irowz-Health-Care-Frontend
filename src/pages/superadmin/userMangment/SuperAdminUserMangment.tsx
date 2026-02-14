@@ -24,7 +24,7 @@ type UserStatus = "ALL" | "VERIFIED" | "UNVERIFIED" | "BLOCKED";
 const PAGE_SIZE = 10;
 
 const SuperAdminUserManagement = () => {
-  const [search, setSearch] = useState("");
+  const [search] = useState("");
   const [role, setRole] = useState<UserRole | "ALL">("ALL");
   const [status, setStatus] = useState<UserStatus>("ALL");
   const [currentPage, setCurrentPage] = useState(1);

@@ -1,13 +1,10 @@
 import {
   LayoutDashboard,
   Calendar,
-  Users,
   FileText,
-  Settings,
   Building2,
   Hospital,
   Stethoscope,
-  CreditCard,
 } from "lucide-react";
 import type { SidebarConfig } from "../sidebar";
 

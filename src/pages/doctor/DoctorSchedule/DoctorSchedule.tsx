@@ -25,7 +25,7 @@ const DoctorSchedule: React.FC = () => {
   const doctorId = useAppSelector((state) => state.auth.doctorId);
 
   const today = new Date();
-  const todayStr = today.toISOString().split("T")[0];
+  // const todayStr = today.toISOString().split("T")[0];
 
   const tomorrow = new Date();
   tomorrow.setDate(today.getDate() + 1);

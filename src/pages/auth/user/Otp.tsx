@@ -15,7 +15,7 @@ const OTP_TIMER_KEY = "otp_timer_expires_at";
 
 export default function OTPVerification() {
   const { email, error, isAuthenticated, userId } = useAppSelector(
-    (state) => state.auth
+    (state) => state.auth,
   );
 
   const dispatch = useDispatch<AppDispatch>();
@@ -33,14 +33,12 @@ export default function OTPVerification() {
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const canResend = timer === 0;
 
-  /* ----------------------- Effects ----------------------- */
-
   // Initialize timer on mount
   useEffect(() => {
     if (!localStorage.getItem(OTP_TIMER_KEY)) {
       localStorage.setItem(
         OTP_TIMER_KEY,
-        (Date.now() + OTP_DURATION * 1000).toString()
+        (Date.now() + OTP_DURATION * 1000).toString(),
       );
     }
   }, []);
@@ -106,7 +104,7 @@ export default function OTPVerification() {
 
     localStorage.setItem(
       OTP_TIMER_KEY,
-      (Date.now() + OTP_DURATION * 1000).toString()
+      (Date.now() + OTP_DURATION * 1000).toString(),
     );
 
     setOtp(Array(OTP_LENGTH).fill(""));
@@ -128,11 +126,9 @@ export default function OTPVerification() {
         email,
         otp: otpValue,
         userId: userId as string,
-      })
+      }),
     );
   };
-
-  /* ----------------------- UI ----------------------- */
 
   return (
     <div className="bg-white rounded-3xl p-8 md:p-12 shadow-xl">
@@ -173,7 +169,7 @@ export default function OTPVerification() {
           {otp.map((digit, index) => (
             <input
               key={index}
-              ref={(el) => (inputRefs.current[index] = el)}
+              ref={(el) => void (inputRefs.current[index] = el)}
               type="text"
               maxLength={1}
               value={digit}

@@ -1,12 +1,9 @@
 import {
   LayoutDashboard,
-  UserCog,
   Shield,
   Hospital,
-  Stethoscope,
   ClipboardList,
   UserPlus,
-  Settings,
   CreditCard,
   Wallet,
 } from "lucide-react";

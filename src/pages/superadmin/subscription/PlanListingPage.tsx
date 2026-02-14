@@ -101,7 +101,7 @@ const PlanListingPage: React.FC = () => {
 
   console.log(plans);
 
-  if (!plans.length) return <div>No data</div>;
+  // if (!plans.length) return <div>No data</div>;
   return (
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-7xl mx-auto">
@@ -238,6 +238,11 @@ const PlanListingPage: React.FC = () => {
               ))}
             </tbody>
           </table>
+          {!plans.length && (
+            <p className="text-center bg-gray-100 text-gray-800 ">
+              no plan created yet
+            </p>
+          )}
         </div>
 
         {/* Pagination */}

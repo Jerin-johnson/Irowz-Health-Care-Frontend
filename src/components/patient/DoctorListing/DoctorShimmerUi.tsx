@@ -1,4 +1,4 @@
-import { User, User2Icon } from "lucide-react";
+import { User } from "lucide-react";
 
 export const DoctorCardSkeleton = () => {
   return (

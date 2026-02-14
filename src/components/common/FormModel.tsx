@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import type { FormErrors, FormModalProps } from "../../types/Form.types";
 import { X } from "lucide-react";
 
+type FormState = Record<string, any>;
+
 const FormModal: React.FC<FormModalProps> = ({
   isOpen,
   onClose,
@@ -13,7 +15,7 @@ const FormModal: React.FC<FormModalProps> = ({
   defaultValues,
   children,
 }) => {
-  const [formData, setFormData] = useState<FormData>({});
+  const [formData, setFormData] = useState<FormState>({});
   const [errors, setErrors] = useState<FormErrors>({});
 
   useEffect(() => {

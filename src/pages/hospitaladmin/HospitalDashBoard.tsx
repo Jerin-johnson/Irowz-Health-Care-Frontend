@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import {
   AreaChart,
   Area,
@@ -8,18 +8,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import {
-  Activity,
-  AlertCircle,
-  ArrowUpRight,
-  Banknote,
-  CheckCircle2,
-  CreditCard,
-  DollarSign,
-  Hospital,
-  Users,
-  Wallet,
-} from "lucide-react";
+import { Activity, CheckCircle2, Users } from "lucide-react";
 import { format } from "date-fns";
 import StatCard from "../../components/common/DashboardCard";
 import { useQuery } from "@tanstack/react-query";
@@ -97,6 +86,8 @@ const HospitalAdminDashboard: React.FC = () => {
         )
       : 0;
   const revenueArr = data.revenueStats;
+
+  console.log(revenueArr);
 
   // const revenueGrowthPercent =
   //   revenueArr.length >= 2

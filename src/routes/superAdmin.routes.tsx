@@ -79,7 +79,7 @@ const superAdminRoutes = [
     ),
     children: [
       {
-        path: "/", // ← becomes /super-admin/...
+        path: "/super-admin", // ← becomes //...
         element: <SuperAdminLayout />,
         children: [
           { path: "dashboard", element: <SuperAdminDashboard /> },

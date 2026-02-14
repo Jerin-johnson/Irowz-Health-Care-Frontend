@@ -140,8 +140,8 @@ const SpecialityListing = () => {
       statusFilter === "All Status"
         ? null
         : statusFilter === "blocked"
-        ? false
-        : true,
+          ? false
+          : true,
   });
 
   async function handleBlock(specialtyId: string) {
@@ -157,8 +157,8 @@ const SpecialityListing = () => {
     await blockOrUnBlockSpecialty({ specailtyId: specialtyId, status: false });
     setspecialitys((prev) =>
       prev.map((pre) =>
-        pre._id !== specialtyId ? pre : { ...pre, isActive: false }
-      )
+        pre._id !== specialtyId ? pre : { ...pre, isActive: false },
+      ),
     );
     setActiveSpecialityCount((prev) => prev - 1);
     notify.error("Specialty blocked successfully");
@@ -177,8 +177,8 @@ const SpecialityListing = () => {
     await blockOrUnBlockSpecialty({ specailtyId: specialtyId, status: true });
     setspecialitys((prev) =>
       prev.map((pre) =>
-        pre._id !== specialtyId ? pre : { ...pre, isActive: true }
-      )
+        pre._id !== specialtyId ? pre : { ...pre, isActive: true },
+      ),
     );
     setActiveSpecialityCount((prev) => prev + 1);
     notify.success("user Unblocked successfully");
@@ -199,7 +199,7 @@ const SpecialityListing = () => {
           selectedSpecialty._id,
           data.name,
           data.description,
-          symptoms
+          symptoms,
         );
       } else {
         await createSpecialityApi(data.name, data.description, symptoms);
@@ -208,7 +208,7 @@ const SpecialityListing = () => {
       notify.success(
         isEditMode
           ? "Specialty updated successfully"
-          : "Specialty created successfully"
+          : "Specialty created successfully",
       );
 
       setIsSpecialtyModalOpen(false);
@@ -217,8 +217,10 @@ const SpecialityListing = () => {
       setSymptoms([]);
       setSymptomInput("");
       await refetch();
+      return true;
     } catch (error) {
       notify.error("Something went wrong");
+      return false;
     }
   }
 

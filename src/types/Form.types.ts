@@ -35,13 +35,14 @@ export type FormField = InputField | TextAreaField | SelectField | FileField;
 export interface FormModalProps<TFormData = Record<string, any>> {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (data: TFormData) => void | boolean;
+  onSubmit: (data: any) => Promise<any> | void;
   title: string;
   subtitle?: string;
   fields: FormField[];
   children?: React.ReactNode;
   submitButtonText?: string;
   defaultValues?: Partial<TFormData>;
+  loading?: boolean;
 }
 
 export type FormData<T = Record<string, any>> = T;

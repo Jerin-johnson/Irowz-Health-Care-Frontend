@@ -18,7 +18,7 @@ const HospitalVerification: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { error, loading, status } = useAppSelector(
-    (state) => state.hospitalVerification
+    (state) => state.hospitalVerification,
   );
 
   useEffect(() => {
@@ -75,7 +75,9 @@ const HospitalVerification: React.FC = () => {
     }
 
     if (!check?.payload?.success) {
-      notify.error(check?.payload?.message);
+      notify.success(
+        check?.payload?.message || "verfication request submitted",
+      );
       return;
     }
 

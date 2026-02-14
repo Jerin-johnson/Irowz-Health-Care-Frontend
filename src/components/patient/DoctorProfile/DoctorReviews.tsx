@@ -1,9 +1,6 @@
 import React, { useState } from "react";
-import { Divide, Star } from "lucide-react";
-import type {
-  Feedback,
-  Review,
-} from "../../../types/patient/DoctorProfile/doctor.profile.types";
+import { Star } from "lucide-react";
+import type { Feedback } from "../../../types/patient/DoctorProfile/doctor.profile.types";
 import { useAppSelector } from "../../../store/hooks";
 import { notify } from "../../../shared/notification/toast";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -20,11 +17,6 @@ const DoctorReviews: React.FC<DoctorReviewsProps> = ({ doctorId }) => {
   const [showFeedbackForm, setShowFeedbackForm] = useState(false);
 
   const auth = useAppSelector((state) => state.auth.isAuthenticated);
-
-  if (!auth) {
-    notify.error("Please login to continue");
-    return;
-  }
 
   const { data: reviews, isPending } = useQuery({
     queryKey: ["doctor:reviews", doctorId],
@@ -59,6 +51,11 @@ const DoctorReviews: React.FC<DoctorReviewsProps> = ({ doctorId }) => {
 
     setShowFeedbackForm(false);
   };
+
+  if (!auth) {
+    notify.error("Please login to continue");
+    return;
+  }
 
   if (isPending) {
     return <div>Loading</div>;
@@ -160,7 +157,7 @@ const DoctorReviews: React.FC<DoctorReviewsProps> = ({ doctorId }) => {
           (review: {
             id: string;
             patientName: string;
-            date: any;
+            date: Date;
             rating: number;
             comment: string;
           }) => (
@@ -222,7 +219,7 @@ const DoctorReviews: React.FC<DoctorReviewsProps> = ({ doctorId }) => {
               </div>
             )} */}
             </div>
-          )
+          ),
         )}
       </div>
     </div>

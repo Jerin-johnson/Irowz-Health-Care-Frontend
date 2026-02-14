@@ -15,7 +15,7 @@ export const signupUserThunk = createAsyncThunk(
     try {
       const res = await signupApi(data);
       return res;
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
       return rejectWithValue(error.response?.data?.message || "Signup failed");
     }

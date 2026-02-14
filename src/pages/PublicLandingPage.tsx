@@ -1,7 +1,5 @@
 import { useNavigate } from "react-router-dom";
 import Button from "../components/common/Button";
-// import { SearchBar } from "../components/common/Sreach";
-import DoctorsSection from "../components/landingPage/DoctorCard";
 import Footer from "../components/landingPage/Footer";
 import HowItWorksSection from "../components/landingPage/HowItWork";
 import { Navbar } from "../components/navbar/PublicNavbar";

@@ -96,7 +96,7 @@ const PatientAppointments: React.FC = () => {
       }
 
       await cancelMutation.mutateAsync(appointmentId);
-    } catch (error) {
+    } catch (error: any) {
       notify.error(error.response?.data?.message || "Cancel failed");
     }
   };

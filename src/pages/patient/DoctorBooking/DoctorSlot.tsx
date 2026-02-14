@@ -320,7 +320,7 @@ const DoctorSlots: React.FC = () => {
                   No slots available
                 </div>
               ) : (
-                timeSlots.map((slot) => (
+                timeSlots.map((slot: { startTime: string; slots: any }) => (
                   <button
                     key={slot.startTime}
                     disabled={lockDoctorSlotQuery.isPending}

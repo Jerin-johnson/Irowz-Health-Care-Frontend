@@ -49,7 +49,7 @@ const HospitalAdminSubscriptionListing: React.FC = () => {
 
   const handleSubscribe = async (planId: string, amount: number) => {
     try {
-      //  Create order from backend
+      console.log("the amount is ", amount);
       const order = await createOrderMutation.mutateAsync(planId);
 
       console.log("The order is ", order);

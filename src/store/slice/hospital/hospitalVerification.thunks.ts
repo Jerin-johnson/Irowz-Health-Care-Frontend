@@ -112,7 +112,7 @@ export const fetchHospitalVerificationStatusThunk = createAsyncThunk<
     }
 
     return data;
-  } catch (error) {
+  } catch (error: any) {
     return rejectWithValue(
       error?.message || "Network error. Please try again.",
     );

@@ -44,7 +44,7 @@ export const useDoctorOnlineConsultationSocket = (doctorId: string) => {
       consultationId: string;
       appointmentId: string;
     }) => {
-      console.log("does the accepted called actually");
+      console.log("does the accepted called actually", payload);
       setStatus("IN_PROGRESS");
     };
 

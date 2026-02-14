@@ -9,7 +9,6 @@ import {
 } from "../../../api/apiService/superAdmin/hosptialVerfication.service";
 import { confirmAction } from "../../../shared/notification/confirm";
 import { notify } from "../../../shared/notification/toast";
-import { da } from "zod/v4/locales";
 
 interface HospitalVerification {
   _id: string;
@@ -47,7 +46,7 @@ const HospitalVerificationReview: React.FC = () => {
   const handleReject = async () => {
     if (internalNotes.length < 3) {
       return notify.error(
-        "Reject Reason is mandatory actually please add that "
+        "Reject Reason is mandatory actually please add that ",
       );
     }
 
@@ -67,7 +66,7 @@ const HospitalVerificationReview: React.FC = () => {
     } catch (error: any) {
       console.log(error);
       notify.error(
-        error?.response?.data?.message || "Reject failed. Please try again."
+        error?.response?.data?.message || "Reject failed. Please try again.",
       );
     }
   };
@@ -76,7 +75,7 @@ const HospitalVerificationReview: React.FC = () => {
     const allChecked = Object.values(checklist).every((v) => v);
     if (!allChecked) {
       notify.error(
-        "Please complete all verification checklist items before approving."
+        "Please complete all verification checklist items before approving.",
       );
       return;
     }
@@ -97,7 +96,7 @@ const HospitalVerificationReview: React.FC = () => {
     } catch (error: any) {
       console.log(error);
       notify.error(
-        error?.response?.data?.message || "Approval failed. Please try again."
+        error?.response?.data?.message || "Approval failed. Please try again.",
       );
     }
   };

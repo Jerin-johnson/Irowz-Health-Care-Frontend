@@ -18,6 +18,8 @@ const IncomingCallModal: React.FC<Props> = ({
 }) => {
   const [loading, setLoading] = useState(false);
 
+  console.log("the doctorId is", doctorId);
+
   const respond = async (action: "ACCEPT" | "REJECT") => {
     try {
       setLoading(true);

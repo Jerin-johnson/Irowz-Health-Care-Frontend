@@ -1,5 +1,5 @@
-import type { SearchInputProps } from "../../../types/patient/search.types";
 import { Search } from "lucide-react";
+import type { SearchInputProps } from "../../types/patient/search.types";
 
 export const SearchInput: React.FC<SearchInputProps> = ({
   placeholder,
