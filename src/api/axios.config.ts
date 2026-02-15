@@ -1,6 +1,7 @@
 import axios from "axios";
 
+// http://13.233.139.65/api/
 export const api = axios.create({
-  baseURL: "http://localhost:3000/api",
+  baseURL: "http://13.233.139.65/api",
   withCredentials: true,
 });
