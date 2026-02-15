@@ -14,6 +14,7 @@ import patientRoutes from "./patient.routes";
 import doctorRoutes from "./doctor.routes";
 import hospitalAdminRoutes from "./hospitalAdmin"; // renamed file
 import superAdminRoutes from "./superAdmin.routes";
+import NotFoundPage from "../components/common/NotFound";
 
 const router = createBrowserRouter([
   // Public
@@ -49,7 +50,7 @@ const router = createBrowserRouter([
   ...superAdminRoutes,
 
   // 404
-  { path: "*", element: <div>404 - Not found</div> },
+  { path: "*", element: <NotFoundPage /> },
 ]);
 
 export default router;
