@@ -1,7 +1,13 @@
+// import axios from "axios";
+
+// export const api = axios.create({
+//   baseURL: "http://localhost/api",
+//   withCredentials: true,
+// });
+
 import axios from "axios";
 
-// http://13.233.139.65/api/
 export const api = axios.create({
-  baseURL: "http://13.233.139.65/api",
+  baseURL: "https://api.irowzelite.shop/api",
   withCredentials: true,
 });
