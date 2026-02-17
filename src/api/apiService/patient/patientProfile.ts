@@ -17,3 +17,19 @@ export const editPatientProfileApi = async (data: FormData) => {
   console.log("THe response object is ", res);
   return res.data;
 };
+
+export const resetPatientPasswordApi = async (
+  currentPassword: string,
+  newPassword: string,
+) => {
+  const res = await api.patch("/patient/password", {
+    currentPassword,
+    newPassword,
+  });
+  console.log("The doctor profile api", res);
+  if (res.data.success) {
+    return res.data;
+  }
+
+  throw new Error(res?.data?.data?.message || "Reset password Request Failed");
+};

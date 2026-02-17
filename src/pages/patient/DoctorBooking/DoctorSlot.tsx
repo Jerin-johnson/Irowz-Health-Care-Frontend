@@ -17,6 +17,7 @@ import {
 import { notify } from "../../../shared/notification/toast";
 import DoctorSlotsSkeleton from "../../../components/patient/DoctorListing/DoctorSlotSleckton";
 import { useRescheduleAppointment } from "../../../hooks/patient/appointments/useRescheduleAppointment";
+import type { ApiError } from "../../../types/api/Api.error";
 
 const formatLocalDate = (date: Date) => {
   const year = date.getFullYear();
@@ -163,17 +164,22 @@ const DoctorSlots: React.FC = () => {
       notify.error("Please select a time slot");
       return;
     }
-
-    const lockResult = await lockDoctorSlotQuery.mutateAsync({
-      doctorId: doctorId as string,
-      date: selectedDateISO,
-      startTime: selectedTime,
-    });
-
-    if (!lockResult.success) {
-      notify.error(lockResult.message || "Slot locking failed");
+    try {
+      const lockResult = await lockDoctorSlotQuery.mutateAsync({
+        doctorId: doctorId as string,
+        date: selectedDateISO,
+        startTime: selectedTime,
+      });
+    } catch (error: any) {
+      console.log("the lockslot resutl is", error);
+      notify.error(error?.response?.data?.message);
       return;
     }
+
+    // if (!lockResult.success) {
+    //   notify.error(lockResult.message || "Slot locking failed");
+    //   return;
+    // }
 
     if (isReschedule) {
       if (!appointmentId) {

@@ -3,9 +3,13 @@ import type { Slot, Stats } from "../../../types/doctor/doctor.schudele.types";
 import ScheduleStats from "../../../components/doctor/schdule/SchudeleStatsDoctor";
 import StatusBadge from "../../../components/doctor/schdule/StatusBadgeDoctor";
 import SlotCard from "../../../components/doctor/schdule/DoctorSchudele.cards";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useAppSelector } from "../../../store/hooks";
-import { getSchdueleDoctorApi } from "../../../api/apiService/doctor/doctor.schduele";
+import {
+  blockSlotByDoctorApi,
+  getSchdueleDoctorApi,
+} from "../../../api/apiService/doctor/doctor.schduele";
+import { notify } from "../../../shared/notification/toast";
 
 export interface BackendSlot {
   startTime: string;
@@ -40,19 +44,21 @@ const DoctorSchedule: React.FC = () => {
     staleTime: 0,
   });
 
-  console.log("The slots is", slots);
+  const blockSLotMutate = useMutation({
+    mutationFn: blockSlotByDoctorApi,
+    onSuccess: (data) => {
+      notify.success(data?.message || "the slot blocked successfully");
+    },
+    onError: (err: any) => {
+      notify.error(
+        err?.response?.data?.message || "cannot able to block the slot",
+      );
+    },
+  });
 
   const blockSlot = async (slot: Slot) => {
-    await fetch(`/slots/block`, {
-      method: "POST",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        date: selectedDate,
-        startTime: slot.startTime,
-        reason: "Doctor blocked",
-      }),
-    });
+    console.log("the slot is", slot);
+    blockSLotMutate.mutate(slot);
   };
 
   const unblockSlot = async (slot: Slot) => {
@@ -149,7 +155,7 @@ const DoctorSchedule: React.FC = () => {
               <SlotCard
                 key={slot.startTime}
                 slot={slot}
-                onBlock={() => blockSlot(slot)}
+                onBlock={() => blockSlot({ ...slot, date: selectedDate })}
                 onUnblock={() => unblockSlot(slot)}
               />
             ))}
