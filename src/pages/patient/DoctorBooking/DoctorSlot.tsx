@@ -17,7 +17,6 @@ import {
 import { notify } from "../../../shared/notification/toast";
 import DoctorSlotsSkeleton from "../../../components/patient/DoctorListing/DoctorSlotSleckton";
 import { useRescheduleAppointment } from "../../../hooks/patient/appointments/useRescheduleAppointment";
-import type { ApiError } from "../../../types/api/Api.error";
 
 const formatLocalDate = (date: Date) => {
   const year = date.getFullYear();
@@ -165,7 +164,7 @@ const DoctorSlots: React.FC = () => {
       return;
     }
     try {
-      const lockResult = await lockDoctorSlotQuery.mutateAsync({
+      await lockDoctorSlotQuery.mutateAsync({
         doctorId: doctorId as string,
         date: selectedDateISO,
         startTime: selectedTime,
