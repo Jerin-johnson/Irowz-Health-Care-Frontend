@@ -15,6 +15,7 @@ export const ViewAppointment: React.FC<ViewAppointmentProps> = ({
   appointment,
 }) => {
   const {
+    id,
     date,
     startTime,
     timezone,
@@ -75,6 +76,10 @@ export const ViewAppointment: React.FC<ViewAppointmentProps> = ({
             Appointment
           </h3>
           <dl className="mt-3 space-y-1.5 text-sm text-slate-700">
+            <div className="flex justify-between">
+              <dt className="text-slate-500">Appointment Id</dt>
+              <dd className="text-slate-900">{id.slice(-18)}</dd>
+            </div>
             <div className="flex justify-between">
               <dt className="text-slate-500">Time</dt>
               <dd className="font-medium text-slate-900">

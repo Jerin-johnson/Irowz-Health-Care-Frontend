@@ -1,9 +1,8 @@
 import { lazy } from "react";
-
 import AuthLayout from "../layout/AuthLayout";
 import PublicRoute from "./PublicRoute";
+import { ROUTES } from "./constants/route.constants";
 
-// ─── Lazy load all auth pages ──────────────────────────────────
 const DoctorLoginPage = lazy(() => import("../pages/auth/doctor/Login"));
 const HospitalVerificationPage = lazy(
   () => import("../pages/auth/hosptial_admin/HosptialVerfication"),
@@ -36,7 +35,7 @@ const authRoutes = [
     element: <PublicRoute />,
     children: [
       {
-        path: "/",
+        path: ROUTES.AUTH.ROOT,
         element: <AuthLayout />,
         children: [
           { path: "user/login", element: <LoginPageUser /> },

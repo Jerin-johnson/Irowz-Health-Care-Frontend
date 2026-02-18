@@ -4,6 +4,7 @@ import PatientLayout from "../layout/PatientLayout";
 import PatientProfileLayout from "../layout/patientProfile.layout";
 import PatientSessionBoundary from "./PatientRealTime";
 import ProtectedRoute from "./protectRoutes";
+import { ROUTES } from "./constants/route.constants";
 
 const DoctorListing = lazy(
   () => import("../pages/patient/DoctorListing/DoctorListing"),
@@ -57,18 +58,21 @@ const patientRoutes = [
     element: <PatientSessionBoundary />,
     children: [
       {
-        path: "/patient",
+        path: ROUTES.PATIENT.ROOT,
         element: <PatientLayout />,
         children: [
-          { path: "doctors", element: <DoctorListing /> },
-          { path: "doctor/:id", element: <DoctorProfile /> },
+          { path: ROUTES.PATIENT.DOCTORS, element: <DoctorListing /> },
+          { path: ROUTES.PATIENT.DOCTOR_PROFILE, element: <DoctorProfile /> },
 
           {
             element: <ProtectedRoute allowedRoles={["PATIENT"]} />,
             children: [
-              { path: "doctor/slots/:id", element: <DoctorSlots /> },
-              { path: "doctor/booking", element: <DoctorBooking /> },
-              { path: "booking-success/:id", element: <AppointmentSuccess /> },
+              { path: ROUTES.PATIENT.SLOTS, element: <DoctorSlots /> },
+              { path: ROUTES.PATIENT.BOOKING, element: <DoctorBooking /> },
+              {
+                path: ROUTES.PATIENT.BOOKING_SUCCESS,
+                element: <AppointmentSuccess />,
+              },
             ],
           },
         ],
@@ -78,19 +82,31 @@ const patientRoutes = [
         element: <ProtectedRoute allowedRoles={["PATIENT"]} />,
         children: [
           {
-            path: "/patient",
+            path: ROUTES.PATIENT.ROOT,
             element: <PatientProfileLayout />,
             children: [
-              { path: "profile", element: <PatientDashboard /> },
-              { path: "settings", element: <PatientProfileSettings /> },
-              { path: "appointments", element: <PatientAppointments /> },
-              { path: "appointments/:id", element: <AppointmentViewPage /> },
+              { path: ROUTES.PATIENT.PROFILE, element: <PatientDashboard /> },
               {
-                path: "appointment/queue/:id",
+                path: ROUTES.PATIENT.SETTINGS,
+                element: <PatientProfileSettings />,
+              },
+              {
+                path: ROUTES.PATIENT.APPOINTMENTS,
+                element: <PatientAppointments />,
+              },
+              {
+                path: ROUTES.PATIENT.APPOINTMENT_VIEW,
+                element: <AppointmentViewPage />,
+              },
+              {
+                path: ROUTES.PATIENT.QUEUE_STATUS,
                 element: <PatientLiveQueueStatus />,
               },
-              { path: "wallet", element: <WalletPatient /> },
-              { path: "records", element: <PatientMedicalRecordListingPage /> },
+              { path: ROUTES.PATIENT.WALLET, element: <WalletPatient /> },
+              {
+                path: ROUTES.PATIENT.RECORDS,
+                element: <PatientMedicalRecordListingPage />,
+              },
               {
                 path: "medical-record/prescription/:id",
                 element: <PatientPrescriptionViewPage />,

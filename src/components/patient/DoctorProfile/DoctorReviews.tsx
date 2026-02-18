@@ -33,6 +33,9 @@ const DoctorReviews: React.FC<DoctorReviewsProps> = ({ doctorId }) => {
     onSuccess() {
       notify.success("the review posted successfully");
     },
+    onError: (error: any) => {
+      return notify.error(error.response.data.message);
+    },
   });
 
   const handleFeedbackSubmit = (e: React.FormEvent) => {

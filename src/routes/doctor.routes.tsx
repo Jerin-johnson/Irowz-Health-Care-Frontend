@@ -4,6 +4,7 @@ import DoctorLayout from "../layout/DoctorLayout";
 import DoctorSessionBoundary from "./DoctorRealTime";
 import ProtectedRoute from "./protectRoutes";
 import ForcePasswordResetGuard from "./forcePasswordReset";
+import { ROUTES } from "./constants/route.constants";
 
 // ─── Lazy load doctor pages ────────────────────────────────────
 const DoctorDashboard = lazy(() => import("../pages/doctor/DoctorDashboard"));
@@ -38,18 +39,21 @@ const PatientVitals = lazy(
 const doctorRoutes = [
   {
     element: (
-      <ProtectedRoute allowedRoles={["DOCTOR"]} redirectTo="/doctor/login" />
+      <ProtectedRoute
+        allowedRoles={["DOCTOR"]}
+        redirectTo={ROUTES.AUTH.DOCTOR_LOGIN}
+      />
     ),
     children: [
       {
         element: <DoctorSessionBoundary />,
         children: [
           {
-            path: "/doctor", // ← becomes /doctor + child paths
+            path: ROUTES.DOCTOR.ROOT,
             element: <DoctorLayout />,
             children: [
               {
-                path: "dashboard",
+                path: ROUTES.DOCTOR.DASHBOARD,
                 element: (
                   <ForcePasswordResetGuard>
                     <DoctorDashboard />
@@ -57,30 +61,36 @@ const doctorRoutes = [
                 ),
               },
               {
-                path: "availability",
+                path: ROUTES.DOCTOR.AVAILABILITY,
                 element: (
                   <ForcePasswordResetGuard>
                     <DoctorAvailabilitySetup />
                   </ForcePasswordResetGuard>
                 ),
               },
-              { path: "settings", element: <DoctorProfileSettings /> },
-              { path: "schedule", element: <DoctorSchedule /> },
-              { path: "queue", element: <AppointmentsQueue /> },
-              { path: "appointment/:id", element: <AppointmentViewPage /> },
               {
-                path: "patient/overview/:id",
+                path: ROUTES.DOCTOR.SETTINGS,
+                element: <DoctorProfileSettings />,
+              },
+              { path: ROUTES.DOCTOR.SCHEDULE, element: <DoctorSchedule /> },
+              { path: ROUTES.DOCTOR.QUEUE, element: <AppointmentsQueue /> },
+              {
+                path: ROUTES.DOCTOR.APPOINTMENT,
+                element: <AppointmentViewPage />,
+              },
+              {
+                path: ROUTES.DOCTOR.PATIENT_OVERVIEW,
                 element: <PatientConsultationOverView />,
               },
               {
-                path: "prescription/view/:id",
+                path: ROUTES.DOCTOR.PRESCRIPTION_VIEW,
                 element: <DoctorPrescriptionViewPage />,
               },
               {
-                path: "lab-report/view/:id",
+                path: ROUTES.DOCTOR.LAB_VIEW,
                 element: <DoctorLabOrderViewPage />,
               },
-              { path: "consultation/vitals/add", element: <PatientVitals /> },
+              { path: ROUTES.DOCTOR.VITALS_ADD, element: <PatientVitals /> },
             ],
           },
         ],
